@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">NWS app icon</title>
+  <desc id="desc">The letters NWS on a simple rounded square.</desc>
+  <rect width="512" height="512" rx="112" fill="#17233c"/>
+  <rect x="48" y="48" width="416" height="416" rx="86" fill="#f4f6f9"/>
+  <text x="256" y="286" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="146" font-weight="750" fill="#17233c">NWS</text>
+  <path d="M132 340h248" stroke="#b98434" stroke-width="22" stroke-linecap="round"/>
+</svg>

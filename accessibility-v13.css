@@ -1,0 +1,25 @@
+.skip-link{position:absolute;left:12px;top:8px;z-index:1000;background:#172033;color:#fff;padding:10px 14px;border-radius:8px;transform:translateY(-180%);text-decoration:none;font-weight:700}.skip-link:focus{transform:translateY(0)}
+:focus-visible{outline:3px solid #174ea6!important;outline-offset:3px!important}
+body[data-theme="dark"] :focus-visible{outline-color:#a8c7fa!important}
+.nav button,.btn,button,input,select{min-height:44px}
+.screen{scroll-margin-top:16px;outline:none}.screen:focus-visible{outline:3px solid #174ea6!important;outline-offset:4px!important}
+.table-scroll{max-width:100%;overflow-x:auto;border-radius:10px}.table-scroll:focus-visible{outline-offset:2px!important}
+.source-note{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:.88rem;color:var(--muted);overflow-wrap:anywhere}.source-note a{text-decoration:underline;text-underline-offset:2px}.benefits-card ul{padding-left:1.25rem}.benefits-card li+li{margin-top:6px}
+@media(max-width:320px){.app{padding:8px}.hero,.card{padding:12px}.nav{gap:4px}.nav button{padding:10px}.mode{align-items:stretch;flex-direction:column}.row{align-items:stretch}.row>.btn{width:100%}}
+@media(prefers-reduced-motion:reduce){.skip-link{transition:none}}
+@media(forced-colors:active){
+  :focus-visible,.screen:focus-visible,.table-scroll:focus-visible{outline:3px solid Highlight!important;outline-offset:3px!important}
+  .skip-link,.nav,.hero,.card,.event,.module,.callout,.hint,.warning,.result,.pill,.tag,.btn,.field input,.field select,.field textarea,dialog,.table-scroll{box-shadow:none!important;border-color:CanvasText!important}
+  .skip-link{border:2px solid CanvasText!important}
+  .nav button.active{border:2px solid Highlight!important;outline:3px solid Highlight!important;outline-offset:2px!important}
+  .btn{border:1px solid ButtonText!important}
+  .btn:disabled{border-style:dashed!important;opacity:1}
+  .tag{border:1px solid CanvasText!important}
+  .hint,.warning,.callout,.result{border:1px solid CanvasText!important}
+  .warning,.hint{border-left-width:4px!important}
+  .progressbar{border:1px solid CanvasText!important;background:Canvas!important}
+  .progressbar>div{background:Highlight!important}
+  .positive,.negative{color:CanvasText!important;font-weight:700}
+  a{text-decoration:underline;text-underline-offset:2px}
+  dialog::backdrop{background:Canvas!important;opacity:.75}
+}

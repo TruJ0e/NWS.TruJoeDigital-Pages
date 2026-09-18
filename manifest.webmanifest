@@ -1,0 +1,22 @@
+{
+  "id": "./",
+  "name": "NWS — Needs, Wants, Savings",
+  "short_name": "NWS",
+  "description": "Research-informed college financial skills practice using Needs, Wants, and Savings.",
+  "lang": "en-US",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f6f9",
+  "theme_color": "#17233c",
+  "categories": ["education", "finance"],
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

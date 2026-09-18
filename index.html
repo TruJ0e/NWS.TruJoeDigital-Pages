@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#17233c" />
+  <meta name="application-name" content="NWS" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>NWS — Needs, Wants, Savings</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./accessibility-v13.css" />
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<div class="app">
+  <header>
+    <div class="brand"><h1>NWS — Needs, Wants, Savings</h1><p>College financial skills through structured, realistic practice.</p></div>
+    <div class="mode"><span class="pill" id="scaffoldPill">Guide</span></div>
+  </header>
+  <div class="layout">
+    <nav class="nav" aria-label="Main navigation">
+      <small role="heading" aria-level="2">Student</small>
+      <button type="button" data-screen="home" aria-controls="home" aria-current="page" class="active">Home</button><button type="button" data-screen="money" aria-controls="money">My Money</button><button type="button" data-screen="week" aria-controls="week">Practice</button><button type="button" data-screen="spend" aria-controls="spend">Spend</button><button type="button" data-screen="save" aria-controls="save">Save</button><button type="button" data-screen="subscriptions" aria-controls="subscriptions">Subscriptions</button><button type="button" data-screen="plan" aria-controls="plan">Plan</button><button type="button" data-screen="pacing-value" aria-controls="pacing-value">Pacing &amp; Value</button><button type="button" data-screen="adult-life" aria-controls="adult-life">Adult Life</button><button type="button" data-screen="life-sim" aria-controls="life-sim">Life Simulation</button><button type="button" data-screen="benefits" aria-controls="benefits">Benefits</button><button type="button" data-screen="progress" aria-controls="progress">Progress</button>
+      <small role="heading" aria-level="2">Advisor</small><button type="button" data-screen="advisor-dashboard" aria-controls="advisor-dashboard">Dashboard</button><button type="button" data-screen="setup" aria-controls="setup">Setup</button><button type="button" data-screen="scenarios" aria-controls="scenarios">Scenarios</button><button type="button" data-screen="evidence" aria-controls="evidence">Evidence</button><button type="button" data-screen="evaluation" aria-controls="evaluation">Evaluation</button>
+    </nav>
+    <main id="main-content" tabindex="-1">
+      <section id="home" class="screen active" tabindex="-1"></section>
+      <section id="money" class="screen" tabindex="-1"></section>
+      <section id="week" class="screen" tabindex="-1"></section>
+      <section id="spend" class="screen" tabindex="-1"></section>
+      <section id="save" class="screen" tabindex="-1"></section>
+      <section id="subscriptions" class="screen" tabindex="-1"></section>
+      <section id="plan" class="screen" tabindex="-1"></section>
+      <section id="pacing-value" class="screen" tabindex="-1" aria-labelledby="pacing-value-heading"></section>
+      <section id="adult-life" class="screen" tabindex="-1"></section>
+      <section id="life-sim" class="screen" tabindex="-1"></section>
+      <section id="benefits" class="screen" tabindex="-1"></section>
+      <section id="progress" class="screen" tabindex="-1"></section>
+      <section id="advisor-dashboard" class="screen" tabindex="-1"></section>
+      <section id="setup" class="screen" tabindex="-1"></section>
+      <section id="scenarios" class="screen" tabindex="-1"></section>
+      <section id="evidence" class="screen" tabindex="-1"></section>
+      <section id="evaluation" class="screen" tabindex="-1"></section>
+    </main>
+  </div>
+  <div class="footer-note">Research-informed educational simulation. Fictional money only. It does not provide individualized financial, tax, legal, medical, insurance, housing, or benefits eligibility advice.</div>
+</div>
+<dialog id="reportDialog"><div class="modal" id="reportBody"></div></dialog>
+<script type="module" src="./app/main-v11.js"></script>
+<script type="module" src="./app/main-v11-fixes.js"></script>
+<script type="module" src="./app/pwa.js"></script>
+<script type="module" src="./app/pacing-value-ui.js"></script>
+<script type="module" src="./app/adult-life-ui.js"></script>
+<script type="module" src="./app/adult-life-simulation-ui.js"></script>
+<script type="module" src="./app/recovery-followup-ui.js"></script>
+<script type="module" src="./app/benefits-ui.js"></script>
+<script type="module" src="./app/scenario-builder.js"></script>
+<script type="module" src="./app/advisor-dashboard-ui.js"></script>
+<script type="module" src="./app/evaluation-ui.js"></script>
+<script type="module" src="./app/accessibility-runtime.js"></script>
+</body>
+</html>
