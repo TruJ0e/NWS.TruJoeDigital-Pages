@@ -11,23 +11,43 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./course.css" />
   <link rel="stylesheet" href="./accessibility-v13.css" />
 </head>
 <body>
 <a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="app">
   <header>
-    <div class="brand"><h1>NWS — Needs, Wants, Savings</h1><p>College financial skills through structured, realistic practice.</p></div>
+    <div class="brand"><h1>NWS — Needs, Wants, Savings</h1><p>A course for learning how to make money decisions over time.</p></div>
     <div class="mode"><span class="pill" id="scaffoldPill">Guide</span></div>
   </header>
   <div class="layout">
-    <nav class="nav" aria-label="Main navigation">
-      <small role="heading" aria-level="2">Student</small>
-      <button type="button" data-screen="home" aria-controls="home" aria-current="page" class="active">Home</button><button type="button" data-screen="money" aria-controls="money">My Money</button><button type="button" data-screen="week" aria-controls="week">Practice</button><button type="button" data-screen="spend" aria-controls="spend">Spend</button><button type="button" data-screen="save" aria-controls="save">Save</button><button type="button" data-screen="subscriptions" aria-controls="subscriptions">Subscriptions</button><button type="button" data-screen="plan" aria-controls="plan">Plan</button><button type="button" data-screen="pacing-value" aria-controls="pacing-value">Pacing &amp; Value</button><button type="button" data-screen="adult-life" aria-controls="adult-life">Adult Life</button><button type="button" data-screen="life-sim" aria-controls="life-sim">Life Simulation</button><button type="button" data-screen="benefits" aria-controls="benefits">Benefits</button><button type="button" data-screen="progress" aria-controls="progress">Progress</button>
-      <small role="heading" aria-level="2">Advisor</small><button type="button" data-screen="advisor-dashboard" aria-controls="advisor-dashboard">Dashboard</button><button type="button" data-screen="setup" aria-controls="setup">Setup</button><button type="button" data-screen="scenarios" aria-controls="scenarios">Scenarios</button><button type="button" data-screen="evidence" aria-controls="evidence">Evidence</button><button type="button" data-screen="evaluation" aria-controls="evaluation">Evaluation</button>
+    <nav class="nav" aria-label="Course navigation">
+      <small role="heading" aria-level="2">Course</small>
+      <button type="button" data-screen="course" data-course-stage="1" aria-controls="course" aria-current="page" class="active">Modules</button>
+      <button type="button" data-screen="practice-hub" data-course-stage="2" aria-controls="practice-hub">Practice</button>
+      <button type="button" data-screen="reviews" data-course-stage="3" aria-controls="reviews">Reviews</button>
+      <button type="button" data-screen="references" data-course-stage="4" aria-controls="references">Quick References</button>
+      <button type="button" data-screen="simulations" data-course-stage="5" aria-controls="simulations">Simulations</button>
+      <details class="instructor-tools">
+        <summary>Instructor tools</summary>
+        <button type="button" data-screen="advisor-dashboard" aria-controls="advisor-dashboard">Dashboard</button>
+        <button type="button" data-screen="setup" aria-controls="setup">Setup</button>
+        <button type="button" data-screen="scenarios" aria-controls="scenarios">Scenarios</button>
+        <button type="button" data-screen="evidence" aria-controls="evidence">Evidence</button>
+        <button type="button" data-screen="evaluation" aria-controls="evaluation">Evaluation</button>
+      </details>
     </nav>
     <main id="main-content" tabindex="-1">
-      <section id="home" class="screen active" tabindex="-1"></section>
+      <div id="courseTrail" class="course-trail hidden" aria-live="polite"></div>
+
+      <section id="course" class="screen active" tabindex="-1" aria-label="Course modules"></section>
+      <section id="practice-hub" class="screen" tabindex="-1" aria-label="Practice"></section>
+      <section id="reviews" class="screen" tabindex="-1" aria-label="Reviews"></section>
+      <section id="references" class="screen" tabindex="-1" aria-label="Quick references"></section>
+      <section id="simulations" class="screen" tabindex="-1" aria-label="Simulations"></section>
+
+      <section id="home" class="screen" tabindex="-1"></section>
       <section id="money" class="screen" tabindex="-1"></section>
       <section id="week" class="screen" tabindex="-1"></section>
       <section id="spend" class="screen" tabindex="-1"></section>
@@ -39,6 +59,7 @@
       <section id="life-sim" class="screen" tabindex="-1"></section>
       <section id="benefits" class="screen" tabindex="-1"></section>
       <section id="progress" class="screen" tabindex="-1"></section>
+
       <section id="advisor-dashboard" class="screen" tabindex="-1"></section>
       <section id="setup" class="screen" tabindex="-1"></section>
       <section id="scenarios" class="screen" tabindex="-1"></section>
@@ -61,5 +82,6 @@
 <script type="module" src="./app/advisor-dashboard-ui.js"></script>
 <script type="module" src="./app/evaluation-ui.js"></script>
 <script type="module" src="./app/accessibility-runtime.js"></script>
+<script type="module" src="./app/course-ui.js"></script>
 </body>
 </html>
