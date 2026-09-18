@@ -1,13 +1,15 @@
-const CACHE_NAME = 'nws-static-v2.1-20260916';
+const CACHE_NAME = 'nws-static-v2.6-20260918';
 const CORE_ASSETS = [
   './',
   './index.html',
   './styles.css',
+  './course.css',
   './accessibility-v13.css',
   './manifest.webmanifest',
   './icon.svg',
   './app/main-v11.js',
   './app/main-v11-fixes.js',
+  './app/course-ui.js',
   './app/pwa.js',
   './app/pacing-value.js',
   './app/pacing-value-ui.js',
