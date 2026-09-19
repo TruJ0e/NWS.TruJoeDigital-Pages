@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nws-static-v2.7-20260919';
+const CACHE_NAME = 'nws-static-v2.7-20260919-hotfix';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -51,7 +51,14 @@ const CORE_ASSETS = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(CORE_ASSETS))
+      .then(async cache => {
+        await Promise.all(CORE_ASSETS.map(async url => {
+          try {
+            const res = await fetch(url, { cache: 'reload' });
+            if (res.ok) await cache.put(url, res);
+          } catch {}
+        }));
+      })
       .then(() => self.skipWaiting())
   );
 });
@@ -76,11 +83,11 @@ async function networkFirstNavigation(request){
 }
 
 async function cacheFirstAsset(request){
-  const cached = await caches.match(request);
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
   if(cached) return cached;
   const response = await fetch(request);
   if(response.ok){
-    const cache = await caches.open(CACHE_NAME);
     await cache.put(request,response.clone());
   }
   return response;

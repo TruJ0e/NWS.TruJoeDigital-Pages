@@ -57,8 +57,19 @@ window.addEventListener('appinstalled',()=>{
 document.addEventListener('DOMContentLoaded',updateConnectionStatus,{once:true});
 if(document.readyState!=='loading') updateConnectionStatus();
 
+if('caches' in window){
+  caches.keys().then(keys => {
+    for(const key of keys){
+      if(!key.includes('hotfix')){
+        caches.delete(key);
+      }
+    }
+  });
+}
 if('serviceWorker' in navigator && ['http:','https:'].includes(location.protocol)){
-  navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(error=>{
+  navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).then(reg=>{
+    reg.update();
+  }).catch(error=>{
     console.warn('NWS offline support could not register.',error);
   });
 }
