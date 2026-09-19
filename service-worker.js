@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nws-static-v2.6-20260918';
+const CACHE_NAME = 'nws-static-v2.7-20260919';
 const CORE_ASSETS = [
   './',
   './index.html',
