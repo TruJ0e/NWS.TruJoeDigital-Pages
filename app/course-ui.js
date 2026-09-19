@@ -197,10 +197,14 @@ function initialize(){
   window.course.render();
   const main=document.querySelector('main');
   if(main){
+    let lastActive = main.querySelector('.screen.active')?.id || 'course';
     new MutationObserver(()=>{
       const active=main.querySelector('.screen.active')?.id;
-      if(HUBS.has(active))renderArea(active);
-      updateTrail();
+      if(active && active !== lastActive){
+        lastActive = active;
+        if(HUBS.has(active))renderArea(active);
+        updateTrail();
+      }
     }).observe(main,{subtree:true,attributes:true,attributeFilter:['class']});
   }
   document.querySelectorAll('.nav button[data-course-stage]').forEach(button=>button.addEventListener('click',()=>{setContext(null);clearFocus();queueMicrotask(()=>renderArea(button.dataset.screen));}));
