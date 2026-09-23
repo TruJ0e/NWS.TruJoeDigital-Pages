@@ -11,6 +11,7 @@ function ensureStatusControls(){
     status.className='pill';
     status.setAttribute('role','status');
     status.setAttribute('aria-live','polite');
+    status.setAttribute('title','Connection status — NWS works offline; practice saved on this device is still available.');
     host.appendChild(status);
   }
 
@@ -38,6 +39,7 @@ function updateConnectionStatus(){
   if(!controls) return;
   const online=navigator.onLine;
   controls.status.textContent=online?'Online':'Offline — saved NWS practice is still available';
+  controls.status.setAttribute('aria-label','Connection status: '+(online?'online':'offline')+'. NWS works offline; practice saved on this device is still available.');
   controls.status.dataset.online=String(online);
 }
 

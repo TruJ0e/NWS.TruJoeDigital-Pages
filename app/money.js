@@ -2,6 +2,15 @@ export function formatMoney(value){
   return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(value)||0);
 }
 
+// Display sanitizer: kills float artifacts (e.g. 5.400000095367432) in inputs and text.
+// Integers stay integers; other finite numbers round to 2 decimals.
+export function cleanNum(value){
+  const n=Number(value);
+  if(!Number.isFinite(n)) return value;
+  if(Number.isInteger(n)) return n;
+  return Math.round(n*100)/100;
+}
+
 export function weeklyEquivalent(profile){
   const amount=Number(profile.amount)||0;
   if(profile.cadence==='weekly') return amount;

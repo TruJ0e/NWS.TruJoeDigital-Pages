@@ -15,7 +15,9 @@ function readUi(){
 }
 function writeUi(value){localStorage.setItem(UI_KEY,JSON.stringify(value));}
 function field(label,id,value,step='1'){
-  return `<div class="field"><label for="${id}">${esc(label)}</label><input id="${id}" type="number" min="0" step="${step}" value="${esc(value)}"></div>`;
+  const n=Number(value);
+  const shown=Number.isFinite(n)?(Number.isInteger(n)?n:Math.round(n*100)/100):value;
+  return `<div class="field"><label for="${id}">${esc(label)}</label><input id="${id}" type="number" min="0" step="${step}" value="${esc(shown)}"></div>`;
 }
 function answerStatus(id){
   const answer=readUi().answers[id];
@@ -138,20 +140,8 @@ function render(){
     <div class="card"><p><b>Practice A:</b> A station is cheaper, but it requires an extra trip. What should you compare?</p><div class="row">${choice('gasTrip','price','Only cents per gallon')}${choice('gasTrip','compare','Pump savings minus extra-trip cost',true)}</div>${hint('gasTrip','A deal has acquisition costs. Count the cost created by going to get it.')}${answerStatus('gasTrip')}<hr><p><b>Practice B:</b> The cheaper station is already on your route home, so there are no extra miles. Which station has the lower fuel cost for the same gallons?</p><div class="row">${choice('gasCombined','near','The nearby higher-price station')}${choice('gasCombined','far','The cheaper station on the existing route',true)}</div>${hint('gasCombined','If the trip is already happening, do not charge the gas purchase for miles you were going to drive anyway.')}${answerStatus('gasCombined')}</div>
 
     <div class="section-title" data-pacing-focus="routine" tabindex="-1"><h2>8. Use the same routine everywhere</h2></div>
-    <div class="card"><ol><li>How much money is actually available?</li><li>How long must it last?</li><li>What Needs must be protected before the next income event?</li><li>What savings already has a future job?</li><li>What is safe to spend after those protections?</li><li>Is the cheaper option actually cheaper for the amount I will use?</li><li>What changed, and what is the new pace?</li></ol><p class="sub">Current NWS support level: <b>${esc(state.profile.scaffold)}</b>. Correct prompted answers and independent answers are recorded separately.</p></div>`;
+    <div class="card"><ol><li>How much money is actually available?</li><li>How long must it last?</li><li>What Needs must be protected before the next income event?</li><li>What savings already has a future job?</li><li>What is safe to spend after those protections?</li><li>Is the cheaper option actually cheaper for the amount I will use?</li><li>What changed, and what is the new pace?</li></ol><p class="sub">Current NWS support level: <b>${esc(state.profile.scaffold)}</b>. Correct prompted answers and independent answers are recorded separately.</p></div>${window.myNumbers?.yourTurnHTML?.('pacing-value')||''}`;
 }
 
-function handleNavigation(event){
-  const screen=$('pacing-value');
-  if(!screen?.classList.contains('active'))return;
-  const button=event.target.closest?.('button[data-screen]');
-  if(!button||button.dataset.screen==='pacing-value')return;
-  event.preventDefault(); event.stopImmediatePropagation();
-  sessionStorage.setItem(RETURN_KEY,button.dataset.screen); location.reload();
-}
-
-document.querySelector('.nav')?.addEventListener('click',handleNavigation,true);
 window.pacingValue={render,calcPace,calcIrregular,calcValue,calcGas,applyPacePreset,setCourseFocus,answer:recordAnswer,showHint};
 render();
-const returnScreen=sessionStorage.getItem(RETURN_KEY);
-if(returnScreen){sessionStorage.removeItem(RETURN_KEY);queueMicrotask(()=>window.app?.show(returnScreen));}

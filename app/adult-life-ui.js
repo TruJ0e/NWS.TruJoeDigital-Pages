@@ -58,9 +58,14 @@ function render(){
   const host=document.getElementById('adult-life');
   if(!host)return;
   const module=activeModule();
-  host.innerHTML=`<div class="section-title"><div><h2 id="adult-life-heading">Adult Life</h2><p>Select one area. NWS keeps changing rules sourced instead of turning them into permanent constants.</p></div></div><div class="row adult-life-module-nav" aria-label="Adult-life module selection">${ADULT_LIFE_MODULES.map(moduleButton).join('')}</div>${renderDetail(module)}`;
+  const heading=(lessonMode&&module)?module.title:'Adult Life';
+  host.innerHTML=`<div class="section-title"><div><h2 id="adult-life-heading">${esc(heading)}</h2><p>Select one area. NWS keeps changing rules sourced instead of turning them into permanent constants.</p></div></div><div class="row adult-life-module-nav" aria-label="Adult-life module selection"${lessonMode?' hidden':''}>${ADULT_LIFE_MODULES.map(moduleButton).join('')}</div>${renderDetail(module)}`;
   host.setAttribute('aria-labelledby','adult-life-heading');
   bind();
+  if(window.myNumbers&&activeModuleId==='first-job'){
+    const card=window.myNumbers.yourTurnHTML('adult-life');
+    if(card) host.insertAdjacentHTML('beforeend',card);
+  }
 }
 
 function recordChoice(module,choiceId){
@@ -168,6 +173,18 @@ function patchRetrievalRuntime(){
   };
   window.app.answerAdultLifeRetrieval=(id,choiceId)=>completeAdultLifeRetrieval(id,choiceId);
 }
+
+// Called by the course shell when a lesson opens this screen: select the lesson's own
+// tab so the content matches the breadcrumb (fixes the credit/banking mismatch).
+let lessonMode=false;
+function openModule(moduleId,fromLesson){
+  lessonMode=!!fromLesson;
+  if(moduleId&&ADULT_LIFE_MODULES.some(m=>m.id===moduleId)){
+    activeModuleId=moduleId; lastAnswer=null; lastTransferAnswer=null;
+  }
+  render();
+}
+window.nwsAdultLifeOpenModule=openModule;
 
 function bind(){
   document.querySelectorAll('[data-adult-module]').forEach(button=>button.addEventListener('click',()=>{

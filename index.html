@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#17233c" />
+  <meta name="theme-color" content="#14532d" />
   <meta name="application-name" content="NWS" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <title>NWS — Needs, Wants, Savings</title>
+  <title>NWS Money Masterclass</title>
+  <meta name="description" content="NWS Money Masterclass — learn money decisions with Needs, Wants, and Savings. Free, self-paced, works offline." />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="./styles.css" />
@@ -18,8 +19,8 @@
 <a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="app">
   <header>
-    <div class="brand"><h1>NWS — Needs, Wants, Savings</h1><p>A course for learning how to make money decisions over time.</p></div>
-    <div class="mode"><span class="pill" id="scaffoldPill">Guide</span></div>
+    <div class="brand"><img class="brand-mark" src="./icon.svg" alt="NWS logo" width="44" height="44" /><div class="brand-text"><h1>NWS Money Masterclass</h1><p>Needs · Wants · Savings — learn money by doing.</p></div></div>
+    <div class="mode"><span class="pill" id="scaffoldPill" title="Support level: Guide — cues are visible; ask for a step when needed. Change it under Instructor tools → Setup." aria-label="Support level: Guide">Guide</span></div>
   </header>
   <div class="layout">
     <nav class="nav" aria-label="Course navigation">
@@ -67,9 +68,10 @@
       <section id="evaluation" class="screen" tabindex="-1"></section>
     </main>
   </div>
-  <div class="footer-note">Research-informed educational simulation. Fictional money only. It does not provide individualized financial, tax, legal, medical, insurance, housing, or benefits eligibility advice.</div>
+  <div class="footer-note"><span class="product-fullname">NWS — Needs, Wants, Savings</span> <span>Fictional money only — practice, not financial advice.</span> <details class="disclaimer"><summary>Full disclaimer</summary><p>Research-informed educational simulation. Fictional money only. It does not provide individualized financial, tax, legal, medical, insurance, housing, or benefits eligibility advice.</p></details> <span class="pill-legend"><b>Guide</b> = your support level (change under Instructor tools → Setup). <b>Online</b> = connection status — NWS works offline; your practice stays on this device.</span></div>
 </div>
 <dialog id="reportDialog"><div class="modal" id="reportBody"></div></dialog>
+<script type="module" src="./app/my-numbers.js"></script>
 <script type="module" src="./app/main-v11.js"></script>
 <script type="module" src="./app/main-v11-fixes.js"></script>
 <script type="module" src="./app/pwa.js"></script>
@@ -82,6 +84,7 @@
 <script type="module" src="./app/advisor-dashboard-ui.js"></script>
 <script type="module" src="./app/evaluation-ui.js"></script>
 <script type="module" src="./app/accessibility-runtime.js"></script>
-<script type="module" src="./app/course-ui.js?v=2.7.2"></script>
+<script type="module" src="./app/router.js"></script>
+<script type="module" src="./app/course-ui.js?v=2.8.0"></script>
 </body>
 </html>

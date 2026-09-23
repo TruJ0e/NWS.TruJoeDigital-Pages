@@ -47,7 +47,7 @@ function initialize(){
 
   if(window.app?.show && !window.app.show.__nwsAccessible){
     const original=window.app.show.bind(window.app);
-    const wrapped=id=>{ original(id); afterNavigation(id); };
+    const wrapped=(id,opts)=>{ original(id,opts); afterNavigation(id); };
     wrapped.__nwsAccessible=true;
     window.app.show=wrapped;
   }
