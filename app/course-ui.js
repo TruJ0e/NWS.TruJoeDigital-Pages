@@ -551,7 +551,7 @@ function capFirst(text){return text.charAt(0).toUpperCase()+text.slice(1);}
 
 function lpTeach(step){return `<h2>${esc(step.h)}</h2><div class="lp-body">${step.body}</div>`;}
 function lpExample(step){
-  return `<h2>${esc(step.h)}</h2><p class="lp-story">${esc(step.story)}</p><ul class="lp-points">${step.points.map(point=>`<li>${point}</li>`).join('')}</ul>`;
+  return `<h2>${esc(step.h)}</h2><p class="lp-story">${step.story}</p><ul class="lp-points">${step.points.map(point=>`<li>${point}</li>`).join('')}</ul>`;
 }
 function lpTry(ps,step){
   const rec=playerAnswerFor(ps.idx,0);

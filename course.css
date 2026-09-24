@@ -4,7 +4,7 @@
 .quick-ref ol,.quick-ref ul{padding-left:22px;display:grid;gap:6px}
 .instructor-tools[open] summary{color:var(--ink)}
 @media(max-width:900px){
-  .course-trail{position:sticky;top:0;z-index:3}
+  .course-trail{position:static}
 }
 
 /* ---------- Course shell (v3 pro-course redesign; moved from styles.css) ---------- */
