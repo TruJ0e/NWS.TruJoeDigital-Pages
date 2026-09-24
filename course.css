@@ -144,14 +144,12 @@
 /* ---------- Course structure v3: dark-green cards (match the .btn look) ---------- */
 /* Module cards on the landing: dark green, white text, side by side. */
 .module-quicklist{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
-.module-quick-card{display:flex;gap:14px;align-items:center;text-align:left;background:var(--brand);border:1px solid var(--brand);border-radius:16px;padding:20px;cursor:pointer;font:inherit;color:#fff;box-shadow:var(--shadow-sm);transition:background .12s,border-color .12s,transform .12s}
+.module-quick-card{display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;background:var(--brand);border:1px solid var(--brand);border-radius:16px;padding:20px;cursor:pointer;font:inherit;color:#fff;box-shadow:var(--shadow-sm);transition:background .12s,border-color .12s,transform .12s}
 .module-quick-card:hover{background:#12562c;border-color:#12562c;transform:translateY(-1px)}
-.module-quick-card .course-module-num{background:#fff;color:var(--brand)}
-.mq-body{flex:1 1 auto;min-width:0;display:grid;gap:2px}
-.mq-body b{font-size:1.02rem;color:#fff}
-.mq-body small{color:rgba(255,255,255,.88);font-size:.84rem}
-.mq-body .mq-meta{font-weight:700;color:#fff;font-size:.8rem}
-.mq-go{font-size:1.4rem;color:#fff;flex:0 0 auto;font-weight:800}
+.mq-num{font-size:2.6rem;font-weight:800;line-height:1;color:#fff;letter-spacing:-.02em}
+.mq-progress{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--mint)}
+.mq-title{font-size:1.1rem;font-weight:700;color:#fff}
+.mq-tagline{font-size:.85rem;color:rgba(255,255,255,.88)}
 @media(max-width:900px){
   .module-quicklist{grid-template-columns:repeat(2,1fr)}
 }
@@ -273,4 +271,14 @@ body.module-view .layout .nav{display:none}
   .module-page-pager .btn{max-width:100%}
   .lp-nav{flex-wrap:wrap}
   .topnav-link{padding:9px 13px;font-size:.86rem}
+}
+
+/* ---------- Scenario Practice v2.8: question-framed events & review recaps ---------- */
+.event-question{font-size:1.02rem;line-height:1.5;margin:10px 0 6px;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-sm)}
+.event-question b{font-weight:700}
+.decision-recap{border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;margin:8px 0;background:var(--panel-2);line-height:1.5}
+.decision-recap b{font-weight:700}
+@media(max-width:620px){
+  .event-question{font-size:.98rem;padding:9px 10px}
+  .decision-recap{padding:9px 10px}
 }

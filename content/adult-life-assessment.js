@@ -6,7 +6,7 @@ export const ADULT_LIFE_ASSESSMENTS = {
   banking:{
     transfer:item(
       'Your checking account shows $90. A $75 rent autopay is scheduled for tomorrow, and you are considering spending $25 tonight. What should you do first?',
-      [['reserve','Protect the $75 scheduled payment and check what remains.'],['spend','Spend the $25 because $90 is visible now.'],['overdraft','Spend it and assume overdraft will cover rent.']],
+      [['reserve','Protect the $75 scheduled payment and check what remains.'],['spend','Spend the $25 because $90 is visible now.'],['overdraft','Spend it and assume overdraft will cover rent.'],['borrow','Borrow $25 from a friend so the $90 stays untouched for rent.']],
       'reserve',
       'Treat known scheduled obligations as already spoken for before deciding what is flexible.'
     ),
@@ -20,7 +20,7 @@ export const ADULT_LIFE_ASSESSMENTS = {
   credit:{
     transfer:item(
       'A $240 purchase can go on a credit card with a $25 minimum payment. What should your plan recognize?',
-      [['debt','The purchase creates a $240 debt obligation; the minimum payment is not the total cost.'],['income','The card adds $240 of income this month.'],['minimum','The purchase only costs $25 because that is the minimum payment.']],
+      [['debt','The purchase creates a $240 debt obligation; the minimum payment is not the total cost.'],['income','The card adds $240 of income this month.'],['minimum','The purchase only costs $25 because that is the minimum payment.'],['later','The purchase costs nothing until the bill arrives.']],
       'debt',
       'Credit changes when you pay for something; it does not turn borrowed money into income.'
     ),
@@ -34,7 +34,7 @@ export const ADULT_LIFE_ASSESSMENTS = {
   safety:{
     transfer:item(
       'A text says your university account is overdue and demands cryptocurrency within one hour. What is the safest first action?',
-      [['verify','Do not use the link; verify through the university portal or a known official contact.'],['pay','Pay quickly to avoid a hold, then verify.'],['reply','Reply with account details so the sender can prove the balance.']],
+      [['verify','Do not use the link; verify through the university portal or a known official contact.'],['pay','Pay quickly to avoid a hold, then verify.'],['reply','Reply with account details so the sender can prove the balance.'],['call','Call the number in the text to confirm it is real.']],
       'verify',
       'Urgency plus hard-to-reverse payment is a reason to stop and verify independently.'
     ),
@@ -48,7 +48,7 @@ export const ADULT_LIFE_ASSESSMENTS = {
   paperwork:{
     transfer:item(
       'You received a W-2 after the end of the year. What is its main role in this learning scenario?',
-      [['wages','It reports prior-year wages and withholding used when preparing a tax return.'],['withholding-choice','It tells a new employer how much federal income tax to withhold.'],['paycheck','It replaces each pay statement during the year.']],
+      [['wages','It reports prior-year wages and withholding used when preparing a tax return.'],['withholding-choice','It tells a new employer how much federal income tax to withhold.'],['paycheck','It replaces each pay statement during the year.'],['id','It serves as a government ID for the new job.']],
       'wages',
       'W-2 reports prior-year wage/withholding information. W-4 is the employee withholding form generally completed when starting or changing a job.'
     ),
@@ -62,7 +62,7 @@ export const ADULT_LIFE_ASSESSMENTS = {
   'health-costs':{
     transfer:item(
       'Plan A has a lower premium, but you expect frequent covered care. What is the better comparison before choosing?',
-      [['total','Compare premiums plus expected deductible, copays/coinsurance, network rules, and coverage.'],['premium','Choose the lowest premium automatically.'],['deductible','Compare only the deductible and ignore premiums and other cost sharing.']],
+      [['total','Compare premiums plus expected deductible, copays/coinsurance, network rules, and coverage.'],['premium','Choose the lowest premium automatically.'],['deductible','Compare only the deductible and ignore premiums and other cost sharing.'],['brand','Choose the plan from the most familiar company.']],
       'total',
       'Health-plan cost is a bundle. The lowest premium does not automatically produce the lowest total cost.'
     ),
@@ -76,7 +76,7 @@ export const ADULT_LIFE_ASSESSMENTS = {
   housing:{
     transfer:item(
       'An apartment lists $850 rent, $60 required parking, and tenant-paid electricity. What belongs in the recurring housing comparison?',
-      [['bundle','Rent plus required parking plus expected tenant-paid utilities and other lease-required recurring costs.'],['rent','$850 rent only.'],['parking','Only the $60 parking fee because rent is obvious.']],
+      [['bundle','Rent plus required parking plus expected tenant-paid utilities and other lease-required recurring costs.'],['rent','$850 rent only.'],['parking','Only the $60 parking fee because rent is obvious.'],['deposit','Only the security deposit, since monthly costs sort themselves out.']],
       'bundle',
       'Housing affordability depends on the recurring bundle assigned by the lease, not sticker rent alone.'
     ),
@@ -90,7 +90,7 @@ export const ADULT_LIFE_ASSESSMENTS = {
   utilities:{
     transfer:item(
       'Electric bills are higher in winter and lower in spring. What is the stronger monthly planning approach?',
-      [['buffer','Use available cost history/estimates and leave room for seasonal variation.'],['lowest','Budget only the lowest bill you have seen.'],['omit','Leave electricity out because the amount changes.']],
+      [['buffer','Use available cost history/estimates and leave room for seasonal variation.'],['lowest','Budget only the lowest bill you have seen.'],['omit','Leave electricity out because the amount changes.'],['card','Put winter overages on a credit card and budget only spring amounts.']],
       'buffer',
       'Variable required costs still belong in the plan. Estimate them and preserve a buffer for variation.'
     ),
@@ -104,7 +104,7 @@ export const ADULT_LIFE_ASSESSMENTS = {
   food:{
     transfer:item(
       'You have $40 for food and already have rice, pasta, and frozen vegetables. What should you do before shopping?',
-      [['plan','Plan meals around what you already have, then list the missing items.'],['bulk','Buy the biggest sale packages first.'],['percent','Use a universal grocery percentage instead of checking your actual food and budget.']],
+      [['plan','Plan meals around what you already have, then list the missing items.'],['bulk','Buy the biggest sale packages first.'],['percent','Use a universal grocery percentage instead of checking your actual food and budget.'],['delivery','Order delivery for the week since $40 covers a few meals.']],
       'plan',
       'Inventory-first meal planning connects purchases to food you will actually use.'
     ),
@@ -118,7 +118,7 @@ export const ADULT_LIFE_ASSESSMENTS = {
   transportation:{
     transfer:item(
       'A transit pass costs more upfront than a few individual rides, but you travel to class and work most weekdays. What should you compare?',
-      [['period','Total cost and reliability/access needs across the whole month or semester.'],['single','Only the price of one ride.'],['upfront','Only which option costs less today.']],
+      [['period','Total cost and reliability/access needs across the whole month or semester.'],['single','Only the price of one ride.'],['upfront','Only which option costs less today.'],['car','Buy a cheap car instead; passes are never worth it.']],
       'period',
       'Transportation choices should be compared over the relevant time period and include reliability/access constraints.'
     ),

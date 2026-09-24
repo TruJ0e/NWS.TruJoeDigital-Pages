@@ -23,7 +23,8 @@ export const ADULT_LIFE_MODULES = [
       choices:[
         {id:'check-obligations',label:'Protect the scheduled $40 first and check what will remain.',feedback:'This uses the NWS decision routine: account for a known required payment before treating the visible balance as flexible money.'},
         {id:'spend-visible',label:'Spend the $20 because the app currently shows $45.',feedback:'The displayed balance does not erase a known scheduled payment. A pending obligation still matters.'},
-        {id:'assume-overdraft',label:'Spend it and assume overdraft coverage will handle the bill.',feedback:'Overdraft coverage can involve fees or borrowing. It is not extra income.'}
+        {id:'assume-overdraft',label:'Spend it and assume overdraft coverage will handle the bill.',feedback:'Overdraft coverage can involve fees or borrowing. It is not extra income.'},
+        {id:'split-purchase',label:'Buy a $5 version now and the rest after the autopay clears.',feedback:'Splitting still spends flexible money before a known required payment posts. Protect the $40 first, then decide with what remains.'}
       ],
       correct:'check-obligations'
     },
@@ -49,7 +50,8 @@ export const ADULT_LIFE_MODULES = [
       choices:[
         {id:'borrowed',label:'Borrowed money that creates a future payment obligation.',feedback:'Correct. Credit changes when you pay, not whether the purchase ultimately has a cost.'},
         {id:'income',label:'Extra income because the card increases what I can spend today.',feedback:'A credit limit is not income. Using it creates debt that must be repaid.'},
-        {id:'savings',label:'Savings because I can delay paying for the purchase.',feedback:'Delaying payment does not turn a purchase into savings and may add interest or fees.'}
+        {id:'savings',label:'Savings because I can delay paying for the purchase.',feedback:'Delaying payment does not turn a purchase into savings and may add interest or fees.'},
+        {id:'free-until-bill',label:'Free money until the statement arrives.',feedback:'The statement arrives with the full $300 owed plus any interest or fees. Later is a due date, not a discount.'}
       ],
       correct:'borrowed'
     },
@@ -75,7 +77,8 @@ export const ADULT_LIFE_MODULES = [
       choices:[
         {id:'verify',label:'End the contact and call the utility using the number on a real bill or its known website.',feedback:'Correct. Separate the verification step from the person creating the urgency.'},
         {id:'pay',label:'Pay quickly so the power stays on, then verify afterward.',feedback:'Urgent gift-card payment is a major scam signal. Paying first can make recovery difficult.'},
-        {id:'share',label:'Give account information so the caller can prove the balance.',feedback:'Do not provide financial/account information to an unexpected caller. Verify independently.'}
+        {id:'share',label:'Give account information so the caller can prove the balance.',feedback:'Do not provide financial/account information to an unexpected caller. Verify independently.'},
+        {id:'callback',label:'Call back the number the caller gave you to confirm.',feedback:'A scammer\u2019s callback number reaches the scammer. Verify through a number you already know: the bill, the app, or the official site.'}
       ],
       correct:'verify'
     },
@@ -101,7 +104,8 @@ export const ADULT_LIFE_MODULES = [
       choices:[
         {id:'take-home',label:'The take-home amount actually deposited or paid to you.',feedback:'Correct. Budget from money actually available after deductions, not the larger gross-pay figure.'},
         {id:'gross',label:'Gross wages before any deductions.',feedback:'Gross pay helps describe earnings, but it is not the same as the amount available to spend after withholding/deductions.'},
-        {id:'annual',label:'The annual salary divided by twelve, no matter how payroll works.',feedback:'Pay frequency, withholding, and deductions matter. Use the actual take-home amount for the immediate plan.'}
+        {id:'annual',label:'The annual salary divided by twelve, no matter how payroll works.',feedback:'Pay frequency, withholding, and deductions matter. Use the actual take-home amount for the immediate plan.'},
+        {id:'gross-minus-guess',label:'Gross minus a rough guess at taxes.',feedback:'Guessing at deductions is still guessing. The take-home amount is the number that actually reaches you; budget from that.'}
       ],
       correct:'take-home'
     },
@@ -127,7 +131,8 @@ export const ADULT_LIFE_MODULES = [
       choices:[
         {id:'no-total',label:'No. Compare premiums plus expected deductible/copay/coinsurance and plan coverage.',feedback:'Correct. A low premium can come with higher cost sharing; actual needs and plan rules matter.'},
         {id:'yes-premium',label:'Yes. The premium is the only cost that matters.',feedback:'Premium is only one part of total health-plan cost.'},
-        {id:'ignore-network',label:'Yes, as long as I ignore whether providers are in network.',feedback:'Network rules can materially affect what you pay and whether costs count toward plan limits.'}
+        {id:'ignore-network',label:'Yes, as long as I ignore whether providers are in network.',feedback:'Network rules can materially affect what you pay and whether costs count toward plan limits.'},
+        {id:'ask-friend',label:'Yes, if a friend with the same plan pays less overall.',feedback:'Someone else\u2019s care needs are not yours. Total cost depends on your expected care, deductible, copays, and network.'}
       ],
       correct:'no-total'
     },
@@ -157,7 +162,8 @@ export const ADULT_LIFE_MODULES = [
       choices:[
         {id:'bundle',label:'Rent plus lease-required fees and expected utilities/recurring housing costs.',feedback:'Correct. Sticker rent can be only one part of the recurring housing obligation.'},
         {id:'rent-only',label:'Only the advertised $700 rent.',feedback:'The lease may assign additional recurring costs. Include those before deciding how much is flexible.'},
-        {id:'deposit-only',label:'Only the security deposit because it is due first.',feedback:'Upfront costs matter, but the recurring monthly bundle must also fit after move-in.'}
+        {id:'deposit-only',label:'Only the security deposit because it is due first.',feedback:'Upfront costs matter, but the recurring monthly bundle must also fit after move-in.'},
+        {id:'negotiate-later',label:'Only the $700 rent; extra fees can be negotiated away later.',feedback:'Lease-required fees and utilities are part of the recurring cost whether you negotiate or not. Plan the full bundle first.'}
       ],
       correct:'bundle'
     },
@@ -183,7 +189,8 @@ export const ADULT_LIFE_MODULES = [
       choices:[
         {id:'responsibility',label:'Which utilities I pay, typical/available cost information, setup/deposit requirements, and due timing.',feedback:'Correct. Confirm both responsibility and timing before deciding how much housing cost fits.'},
         {id:'assume',label:'Assume all utilities are included unless the first bill arrives.',feedback:'Utility responsibility should be checked in the lease/with the legitimate provider before move-in.'},
-        {id:'ignore-variable',label:'Ignore utilities because variable bills cannot be planned for.',feedback:'Variable costs can still be estimated and buffered; uncertainty is a reason to plan, not omit the cost.'}
+        {id:'ignore-variable',label:'Ignore utilities because variable bills cannot be planned for.',feedback:'Variable costs can still be estimated and buffered; uncertainty is a reason to plan, not omit the cost.'},
+        {id:'listing-word',label:'Take the listing at its word; \u201cvary\u201d means roughly average.',feedback:'\u201cVary\u201d is not a number. Ask which utilities you pay and get typical costs before the lease locks them in.'}
       ],
       correct:'responsibility'
     },
@@ -210,7 +217,8 @@ export const ADULT_LIFE_MODULES = [
       choices:[
         {id:'inventory',label:'Check what food you already have, then plan meals and the missing items.',feedback:'Correct. Inventory-first planning reduces duplicate purchases and connects spending to actual meals.'},
         {id:'sale',label:'Buy every sale item first and figure out meals afterward.',feedback:'A sale only helps if the item fits your actual plan and will be used.'},
-        {id:'percentage',label:'Apply the same grocery percentage everyone should use.',feedback:'There is no single useful grocery percentage for every learner and budget. Start with needs, resources, and the actual period.'}
+        {id:'percentage',label:'Apply the same grocery percentage everyone should use.',feedback:'There is no single useful grocery percentage for every learner and budget. Start with needs, resources, and the actual period.'},
+        {id:'list-memory',label:'Write the list from memory without checking the kitchen.',feedback:'A memory list duplicates what you already own and misses what you need. A two-minute inventory prevents both.'}
       ],
       correct:'inventory'
     },
@@ -235,7 +243,8 @@ export const ADULT_LIFE_MODULES = [
       choices:[
         {id:'total',label:'Payment plus insurance, fuel, maintenance/repairs, parking, and alternatives such as transit.',feedback:'Correct. Transportation is a bundle of costs and constraints, not just the loan/payment amount.'},
         {id:'payment',label:'Only the monthly car payment.',feedback:'Ownership/operation can add several other required or variable costs.'},
-        {id:'fuel',label:'Only fuel because that changes most often.',feedback:'Fuel matters, but so do fixed and irregular costs such as insurance, parking, maintenance, and repairs.'}
+        {id:'fuel',label:'Only fuel because that changes most often.',feedback:'Fuel matters, but so do fixed and irregular costs such as insurance, parking, maintenance, and repairs.'},
+        {id:'payment-plus-insurance',label:'Payment plus insurance; the rest is too small to matter.',feedback:'Fuel, maintenance, repairs, and parking add up fast. Small recurring costs are exactly what break a tight car budget.'}
       ],
       correct:'total'
     },

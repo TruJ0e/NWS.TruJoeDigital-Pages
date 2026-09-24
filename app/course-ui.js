@@ -102,11 +102,14 @@ const AREA_LABELS={course:'Modules', 'practice-hub':'Practice', reviews:'Reviews
 const DEFAULT_ORIGIN={home:'course',money:'course',spend:'practice-hub',save:'practice-hub',subscriptions:'practice-hub',plan:'course','pacing-value':'practice-hub','adult-life':'practice-hub',benefits:'references',progress:'reviews',week:'simulations','life-sim':'simulations'};
 
 export function readCourseState(){
-  try{return {visited:{},...JSON.parse(localStorage.getItem(COURSE_STATE_KEY)||'{}')};}catch{return {visited:{}};}
+  try{return {visited:{},completed:{},...JSON.parse(localStorage.getItem(COURSE_STATE_KEY)||'{}')};}catch{return {visited:{},completed:{}};}
 }
 function writeCourseState(value){localStorage.setItem(COURSE_STATE_KEY,JSON.stringify(value));}
 function markVisited(id){
   const state=readCourseState(); state.visited[id]=state.visited[id]||new Date().toISOString(); writeCourseState(state);
+}
+function markCompleted(id){
+  const state=readCourseState(); state.completed[id]=state.completed[id]||new Date().toISOString(); writeCourseState(state);
 }
 function currentContext(){
   try{return JSON.parse(sessionStorage.getItem(CONTEXT_KEY)||'null');}catch{return null;}
@@ -171,16 +174,29 @@ function renderCourse(){
 
 // Module quicklist card (course home): one tap target per module. Opens the
 // standalone module page; lessons live there, not on this page.
+// Minimal module descriptors for the landing quick cards: number on top,
+// progress count under it, the subject line, then as few words as possible.
+const MODULE_TAGLINES={
+  foundations:'Sort every dollar: Needs, Wants, Savings.',
+  pacing:'Make money last across time.',
+  value:'Judge value, not sticker price.',
+  'adult-money':'Banking, paychecks, credit, scams.',
+  'living-costs':'Housing, food, transport, health costs.',
+  support:'Emergencies, benefits, the full routine.'
+};
+
 function moduleQuickCard(module){
   const state=readCourseState();
-  const done=module.lessons.filter(lesson=>state.visited[lesson.id]).length;
-  return `<button type="button" class="module-quick-card" onclick="course.openModulePage('${esc(module.id)}')" aria-label="Open Module ${module.number}: ${esc(module.title)} — ${done} of ${module.lessons.length} visited"><span class="course-module-num" aria-hidden="true">${module.number}</span><span class="mq-body"><b>Module ${module.number}: ${esc(module.title)}</b><small>${esc(module.summary)}</small><small class="mq-meta">${done}/${module.lessons.length} visited · about ${moduleMinutes(module)} min</small></span><span class="mq-go" aria-hidden="true">→</span></button>`;
+  const total=module.lessons.length;
+  const done=module.lessons.filter(lesson=>state.completed[lesson.id]).length;
+  const inProgress=module.lessons.filter(lesson=>state.visited[lesson.id]&&!state.completed[lesson.id]).length;
+  return `<button type="button" class="module-quick-card" onclick="course.openModulePage('${esc(module.id)}')" aria-label="Module ${module.number}: ${esc(module.title)} — ${inProgress} in progress, ${done} of ${total} completed"><span class="mq-num" aria-hidden="true">${module.number}</span><span class="mq-progress" aria-hidden="true">${inProgress} in progress / ${done} completed</span><b class="mq-title">${esc(module.title)}</b><small class="mq-tagline">${esc(MODULE_TAGLINES[module.id]||module.summary)}</small></button>`;
 }
 
 // Standalone module page: top navigation (sidebar moves to the top inside
 // modules), lesson list, outcomes, and prev/next module paging.
 function modulePageTopNav(){
-  const items=[['#/modules','Modules'],['#/practice','Practice'],['#/reviews','Reviews'],['#/references','Quick References'],['#/simulations','Simulations']];
+  const items=[['#/modules','Modules'],['#/practice','Practice'],['#/reviews','Reviews'],['#/references','Quick References'],['#/simulations','Simulations'],['#/instructor/advisor-dashboard','Instructor Tools']];
   return `<nav class="topnav" aria-label="Course sections"><div class="topnav-scroll">${items.map(([hash,label])=>`<a class="topnav-link${hash==='#/modules'?' active':''}" href="${hash}">${esc(label)}</a>`).join('')}<a class="topnav-link topnav-simple" href="./simple.html">Simple mode</a></div></nav>`;
 }
 
@@ -445,6 +461,9 @@ function back(origin='course'){
 window.course={openLesson,openTool,openModulePage,back,toggleOutline,dismissResume,_openLesson,_openTool,_openModulePage,render:()=>{renderCourse();renderPractice();renderReviews();renderReferences();renderSimulations();updateTrail();}};
 
 function initialize(){
+  // The outline always loads closed; it stays open only within the session
+  // after the learner uses it to switch content.
+  try{sessionStorage.removeItem(OUTLINE_KEY);}catch{}
   window.course.render();
   const main=document.querySelector('main');
   if(main){
@@ -663,6 +682,7 @@ function renderPlayerReview(host,lesson,content,ps){
   host.innerHTML=`<div class="lp-wrap"><p class="lp-kicker">Module ${lesson.moduleNumber} · Lesson ${lessonSeqNum(ps.lessonId)} of ${seq.length} · End-of-lesson review</p>`
   +`<div class="lp-card lp-review"><h2>End of lesson review</h2>${total?`<p class="lp-score">You got <b>${correct} of ${total}</b> right. ${esc(verdict)}</p>`:`<p class="lp-score">Review of what this lesson covered.</p>`}<div class="lp-review-list">${items}</div></div>`
   +`<div class="lp-nav"><button type="button" class="btn secondary" onclick="course.playerGo(-1)">← Back into the lesson</button><button type="button" class="btn secondary" onclick="course.playerRedo()">Redo lesson</button>${nextId?`<button type="button" class="btn" onclick="course.openLesson('${esc(nextId)}')">Next lesson →</button>`:`<button type="button" class="btn" onclick="course.openModulePage('${esc(lesson.moduleId)}')">Back to Module ${lesson.moduleNumber} →</button>`}</div></div>`;
+  markCompleted(ps.lessonId);
   document.title=`Review: ${lesson.title} — NWS Money Masterclass`;
   host.scrollIntoView({block:'start',behavior:'auto'});
 }
