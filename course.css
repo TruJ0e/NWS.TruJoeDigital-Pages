@@ -118,10 +118,18 @@
 }
 /* ---------- Course shell: small-screen overrides ---------- */
 @media(max-width:640px){
-  .course-trail{padding:10px 12px}
+  .course-trail{padding:8px 10px;gap:8px;border-radius:14px}
   .course-hero h2{font-size:1.5rem}
-  /* .trail-flow stacks vertically here: the 120px flex-basis would become height */
-  .trail-meter{flex:0 0 auto;width:100%}
+  /* Compact phone trail: one slim bar — [back] [breadcrumb…] [outline] —
+     then a slim progress row and compact prev/next. All controls stay reachable. */
+  .course-trail>.btn{padding:8px 10px;font-size:.82rem;flex:0 0 auto}
+  .course-trail .trail-title{flex:1 1 0;min-width:0;margin:0;font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .course-trail .trail-title .trail-sep{margin:0 .3em}
+  .trail-flow{flex-basis:100%;flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 8px;border-top:0;padding-top:0}
+  .trail-progress{font-size:.75rem;flex:0 0 auto}
+  .trail-meter{flex:1 1 60px;min-width:40px;width:auto}
+  .trail-nav{flex:1 1 100%;margin-left:0;justify-content:stretch}
+  .trail-nav .btn{flex:1 1 0;min-width:0;padding:8px 10px;font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 }
 /* ---------- Course shell: phone reflow ---------- */
 @media(max-width:620px){
@@ -132,4 +140,111 @@
   .course-lesson-meta{flex:1 1 11rem}
   .course-card-grid{grid-template-columns:1fr}
   .course-logistics{gap:8px 18px}
+}
+/* ---------- Course structure v3: module quicklist (home) ---------- */
+.module-quicklist{display:grid;gap:12px;margin-top:8px}
+.module-quick-card{display:flex;gap:14px;align-items:center;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;cursor:pointer;font:inherit;color:inherit;box-shadow:var(--shadow-sm);transition:border-color .12s,transform .12s;box-shadow:var(--shadow-sm)}
+.module-quick-card:hover{border-color:var(--brand);transform:translateY(-1px)}
+.mq-body{flex:1 1 auto;min-width:0;display:grid;gap:2px}
+.mq-body b{font-size:1.02rem;color:var(--ink)}
+.mq-body small{color:var(--muted);font-size:.84rem}
+.mq-body .mq-meta{font-weight:700;color:var(--brand-deep);font-size:.8rem}
+.mq-go{font-size:1.4rem;color:var(--brand);flex:0 0 auto;font-weight:800}
+
+/* ---------- Course structure v3: module pages, top nav replaces sidebar ---------- */
+body.module-view .layout{display:block}
+body.module-view .layout .nav{display:none}
+.topnav{margin:0 0 18px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);box-shadow:var(--shadow-sm)}
+.topnav-scroll{display:flex;gap:4px;overflow-x:auto;padding:8px;-webkit-overflow-scrolling:touch}
+.topnav-link{flex:0 0 auto;padding:10px 16px;border-radius:var(--radius-sm);font-weight:700;color:var(--ink);text-decoration:none;font-size:.92rem;white-space:nowrap}
+.topnav-link:hover{background:var(--brand-soft)}
+.topnav-link.active{background:var(--brand);color:#fff}
+.topnav-simple{margin-left:auto;color:var(--brand-deep);border:2px dashed var(--brand)}
+.module-page-head{margin:2px 0 6px}
+.module-page-head h2{margin:0 0 4px;font-size:1.6rem}
+.module-page-head .sub{max-width:44rem}
+.module-page-meta{display:flex;gap:10px;align-items:center;margin:10px 0 0}
+.module-lesson-list{padding:0}
+.module-page-pager{margin-top:20px}
+.module-page-pager .btn{max-width:48%}
+
+/* ---------- Course structure v3: lesson player (one idea per screen) ---------- */
+.lp-wrap{max-width:660px;margin:0 auto}
+.lp-kicker{font-size:.78rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--brand);margin:0 0 10px}
+.lp-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow-sm)}
+.lp-card h2{margin:0 0 12px;font-size:1.35rem}
+.lp-body p{margin:0 0 12px;line-height:1.55}
+.lp-body p:last-child{margin-bottom:0}
+.lp-body ul,.lp-body ol{margin:0 0 12px;padding-left:22px;display:grid;gap:8px;line-height:1.5}
+.lp-story{font-size:1.05rem;line-height:1.6;background:var(--panel-2);border-left:4px solid var(--brand);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:14px 16px;margin:0 0 14px}
+.lp-points{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.lp-points li{position:relative;padding-left:30px;line-height:1.5}
+.lp-points li::before{content:"→";position:absolute;left:0;top:0;color:var(--brand);font-weight:800}
+.lp-q{font-size:1.12rem;font-weight:700;line-height:1.5;margin:0 0 6px}
+.lp-choices{display:grid;gap:10px;margin:14px 0 4px}
+.lp-choice{text-align:left;background:var(--panel-2);border:2px solid var(--line);border-radius:var(--radius-sm);padding:13px 16px;font:inherit;font-weight:600;color:var(--ink);cursor:pointer;transition:border-color .12s,background .12s}
+.lp-choice:hover:not(:disabled){border-color:var(--brand)}
+.lp-choice:disabled{cursor:default;opacity:.92}
+.lp-choice.correct{border-color:var(--good);background:var(--good-soft)}
+.lp-choice.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.lp-hint-btn{margin-top:10px}
+.lp-hint{background:var(--panel-2);border:1px dashed var(--line);border-radius:var(--radius-sm);padding:10px 14px;margin:8px 0 0;font-size:.92rem}
+.lp-feedback{margin-top:16px;padding:14px 16px;border-radius:var(--radius-sm);border:1px solid var(--line)}
+.lp-feedback p{margin:0 0 8px;line-height:1.5}
+.lp-feedback p:last-child{margin-bottom:0}
+.lp-feedback.good{border-color:var(--good);background:var(--good-soft)}
+.lp-feedback.miss{border-color:var(--warn);background:var(--warn-soft)}
+.lp-why{font-size:.94rem;color:var(--muted)}
+.lp-feedback.good .lp-why,.lp-feedback.miss .lp-why{color:var(--ink)}
+.lp-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px}
+.lp-tool-cta{margin-top:16px;display:grid;gap:8px;justify-items:start}
+.lp-tool-cta .sub{margin:0}
+.lp-done{display:grid;gap:12px;justify-items:start}
+.lp-done .sub{margin:0}
+
+/* ---------- Course structure v3: animated sort game ---------- */
+.sort-buckets{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0 14px}
+.sort-bucket{display:flex;flex-direction:column;gap:6px;align-items:center;background:var(--panel-2);border:2px solid var(--line);border-radius:var(--radius-sm);padding:14px 10px;font:inherit;cursor:pointer;transition:border-color .12s,transform .12s}
+.sort-bucket:hover:not(:disabled){border-color:var(--brand);transform:translateY(-1px)}
+.sort-bucket:disabled{cursor:default}
+.sort-bucket-label{font-weight:800;font-size:.95rem;color:var(--brand-deep)}
+.sort-bucket-count{min-width:30px;height:30px;border-radius:50%;background:var(--brand-soft);color:var(--brand-deep);font-weight:800;font-size:.85rem;display:inline-flex;align-items:center;justify-content:center}
+.sort-bucket.flash-ok{border-color:var(--good);background:var(--good-soft)}
+.sort-bucket.flash-bad{border-color:var(--bad);background:var(--bad-soft)}
+.sort-stage{min-height:132px;display:flex;align-items:center;justify-content:center;padding:6px 0}
+.sort-card{background:var(--brand-soft);border:2px solid var(--brand);border-radius:var(--radius);padding:22px 26px;font-size:1.12rem;font-weight:700;color:var(--ink);text-align:center;max-width:100%;transition:transform .38s ease,opacity .38s ease;animation:sortIn .28s ease}
+@keyframes sortIn{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.sort-progress{text-align:center;margin:4px 0 0}
+.sort-feedback{margin-top:12px;padding:14px 16px;border-radius:var(--radius-sm);border:1px solid var(--line)}
+.sort-feedback p{margin:0 0 8px;line-height:1.5}
+.sort-feedback p:last-child{margin-bottom:0}
+.sort-feedback.good{border-color:var(--good);background:var(--good-soft)}
+.sort-feedback.miss{border-color:var(--warn);background:var(--warn-soft)}
+.sort-game [data-nextitem]{margin-top:12px}
+.sort-done{text-align:center;font-size:1.05rem;padding:18px 0}
+
+/* ---------- Course structure v3: end-of-lesson review ---------- */
+.lp-review h2{margin-bottom:8px}
+.lp-score{font-size:1.05rem;margin:0 0 16px}
+.lp-review-list{display:grid;gap:10px}
+.lp-ritem{border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px 16px;background:var(--panel-2)}
+.lp-ritem.ok{border-left:4px solid var(--good)}
+.lp-ritem.miss{border-left:4px solid var(--warn)}
+.lp-ri-q{font-weight:700;margin:0 0 6px;line-height:1.45}
+.lp-ri-a{margin:0 0 6px}
+.lp-ri-why{margin:0;font-size:.92rem;color:var(--muted);line-height:1.5}
+.good-tag{background:var(--good-soft);color:var(--brand-deep);border:1px solid var(--good)}
+.miss-tag{background:var(--warn-soft);color:var(--ink);border:1px solid var(--warn)}
+
+/* ---------- Course structure v3: phone reflow ---------- */
+@media(max-width:620px){
+  .lp-card{padding:18px}
+  .lp-card h2{font-size:1.18rem}
+  .sort-buckets{gap:8px}
+  .sort-bucket{padding:12px 6px}
+  .sort-bucket-label{font-size:.82rem}
+  .module-page-head h2{font-size:1.35rem}
+  .module-page-pager .btn{max-width:100%}
+  .lp-nav{flex-wrap:wrap}
+  .topnav-link{padding:9px 13px;font-size:.86rem}
 }

@@ -1,5 +1,5 @@
-// Cache lineage: nws-static-v2.7-20260919 (Money Pacing v1) -> nws-static-v3.0-20260923 (pro-course redesign).
-const CACHE_NAME = 'nws-static-v3.0-20260923';
+// Cache lineage: nws-static-v2.7-20260919 (Money Pacing v1) -> nws-static-v3.0-20260923 (pro-course redesign) -> nws-static-v3.1-20260924 (course structure v3: module pages, lesson player).
+const CACHE_NAME = 'nws-static-v3.1-20260924';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -15,6 +15,7 @@ const CORE_ASSETS = [
   './app/main-v11.js',
   './app/main-v11-fixes.js',
   './app/course-ui.js',
+  './content/lessons.js',
   './app/pwa.js',
   './app/pacing-value.js',
   './app/pacing-value-ui.js',
