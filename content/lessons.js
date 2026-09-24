@@ -36,7 +36,7 @@ export const LESSON_CONTENT={
  {t:'try',q:'Maya\u2019s phone: she needs it for work shifts, but mostly uses it for games. How should she sort it?',
   choices:[{label:'It is all a Need',ok:false},{label:'It is all a Want',ok:false},{label:'Split it: the work part is a Need, the games part is a Want',ok:true}],
   hint:'One item can hold two jobs.',
-  good:'Exactly. Sort by what it is <i>for</i>, not by the object itself.',
+  good:'Exactly. Sort by what it is for, not by the object itself.',
   bad:'Look closer - the phone does two jobs. Sort each job separately.',
   why:'The work capability is a Need; the gaming is a Want. When one purchase does both, sort the <i>reasons</i>, not the thing.'}
 ]},
@@ -349,7 +349,7 @@ Object.assign(LESSON_CONTENT,{
   good:'Right. Concepts last; numbers expire.',
   bad:'Figures are year-labeled for a reason: they change. And eligibility is individual.',
   why:'The $994 figure is real <i>for its year and situation</i> - not a permanent personal quote. Always verify current rules at the official source.'},
- {t:'try',q:'Why does NWS teach the <i>concept</i> ("SSI has income and resource rules") instead of just the current payment amount?',
+ {t:'try',q:'Why does NWS teach the concept ("SSI has income and resource rules") instead of just the current payment amount?',
   choices:[{label:'Concepts stay useful after numbers change',ok:true},{label:'Numbers are not important',ok:false}],
   hint:'Which one survives a new year?',
   good:'Exactly. Learn the durable part; look up the changeable part.',
