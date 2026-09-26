@@ -7,7 +7,10 @@ const CONTEXT_KEY='nwsCourseShell.context';
 const PACING_FOCUS_KEY='nwsCourseShell.pacingFocus';
 const ADULT_FOCUS_KEY='nwsCourseShell.adultLifeFocus';
 const OUTLINE_KEY='nwsCourseShell.outlineOpen';
-const RESUME_DISMISSED_KEY='nwsCourseShell.resumeDismissed';
+const RESUME_KEY='nwsCourseShell.resume';
+function readResume(){try{return JSON.parse(localStorage.getItem(RESUME_KEY)||'null');}catch{return null;}}
+function writeResume(lessonId,stepIdx){try{localStorage.setItem(RESUME_KEY,JSON.stringify({lessonId,stepIdx}));}catch{}}
+function clearResume(){try{localStorage.removeItem(RESUME_KEY);}catch{}}
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -110,6 +113,7 @@ function markVisited(id){
 }
 function markCompleted(id){
   const state=readCourseState(); state.completed[id]=state.completed[id]||new Date().toISOString(); writeCourseState(state);
+  const saved=readResume(); if(saved&&saved.lessonId===id)clearResume();
 }
 function currentContext(){
   try{return JSON.parse(sessionStorage.getItem(CONTEXT_KEY)||'null');}catch{return null;}
@@ -137,21 +141,22 @@ function courseDurationLabel(){
   return `~${Math.floor(halfHours)}${halfHours%1?'½':''} hours`;
 }
 
-// "Pick up where you left off" — shown on the course home only when this tab
-// session still holds a lesson context (e.g. the learner used the browser back
-// button or reloaded on the home hash). One-time per lesson: dismissing sets a
-// session flag, and opening any lesson clears it so a new step re-arms the
-// banner. Never auto-navigates — no surprise jumps.
+// "Pick up where you left off" — the exact lesson step the learner was on,
+// stored in localStorage so it survives reloads and any navigation path
+// (module pages and the nav used to wipe the old session-only context).
+// Hidden once the lesson is completed (the course CTA then points at what's
+// next). Dismissing clears it; opening any lesson writes a new one, which
+// re-arms the banner. Never auto-navigates — no surprise jumps.
 function resumeBanner(){
-  const ctx=currentContext();
-  const lesson=ctx?.lessonId?LESSONS.get(ctx.lessonId):null;
+  const saved=readResume();
+  const lesson=saved?.lessonId?LESSONS.get(saved.lessonId):null;
   if(!lesson)return '';
-  try{if(sessionStorage.getItem(RESUME_DISMISSED_KEY)==='1')return '';}catch{return '';}
-  const stepIdx=Number.isInteger(ctx.stepIdx)&&ctx.stepIdx>0?ctx.stepIdx:0;
-  return `<div class="course-resume" role="status"><span>Pick up where you left off: <b>${esc(lesson.title)}</b><span class="sub"> · Module ${lesson.moduleNumber}: ${esc(lesson.moduleTitle)} · ${lesson.est} min</span></span><span class="row"><button class="btn" type="button" onclick="course.openLesson('${esc(lesson.id)}',${stepIdx})">Resume step</button><button class="btn secondary" type="button" onclick="course.dismissResume()">Dismiss</button></span></div>`;
+  if(readCourseState().completed[lesson.id])return '';
+  const stepIdx=Number.isInteger(saved.stepIdx)&&saved.stepIdx>0?saved.stepIdx:0;
+  return `<div class="course-resume" role="status"><span>Pick up where you left off: <b>${esc(lesson.title)}</b><span class="sub"> · Module ${lesson.moduleNumber}: ${esc(lesson.moduleTitle)} · ${lesson.est} min${stepIdx>0?` · step ${stepIdx+1}`:''}</span></span><span class="row"><button class="btn" type="button" onclick="course.openLesson('${esc(lesson.id)}',${stepIdx})">Resume step</button><button class="btn secondary" type="button" onclick="course.dismissResume()">Dismiss</button></span></div>`;
 }
 function dismissResume(){
-  try{sessionStorage.setItem(RESUME_DISMISSED_KEY,'1');}catch{}
+  clearResume();
   renderCourse();
 }
 
@@ -392,9 +397,9 @@ function _openLesson(id,stepIdx=0){
   const content=lessonContent(id);
   if(!content){location.hash='#/modules/'+lesson.moduleId;return;}
   markVisited(id);
-  // A newly opened lesson re-arms the resume banner: returning home afterwards
-  // offers this step again until the learner dismisses it.
-  try{sessionStorage.removeItem(RESUME_DISMISSED_KEY);}catch{}
+  // Persist the resume position on every step change, so the course-home
+  // banner can offer this exact step on any navigation path or reload.
+  writeResume(id,stepIdx);
   setContext({screen:'lesson-player',origin:'module:'+lesson.moduleId,title:lesson.title,moduleNumber:lesson.moduleNumber,moduleTitle:lesson.moduleTitle,lessonId:id,moduleId:lesson.moduleId,stepIdx});
   initPlayerState(id,stepIdx);
   window.app?.show?.('lesson-player');
