@@ -147,7 +147,8 @@ function resumeBanner(){
   const lesson=ctx?.lessonId?LESSONS.get(ctx.lessonId):null;
   if(!lesson)return '';
   try{if(sessionStorage.getItem(RESUME_DISMISSED_KEY)==='1')return '';}catch{return '';}
-  return `<div class="course-resume" role="status"><span>Pick up where you left off: <b>${esc(lesson.title)}</b><span class="sub"> · Module ${lesson.moduleNumber}: ${esc(lesson.moduleTitle)} · ${lesson.est} min</span></span><span class="row"><button class="btn" type="button" onclick="course.openLesson('${esc(lesson.id)}')">Resume step</button><button class="btn secondary" type="button" onclick="course.dismissResume()">Dismiss</button></span></div>`;
+  const stepIdx=Number.isInteger(ctx.stepIdx)&&ctx.stepIdx>0?ctx.stepIdx:0;
+  return `<div class="course-resume" role="status"><span>Pick up where you left off: <b>${esc(lesson.title)}</b><span class="sub"> · Module ${lesson.moduleNumber}: ${esc(lesson.moduleTitle)} · ${lesson.est} min</span></span><span class="row"><button class="btn" type="button" onclick="course.openLesson('${esc(lesson.id)}',${stepIdx})">Resume step</button><button class="btn secondary" type="button" onclick="course.dismissResume()">Dismiss</button></span></div>`;
 }
 function dismissResume(){
   try{sessionStorage.setItem(RESUME_DISMISSED_KEY,'1');}catch{}
