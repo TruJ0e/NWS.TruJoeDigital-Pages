@@ -113,7 +113,6 @@ function markVisited(id){
 }
 function markCompleted(id){
   const state=readCourseState(); state.completed[id]=state.completed[id]||new Date().toISOString(); writeCourseState(state);
-  const saved=readResume(); if(saved&&saved.lessonId===id)clearResume();
 }
 function currentContext(){
   try{return JSON.parse(sessionStorage.getItem(CONTEXT_KEY)||'null');}catch{return null;}
@@ -144,16 +143,18 @@ function courseDurationLabel(){
 // "Pick up where you left off" — the exact lesson step the learner was on,
 // stored in localStorage so it survives reloads and any navigation path
 // (module pages and the nav used to wipe the old session-only context).
-// Hidden once the lesson is completed (the course CTA then points at what's
-// next). Dismissing clears it; opening any lesson writes a new one, which
-// re-arms the banner. Never auto-navigates — no surprise jumps.
+// Also covers completed lessons: reopening one offers the end-of-lesson
+// review instead of restarting at step 1. Dismissing clears it; opening any
+// lesson writes a new one, which re-arms the banner. Never auto-navigates.
 function resumeBanner(){
   const saved=readResume();
   const lesson=saved?.lessonId?LESSONS.get(saved.lessonId):null;
   if(!lesson)return '';
-  if(readCourseState().completed[lesson.id])return '';
   const stepIdx=Number.isInteger(saved.stepIdx)&&saved.stepIdx>0?saved.stepIdx:0;
-  return `<div class="course-resume" role="status"><span>Pick up where you left off: <b>${esc(lesson.title)}</b><span class="sub"> · Module ${lesson.moduleNumber}: ${esc(lesson.moduleTitle)} · ${lesson.est} min${stepIdx>0?` · step ${stepIdx+1}`:''}</span></span><span class="row"><button class="btn" type="button" onclick="course.openLesson('${esc(lesson.id)}',${stepIdx})">Resume step</button><button class="btn secondary" type="button" onclick="course.dismissResume()">Dismiss</button></span></div>`;
+  const total=lessonContent(lesson.id)?.steps.length||0;
+  const atReview=total>0&&stepIdx>=total;
+  const where=atReview?' · review':(stepIdx>0?` · step ${stepIdx+1}`:'');
+  return `<div class="course-resume" role="status"><span>Pick up where you left off: <b>${esc(lesson.title)}</b><span class="sub"> · Module ${lesson.moduleNumber}: ${esc(lesson.moduleTitle)} · ${lesson.est} min${where}</span></span><span class="row"><button class="btn" type="button" onclick="course.openLesson('${esc(lesson.id)}',${stepIdx})">Resume step</button><button class="btn secondary" type="button" onclick="course.dismissResume()">Dismiss</button></span></div>`;
 }
 function dismissResume(){
   clearResume();
