@@ -52,7 +52,9 @@
     const rawHash=location.hash||'';
     const hash=rawHash||'#/modules';
     let m=hash.match(/^#\/modules\/([a-z0-9-]+)\/([a-z0-9-]+)(?:\/(\d+))?$/);
-    if(m){ if(!openLessonById(m[2],m[3]?parseInt(m[3],10):0)) history.replaceState(null,'','#/modules'); return; }
+    // Step suffix in the URL is 1-indexed to match the on-screen "Screen N of M"
+    // label; step 1 (index 0) carries no suffix.
+    if(m){ if(!openLessonById(m[2],m[3]?Math.max(0,parseInt(m[3],10)-1):0)) history.replaceState(null,'','#/modules'); return; }
     m=hash.match(/^#\/modules\/([a-z0-9-]+)$/);
     if(m){ if(!openModulePageById(m[1])) history.replaceState(null,'','#/modules'); return; }
     m=hash.match(/^#\/(?:tool|instructor)\/([a-z0-9-]+)$/);
@@ -74,7 +76,7 @@
     }
     else if(screen==='lesson-player'){
       const lesson=ctx&&ctx.lessonId&&lessons?.get(ctx.lessonId);
-      hash=lesson?('#/modules/'+lesson.moduleId+'/'+lesson.id+(ctx.stepIdx>0?'/'+ctx.stepIdx:'')):'#/modules';
+      hash=lesson?('#/modules/'+lesson.moduleId+'/'+lesson.id+(ctx.stepIdx>0?'/'+(ctx.stepIdx+1):'')):'#/modules';
     }
     else{
       const lesson=ctx&&ctx.lessonId&&lessons?.get(ctx.lessonId);
