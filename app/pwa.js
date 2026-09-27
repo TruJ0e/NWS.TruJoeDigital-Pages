@@ -69,7 +69,7 @@ if('caches' in window){
   });
 }
 if('serviceWorker' in navigator && ['http:','https:'].includes(location.protocol)){
-  navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).then(reg=>{
+  navigator.serviceWorker.register('./service-worker.js',{scope:'./',updateViaCache:'none'}).then(reg=>{
     reg.update();
   }).catch(error=>{
     console.warn('NWS offline support could not register.',error);
