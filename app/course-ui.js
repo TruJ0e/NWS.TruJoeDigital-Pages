@@ -144,41 +144,46 @@ function courseDurationLabel(){
   return `~${Math.floor(halfHours)}${halfHours%1?'½':''} hours`;
 }
 
-// "Pick up where you left off" — the exact lesson step the learner was on,
-// stored in localStorage so it survives reloads and any navigation path
-// (module pages and the nav used to wipe the old session-only context).
-// Also covers completed lessons: reopening one offers the end-of-lesson
-// review instead of restarting at step 1. Dismissing clears it; opening any
-// lesson writes a new one, which re-arms the banner. Never auto-navigates.
-function resumeBanner(){
-  const saved=readResume();
-  const lesson=saved?.lessonId?LESSONS.get(saved.lessonId):null;
-  if(!lesson)return '';
-  const stepIdx=Number.isInteger(saved.stepIdx)&&saved.stepIdx>0?saved.stepIdx:0;
-  const total=lessonContent(lesson.id)?.steps.length||0;
-  const atReview=total>0&&stepIdx>=total;
-  const where=atReview?' · review':(stepIdx>0?` · step ${stepIdx+1}`:'');
-  return `<div class="course-resume" role="status"><span>Pick up where you left off: <b>${esc(lesson.title)}</b><span class="sub"> · Module ${lesson.moduleNumber}: ${esc(lesson.moduleTitle)} · ${lesson.est} min${where}</span></span><span class="row"><button class="btn" type="button" onclick="course.openLesson('${esc(lesson.id)}',${stepIdx})">Resume step</button><button class="btn secondary" type="button" onclick="course.dismissResume()">Dismiss</button></span></div>`;
-}
+// Dismissing a resume position: kept for API compatibility; the hero CTA
+// is now the single resume surface (see renderCourse above).
 function dismissResume(){
   clearResume();
   renderCourse();
 }
 
+// Single honest resume: the hero CTA *is* the resume. It deep-links to the
+// exact lesson + screen the learner was last on (localStorage), so there is
+// never a second competing "pick up where you left off" widget. With no
+// saved position it falls back to "next unvisited lesson" logic.
+// Never auto-navigates.
 function renderCourse(){
   const host=document.getElementById('course'); if(!host)return;
   const state=readCourseState();
   const allLessons=MODULES.flatMap(module=>module.lessons);
   const total=allLessons.length;
   const visitedCount=allLessons.filter(lesson=>state.visited[lesson.id]).length;
-  const next=allLessons.find(lesson=>!state.visited[lesson.id]);
-  const target=next||allLessons[0];
-  const ctaLabel=visitedCount===0?'Start course':(next?`Resume: ${target.title}`:'Review course from the start');
-  const ctaNote=visitedCount===0?`Begin with Module 1 · ${esc(allLessons[0].title)}`:(next?`Next up: ${esc(next.title)} · ${next.est} min`:'You have visited every step — review anything, any time.');
+  const completedCount=allLessons.filter(lesson=>state.completed[lesson.id]).length;
+  const saved=readResume();
+  const resumeLesson=saved&&saved.lessonId?LESSONS.get(saved.lessonId):null;
+  let ctaId,ctaStep,ctaLabel,ctaNote;
+  if(resumeLesson){
+    const totalSteps=lessonContent(resumeLesson.id)?.steps.length||0;
+    ctaStep=Number.isInteger(saved.stepIdx)?Math.max(0,Math.min(saved.stepIdx,totalSteps)):0;
+    const atReview=totalSteps>0&&ctaStep>=totalSteps;
+    ctaId=resumeLesson.id;
+    ctaLabel=`Continue: ${resumeLesson.title}`;
+    ctaNote=`Pick up where you left off · Module ${resumeLesson.moduleNumber} · ${atReview?'end-of-lesson review':`screen ${ctaStep+1} of ${totalSteps}`}`;
+  }else{
+    const next=allLessons.find(lesson=>!state.visited[lesson.id]);
+    const target=next||allLessons[0];
+    ctaId=target.id; ctaStep=0;
+    ctaLabel=visitedCount===0?'Start course':(next?`Next up: ${target.title}`:'Review course from the start');
+    ctaNote=visitedCount===0?`Begin with Module 1 · ${esc(allLessons[0].title)}`:(next?`${esc(next.title)} · ${next.est} min · Module ${next.moduleNumber}`:'You have visited every lesson — review anything, any time.');
+  }
   const pct=Math.round(visitedCount/total*100);
   host.innerHTML=
-`<div class="hero course-hero"><span class="tag">NWS Course</span><h2>Learn to run your money like an adult.</h2><p class="sub">Built for college students. Plain-language lessons and hands-on practice for the money decisions that actually show up: paychecks, rent, groceries, subscriptions, and the surprises in between.</p><ul class="course-logistics" aria-label="Course logistics"><li><b>Self-paced</b><span>go in any order</span></li><li><b>Free</b><span>no account, no cost</span></li><li><b>6 modules · ${total} steps</b><span>lessons, practice &amp; tools</span></li><li><b>${esc(courseDurationLabel())}</b><span>total, at your pace</span></li></ul><div class="row course-cta-row"><button class="btn" type="button" onclick="course.openLesson('${esc(target.id)}')">${esc(ctaLabel)}</button><span class="sub">${ctaNote}</span></div>${resumeBanner()}</div>`
-+`<section class="card course-progress" aria-label="Course progress"><div class="course-progress-head"><h3>Your progress</h3><span class="tag">${visitedCount} of ${total} visited</span></div><div class="progressbar" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${visitedCount}" aria-label="Course steps visited"><i style="width:${pct}%"></i></div><p class="sub">Visits are shown for navigation only — they are not a mastery score.</p></section>`
+`<div class="hero course-hero"><span class="tag">NWS Course</span><h2>Learn to run your money like an adult.</h2><p class="sub">Built for college students. Plain-language lessons and hands-on practice for the money decisions that actually show up: paychecks, rent, groceries, subscriptions, and the surprises in between.</p><ul class="course-logistics" aria-label="Course logistics"><li><b>Self-paced</b><span>go in any order</span></li><li><b>Free</b><span>no account, no cost</span></li><li><b>6 modules · ${total} lessons</b><span>lessons, practice &amp; tools</span></li><li><b>${esc(courseDurationLabel())}</b><span>total, at your pace</span></li></ul><div class="row course-cta-row"><button class="btn" type="button" onclick="course.openLesson('${esc(ctaId)}',${ctaStep})">${esc(ctaLabel)}</button><span class="sub">${ctaNote}</span></div></div>`
++`<section class="card course-progress" aria-label="Course progress"><div class="course-progress-head"><h3>Your progress</h3><span class="tag">${visitedCount} of ${total} visited · ${completedCount} completed</span></div><div class="progressbar" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${visitedCount}" aria-label="Course lessons visited"><i style="width:${pct}%"></i></div><p class="sub">Visited means you opened it. Completed means you finished every screen and its practice — that is the real progress.</p></section>`
 +`<div class="section-title"><div><h2>Modules</h2><p>Each module is its own page of short lessons — one idea per screen.</p></div></div><div class="module-quicklist">${MODULES.map(moduleQuickCard).join('')}</div>`
 +`<section class="card course-simple-card" aria-label="Simple mode"><span class="tag">Easier mode</span><h3>Want the calm version? Try Simple mode.</h3><p>Same money skills, one step at a time, in plain language.</p><a class="btn" href="./simple.html">Open Simple mode →</a></section>`;
 }
@@ -325,7 +330,7 @@ function toggleOutline(){setOutlineOpen(!outlineOpen());updateTrail();}
 
 function outlineStepRow(lesson,stepNum,currentId,visited){
   const current=lesson.id===currentId;
-  return `<button type="button" class="outline-step${visited?' visited':''}${current?' current':''}"${current?' aria-current="true"':''} onclick="course.openLesson('${esc(lesson.id)}')" aria-label="${esc(lesson.title)}${visited?' (visited)':''}${current?' (current step)':''}"><span class="outline-step-num" aria-hidden="true">${stepNum}</span><span class="outline-check" aria-hidden="true">${visited?'✓':''}</span><span class="outline-step-meta"><b>${esc(lesson.title)}</b><small>${esc(kindTag(lesson))} · ${lesson.est} min</small></span></button>`;
+  return `<button type="button" class="outline-step${visited?' visited':''}${current?' current':''}"${current?' aria-current="true"':''} onclick="course.openLesson('${esc(lesson.id)}')" aria-label="${esc(lesson.title)}${visited?' (visited)':''}${current?' (current lesson)':''}"><span class="outline-step-num" aria-hidden="true">${stepNum}</span><span class="outline-check" aria-hidden="true">${visited?'✓':''}</span><span class="outline-step-meta"><b>${esc(lesson.title)}</b><small>${esc(kindTag(lesson))} · ${lesson.est} min</small></span></button>`;
 }
 
 // Udemy-style collapsible curriculum outline: every module + all 24 steps, with
@@ -656,9 +661,9 @@ function lpTry(ps,step){
       +(!ok?`<p><button type="button" class="btn secondary" onclick="course.playerRetry()">Try a similar one →</button></p>`:'')
       +`</div>`;
   }
-  const tierTag=q.tier==='stretch'?' <span class="tag stretch-tag">Stretch</span>':'';
   const prog=practiceProgress(ps);
-  return `<h2>Try it${tierTag}</h2>${prog?`<p class="lp-qprog">${esc(prog)}</p>`:''}<p class="lp-q">${esc(q.q)}</p><div class="lp-choices">${buttons}</div>${extra}${fb}`;
+  const tryTitle=q.tier==='stretch'?'Stretch: try it':'Try it';
+  return `<h2>${tryTitle}</h2>${prog?`<p class="lp-qprog">${esc(prog)}</p>`:''}<p class="lp-q">${esc(q.q)}</p><div class="lp-choices">${buttons}</div>${extra}${fb}`;
 }
 function lpSort(step){
   return `<h2>${esc(step.h)}</h2><div class="lp-body">${step.body}</div>`
@@ -677,14 +682,17 @@ function lpTool(ps,step,lesson){
   if(slug&&step.screen==='pacing-value')focus=`{pacingFocus:'${slug}'}`;
   else if(slug&&step.screen==='adult-life')focus=`{adultModule:'${slug}'}`;
   const origin=`lessonstep:${lesson.id}:${ps.idx}`;
-  return `<h2>${esc(step.h)}</h2><div class="lp-body">${step.body}</div><div class="lp-tool-cta"><button type="button" class="btn" onclick="course._openTool('${esc(step.screen)}','${esc(origin)}',${focus})">${esc(step.cta)} →</button><p class="sub">Opens the real tool. Your browser-back button brings you right back to this step.</p></div>`;
+  return `<h2>${esc(step.h)}</h2><div class="lp-body">${step.body}</div><div class="lp-tool-cta"><button type="button" class="btn" onclick="course._openTool('${esc(step.screen)}','${esc(origin)}',${focus})">${esc(step.cta)} →</button><p class="sub">Opens the real tool. Your browser-back button brings you right back to this screen.</p></div>`;
 }
 function lpNav(ps,total){
   const isLast=ps.idx===total-1;
   const prev=ps.idx>0?`<button type="button" class="btn secondary" onclick="course.playerGo(-1)">← Back</button>`:'<span></span>';
   const label=isLast?'See your review →':'Next →';
   const blocked=!playerStepComplete(ps);
-  return `<div class="lp-nav">${prev}<button type="button" class="btn" data-lp-next${blocked?' disabled':''} onclick="course.playerGo(1)">${label}</button></div>`;
+  // A disabled Next with no explanation reads as broken: say what unlocks it.
+  const step=lessonContent(ps.lessonId)?.steps[ps.idx];
+  const whyBlocked=blocked?(step&&step.t==='sort'?'Finish sorting to continue':'Choose an answer to continue'):'';
+  return `<div class="lp-nav">${prev}<span class="lp-nav-next"><button type="button" class="btn" data-lp-next${blocked?' disabled':''} onclick="course.playerGo(1)">${label}</button>${blocked?`<small class="lp-blocked-hint">${whyBlocked}</small>`:''}</span></div>`;
 }
 
 function renderPlayerStep(){
@@ -704,7 +712,7 @@ function renderPlayerStep(){
   }
   if(ps.idx>=steps.length){renderPlayerReview(host,lesson,content,ps);return;}
   const step=steps[ps.idx];
-  let kicker=`Module ${lesson.moduleNumber} · Lesson ${lessonSeqNum(ps.lessonId)} of ${lessonSequence().length} · Step ${ps.idx+1} of ${steps.length}`;
+  let kicker=`Module ${lesson.moduleNumber} · Lesson ${lessonSeqNum(ps.lessonId)} of ${lessonSequence().length} · Screen ${ps.idx+1} of ${steps.length}`;
   if(ps.focusSkills&&ps.focusSkills.length){
     const focusIdx=steps.map((s,i)=>({s,i})).filter(({s})=>s.t==='try'&&ps.focusSkills.includes(s.skill)).map(({i})=>i);
     const pos=focusIdx.indexOf(ps.idx)+1;
