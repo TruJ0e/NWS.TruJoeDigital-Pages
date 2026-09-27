@@ -15,7 +15,7 @@ import { dueDelayedChecks, completeDelayedCheck, scheduleDelayedCheck } from './
 import { createFictionalPaycheck, evaluatePaycheckReading } from './paycheck.js';
 import { generateInstructorReport } from './reporting.js';
 import { CURRICULUM_MODULES, SKILLS, DECISION_ROUTINE } from '../content/curriculum.js';
-import { MODULES, readCourseState, moduleMinutes } from './course-ui.js';
+import { MODULES, readCourseState, resetCourseState, moduleMinutes } from './course-ui.js';
 import { cleanNum } from './money.js';
 import { RESEARCH_FOUNDATIONS, RESEARCH_POSITION } from '../content/research-basis.js';
 import { VERSIONED_CONTENT_SOURCES } from '../content/sources.js';
@@ -309,7 +309,7 @@ window.app={
   exportData(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));a.download='nws-progress.json';a.click();URL.revokeObjectURL(a.href)},
   exportCSV(){const rows=[['timestamp','skill','correct','prompted','transfer','recovery','error_type','scaffold','cadence','budget_amount','detail'],...state.learning.decisions.map(d=>[d.at,d.skill,d.correct,d.prompted,d.transfer,d.recovery,d.errorType,d.scaffold,d.cadence,d.amount,d.detail])],csv=rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='nws-decisions.csv';a.click();URL.revokeObjectURL(a.href)},
   importData(input){const file=input.files?.[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{state=normalizeState(JSON.parse(r.result));persist();renderAll();alert('Progress imported.')}catch{alert('That file could not be imported.')}};r.readAsText(file)},
-  resetAll(){if(confirm('Reset this browser to the fictional NWS scenario?')){state=cloneState(DEFAULTS);persist();show('home')}}
+  resetAll(){if(confirm('Reset this browser to the fictional NWS scenario?')){state=cloneState(DEFAULTS);persist();resetCourseState();show('home')}}
 };
 
 applyAccessibilityPreferences(state.preferences);

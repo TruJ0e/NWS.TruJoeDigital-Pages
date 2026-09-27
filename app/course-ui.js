@@ -112,6 +112,18 @@ export function readCourseState(){
   try{return {visited:{},completed:{},...JSON.parse(localStorage.getItem(COURSE_STATE_KEY)||'{}')};}catch{return {visited:{},completed:{}};}
 }
 function writeCourseState(value){localStorage.setItem(COURSE_STATE_KEY,JSON.stringify(value));}
+// Used by "Reset demo": clears all course-side localStorage (progress + resume +
+// per-screen focus prefs) so the demo truly returns to a fresh state. Does not
+// touch the scenario state (state.js / persist()), which the caller resets.
+export function resetCourseState(){
+  try{
+    localStorage.removeItem(COURSE_STATE_KEY);
+    localStorage.removeItem(RESUME_KEY);
+    localStorage.removeItem(PACING_FOCUS_KEY);
+    localStorage.removeItem(ADULT_FOCUS_KEY);
+    localStorage.removeItem(OUTLINE_KEY);
+  }catch{}
+}
 function markVisited(id){
   const state=readCourseState(); state.visited[id]=state.visited[id]||new Date().toISOString(); writeCourseState(state);
 }
