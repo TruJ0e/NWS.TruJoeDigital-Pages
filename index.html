@@ -19,7 +19,7 @@
 <a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="app">
   <header>
-    <div class="brand"><img class="brand-mark" src="./icon.svg" alt="NWS logo" width="44" height="44" /><div class="brand-text"><h1>NWS Money Masterclass</h1><p>Needs · Wants · Savings — learn money by doing.</p></div></div>
+    <a class="brand brand-home" href="#/modules" aria-label="NWS Money Masterclass — back to home"><img class="brand-mark" src="./icon.svg" alt="" width="44" height="44" /><div class="brand-text"><h1>NWS Money Masterclass</h1><p>Needs · Wants · Savings — learn money by doing.</p></div></a>
     <div class="mode"><span class="pill" id="scaffoldPill" title="Support level: Guide — cues are visible; ask for a step when needed. Change it under Instructor tools → Setup." aria-label="Support level: Guide">Guide</span></div>
   </header>
   <div class="layout">
@@ -71,7 +71,7 @@
       <section id="evaluation" class="screen" tabindex="-1"></section>
     </main>
   </div>
-  <div class="footer-note"><span class="product-fullname">NWS — Needs, Wants, Savings</span> <span>Fictional money only — practice, not financial advice.</span> <details class="disclaimer"><summary>Full disclaimer</summary><p>Research-informed educational simulation. Fictional money only. It does not provide individualized financial, tax, legal, medical, insurance, housing, or benefits eligibility advice.</p></details> <span class="pill-legend"><b>Guide</b> = your support level (change under Instructor tools → Setup). <b>Online</b> = connection status — NWS works offline; your practice stays on this device.</span></div>
+  <div class="footer-note"><span class="product-fullname">NWS — Needs, Wants, Savings</span> <span>Fictional money only — practice, not financial advice.</span> <details class="disclaimer"><summary>Full disclaimer</summary><p>Research-informed educational simulation. Fictional money only. It does not provide individualized financial, tax, legal, medical, insurance, housing, or benefits eligibility advice.</p></details> <span id="siteCredit" class="site-credit" hidden>by <a href="https://trujoedigital.com" target="_blank" rel="noopener">TruJoeDigital</a></span><span class="pill-legend"><b>Guide</b> = your support level (change under Instructor tools → Setup). <b>Online</b> = connection status — NWS works offline; your practice stays on this device.</span></div>
 </div>
 <dialog id="reportDialog"><div class="modal" id="reportBody"></div></dialog>
 <script type="module" src="./app/my-numbers.js"></script>
@@ -89,5 +89,19 @@
 <script type="module" src="./app/accessibility-runtime.js"></script>
 <script type="module" src="./app/router.js"></script>
 <script type="module" src="./app/course-ui.js"></script>
+<script>
+(function(){
+  var credit=document.getElementById('siteCredit');
+  if(!credit) return;
+  var SHOW={course:1,setup:1};
+  function sync(){
+    var active=document.querySelector('main .screen.active');
+    credit.hidden=!(active&&SHOW[active.id]);
+  }
+  var mainEl=document.querySelector('main');
+  if(mainEl) new MutationObserver(sync).observe(mainEl,{attributes:true,subtree:true,attributeFilter:['class']});
+  sync();
+})();
+</script>
 </body>
 </html>
