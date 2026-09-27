@@ -221,6 +221,8 @@ body.module-view .layout .nav{display:none}
 .lp-why{font-size:.94rem;color:var(--muted)}
 .lp-feedback.good .lp-why,.lp-feedback.miss .lp-why{color:var(--ink)}
 .lp-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px}
+.lp-nav-next{display:grid;gap:6px;justify-items:end}
+.lp-blocked-hint{font-size:.82rem;color:var(--muted);margin:0}
 .lp-tool-cta{margin-top:16px;display:grid;gap:8px;justify-items:start}
 .lp-tool-cta .sub{margin:0}
 .lp-done{display:grid;gap:12px;justify-items:start}
