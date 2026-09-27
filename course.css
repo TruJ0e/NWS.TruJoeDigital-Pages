@@ -259,6 +259,20 @@ body.module-view .layout .nav{display:none}
 .lp-ri-why{margin:0;font-size:.92rem;color:var(--muted);line-height:1.5}
 .good-tag{background:var(--good-soft);color:var(--brand-deep);border:1px solid var(--good)}
 .miss-tag{background:var(--warn-soft);color:var(--ink);border:1px solid var(--warn)}
+.stretch-tag{background:var(--panel-2);color:var(--brand-deep);border:1px solid var(--brand)}
+
+/* ---------- Variant engine: guided cues, misconception notes, practice progress ---------- */
+.lp-guide{background:var(--panel-2);border:1px dashed var(--line);border-radius:var(--radius-sm);padding:10px 14px;margin-top:12px;font-size:.94rem}
+.lp-guide p{margin:0 0 6px;line-height:1.5}
+.lp-guide p:last-child{margin-bottom:0}
+.lp-hint-open{color:var(--muted)}
+.lp-mis{color:var(--ink)}
+.lp-qprog{font-size:.85rem;color:var(--muted);margin:0 0 4px}
+.lp-skills{margin:14px 0;padding:12px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--panel-2)}
+.lp-skills h3{margin:0 0 8px;font-size:1rem}
+.lp-skills ul{margin:0 0 8px;padding-left:20px}
+.lp-skills li{margin:4px 0;line-height:1.5}
+.course-skills{display:block;margin-top:4px;font-size:.82rem;color:var(--muted)}
 
 /* ---------- Course structure v3: phone reflow ---------- */
 @media(max-width:620px){

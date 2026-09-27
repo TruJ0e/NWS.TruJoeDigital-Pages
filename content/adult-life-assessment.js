@@ -6,7 +6,7 @@ export const ADULT_LIFE_ASSESSMENTS = {
   banking:{
     transfer:item(
       'Your checking account shows $90. A $75 rent autopay is scheduled for tomorrow, and you are considering spending $25 tonight. What should you do first?',
-      [['reserve','Protect the $75 scheduled payment and check what remains.'],['spend','Spend the $25 because $90 is visible now.'],['overdraft','Spend it and assume overdraft will cover rent.'],['borrow','Borrow $25 from a friend so the $90 stays untouched for rent.']],
+      [['reserve','Protect the $75 scheduled payment and check what remains.'],['spend','Spend the $25 because $90 is visible now.','spend-before-obligation'],['overdraft','Spend it and assume overdraft will cover rent.','overdraft-as-backup'],['borrow','Borrow $25 from a friend so the $90 stays untouched for rent.','borrow-to-spend']],
       'reserve',
       'Treat known scheduled obligations as already spoken for before deciding what is flexible.'
     ),
@@ -20,7 +20,7 @@ export const ADULT_LIFE_ASSESSMENTS = {
   credit:{
     transfer:item(
       'A $240 purchase can go on a credit card with a $25 minimum payment. What should your plan recognize?',
-      [['debt','The purchase creates a $240 debt obligation; the minimum payment is not the total cost.'],['income','The card adds $240 of income this month.'],['minimum','The purchase only costs $25 because that is the minimum payment.'],['later','The purchase costs nothing until the bill arrives.']],
+      [['debt','The purchase creates a $240 debt obligation; the minimum payment is not the total cost.'],['income','The card adds $240 of income this month.','credit-as-income'],['minimum','The purchase only costs $25 because that is the minimum payment.','min-payment-trap'],['later','The purchase costs nothing until the bill arrives.','later-is-free']],
       'debt',
       'Credit changes when you pay for something; it does not turn borrowed money into income.'
     ),
@@ -34,7 +34,7 @@ export const ADULT_LIFE_ASSESSMENTS = {
   safety:{
     transfer:item(
       'A text says your university account is overdue and demands cryptocurrency within one hour. What is the safest first action?',
-      [['verify','Do not use the link; verify through the university portal or a known official contact.'],['pay','Pay quickly to avoid a hold, then verify.'],['reply','Reply with account details so the sender can prove the balance.'],['call','Call the number in the text to confirm it is real.']],
+      [['verify','Do not use the link; verify through the university portal or a known official contact.'],['pay','Pay quickly to avoid a hold, then verify.','urgency-overrides-verify'],['reply','Reply with account details so the sender can prove the balance.'],['call','Call the number in the text to confirm it is real.','their-number-verifies']],
       'verify',
       'Urgency plus hard-to-reverse payment is a reason to stop and verify independently.'
     ),
@@ -62,7 +62,7 @@ export const ADULT_LIFE_ASSESSMENTS = {
   'health-costs':{
     transfer:item(
       'Plan A has a lower premium, but you expect frequent covered care. What is the better comparison before choosing?',
-      [['total','Compare premiums plus expected deductible, copays/coinsurance, network rules, and coverage.'],['premium','Choose the lowest premium automatically.'],['deductible','Compare only the deductible and ignore premiums and other cost sharing.'],['brand','Choose the plan from the most familiar company.']],
+      [['total','Compare premiums plus expected deductible, copays/coinsurance, network rules, and coverage.'],['premium','Choose the lowest premium automatically.','premium-is-total'],['deductible','Compare only the deductible and ignore premiums and other cost sharing.'],['brand','Choose the plan from the most familiar company.']],
       'total',
       'Health-plan cost is a bundle. The lowest premium does not automatically produce the lowest total cost.'
     ),
@@ -76,7 +76,7 @@ export const ADULT_LIFE_ASSESSMENTS = {
   housing:{
     transfer:item(
       'An apartment lists $850 rent, $60 required parking, and tenant-paid electricity. What belongs in the recurring housing comparison?',
-      [['bundle','Rent plus required parking plus expected tenant-paid utilities and other lease-required recurring costs.'],['rent','$850 rent only.'],['parking','Only the $60 parking fee because rent is obvious.'],['deposit','Only the security deposit, since monthly costs sort themselves out.']],
+      [['bundle','Rent plus required parking plus expected tenant-paid utilities and other lease-required recurring costs.'],['rent','$850 rent only.','sticker-rent'],['parking','Only the $60 parking fee because rent is obvious.'],['deposit','Only the security deposit, since monthly costs sort themselves out.']],
       'bundle',
       'Housing affordability depends on the recurring bundle assigned by the lease, not sticker rent alone.'
     ),
@@ -90,7 +90,7 @@ export const ADULT_LIFE_ASSESSMENTS = {
   utilities:{
     transfer:item(
       'Electric bills are higher in winter and lower in spring. What is the stronger monthly planning approach?',
-      [['buffer','Use available cost history/estimates and leave room for seasonal variation.'],['lowest','Budget only the lowest bill you have seen.'],['omit','Leave electricity out because the amount changes.'],['card','Put winter overages on a credit card and budget only spring amounts.']],
+      [['buffer','Use available cost history/estimates and leave room for seasonal variation.'],['lowest','Budget only the lowest bill you have seen.'],['omit','Leave electricity out because the amount changes.','variable-means-unplannable'],['card','Put winter overages on a credit card and budget only spring amounts.']],
       'buffer',
       'Variable required costs still belong in the plan. Estimate them and preserve a buffer for variation.'
     ),
@@ -104,7 +104,7 @@ export const ADULT_LIFE_ASSESSMENTS = {
   food:{
     transfer:item(
       'You have $40 for food and already have rice, pasta, and frozen vegetables. What should you do before shopping?',
-      [['plan','Plan meals around what you already have, then list the missing items.'],['bulk','Buy the biggest sale packages first.'],['percent','Use a universal grocery percentage instead of checking your actual food and budget.'],['delivery','Order delivery for the week since $40 covers a few meals.']],
+      [['plan','Plan meals around what you already have, then list the missing items.'],['bulk','Buy the biggest sale packages first.','sale-not-needed'],['percent','Use a universal grocery percentage instead of checking your actual food and budget.','one-percent-fits-all'],['delivery','Order delivery for the week since $40 covers a few meals.']],
       'plan',
       'Inventory-first meal planning connects purchases to food you will actually use.'
     ),
@@ -133,9 +133,14 @@ export const ADULT_LIFE_ASSESSMENTS = {
 
 export const ADULT_LIFE_SKILLS = Object.freeze(Object.keys(ADULT_LIFE_ASSESSMENTS));
 
-export function adultLifeAssessmentForSkill(skill,kind='transfer'){
-  const set=ADULT_LIFE_ASSESSMENTS[skill];
-  return set?.[kind]||null;
+export function adultLifeAssessmentForSkill(skill,kind='transfer',slot=null){
+  if(slot==null) return ADULT_LIFE_ASSESSMENTS[skill]?.[kind]||null;
+  const base=ADULT_LIFE_ASSESSMENTS[skill]?.[kind];
+  if(!base) return null;
+  const bank=kind==='retention'?ADULT_RETENTION_VARIANT_BANK:ADULT_TRANSFER_VARIANT_BANK;
+  const variants=[base,...(bank[skill]||[])];
+  const idx=Number.isInteger(slot)?slot:0;
+  return variants[((idx%variants.length)+variants.length)%variants.length];
 }
 
 export function adultLifeModuleForSkill(skill){
@@ -143,3 +148,35 @@ export function adultLifeModuleForSkill(skill){
 }
 
 export function isAdultLifeSkill(skill){ return ADULT_LIFE_SKILLS.includes(skill); }
+
+/* ===== Gap B variant wiring (adult-life transfer/retention variants) =====
+   Variant files populate these banks (same pattern as ADULT_PRACTICE_VARIANT_BANK
+   in adult-life.js) so this file stays importable with zero variant files present.
+*/
+export const ADULT_TRANSFER_VARIANT_BANK = {};
+export const ADULT_RETENTION_VARIANT_BANK = {};
+
+/** Canonical transfer item first (index 0), authored variants after. */
+export function adultTransferVariants(skill){
+  const base=ADULT_LIFE_ASSESSMENTS[skill]?.transfer;
+  if(!base) return [];
+  return [base,...(ADULT_TRANSFER_VARIANT_BANK[skill]||[])];
+}
+
+/** Canonical retention item first (index 0), authored variants after. */
+export function adultRetentionVariants(skill){
+  const base=ADULT_LIFE_ASSESSMENTS[skill]?.retention;
+  if(!base) return [];
+  return [base,...(ADULT_RETENTION_VARIANT_BANK[skill]||[])];
+}
+
+/** Normalize transfer/retention choice lists to [{key,label,mis}].
+    Accepts [key,label] or [key,label,mis] arrays, or {key,label,mis} objects. */
+export function normalizeAdultChoices(choices){
+  if(!Array.isArray(choices)) return [];
+  return choices.map(choice=>{
+    if(Array.isArray(choice)) return {key:choice[0],label:choice[1],mis:choice[2]||null};
+    if(choice&&typeof choice==='object') return {key:choice.key,label:choice.label,mis:choice.mis||null};
+    return {key:choice,label:String(choice),mis:null};
+  });
+}

@@ -36,6 +36,19 @@ export const SIMPLE_SECTIONS = [
       {
         text: 'Maya did her list. Now you try. Remember: a need keeps you safe and healthy.',
         question: 'Which one is a need?',
+        gen:(v)=>{
+          const needs=['Dinner','Breakfast','Lunch','A winter coat','Medicine','A warm blanket','A bus pass to get to work'];
+          const wants=['Candy','A new video game','A toy','New headphones','Movie tickets','Fancy sneakers','A comic book'];
+          const wrongs=v.shuffle(wants).slice(0,2);
+          return {
+            question:'Which one is a need?',
+            choices:[
+              {label:v.pick(needs),correct:true},
+              {label:wrongs[0],correct:false},
+              {label:wrongs[1],correct:false}
+            ]
+          };
+        },
         choices: [
           { label: 'Dinner', correct: true },
           { label: 'Candy' },
@@ -47,6 +60,19 @@ export const SIMPLE_SECTIONS = [
       {
         text: 'No hints this time.',
         question: 'Which one is a want?',
+        gen:(v)=>{
+          const wants=['A toy','A new video game','Candy','New headphones','Movie tickets','A comic book'];
+          const needs=['Medicine','A winter coat','Dinner','A bus pass to get to work','Water','A safe place to sleep'];
+          const wrongs=v.shuffle(needs).slice(0,2);
+          return {
+            question:'Which one is a want?',
+            choices:[
+              {label:v.pick(wants),correct:true},
+              {label:wrongs[0],correct:false},
+              {label:wrongs[1],correct:false}
+            ]
+          };
+        },
         choices: [
           { label: 'A toy', correct: true },
           { label: 'Medicine' },
@@ -59,6 +85,16 @@ export const SIMPLE_SECTIONS = [
       {
         text: "Maya's old backpack broke. She needs one for school.",
         question: 'Maya buys a plain backpack for school. Need or want?',
+        gen:(v)=>{
+          const item=v.pick(['backpack','lunchbox','pair of gym shoes for PE','box of pencils for class','notebook for math class','water bottle she takes to work']);
+          return {
+            question:'Maya\'s old '+item+' broke. She buys a plain one for school. Need or want?',
+            choices:[
+              {label:'Need',correct:true},
+              {label:'Want',correct:false}
+            ]
+          };
+        },
         choices: [
           { label: 'Need', correct: true },
           { label: 'Want' }
@@ -81,6 +117,16 @@ export const SIMPLE_SECTIONS = [
       {
         text: 'Maya gets $50 and wants to save $5. Remember: saving first means it really happens.',
         question: 'When should she move the $5 to savings?',
+        gen:(v)=>{
+          const amt=v.pick([3,4,5,6]);
+          return {
+            question:'Maya gets $50 and wants to save $'+amt+'. When should she move the $'+amt+' to savings?',
+            choices:[
+              {label:'Right away, before spending',correct:true},
+              {label:'At the end of the week, if money is left',correct:false,mis:'savings-from-leftovers'}
+            ]
+          };
+        },
         choices: [
           { label: 'Right away, before spending', correct: true },
           { label: 'At the end of the week, if money is left' }
@@ -91,6 +137,17 @@ export const SIMPLE_SECTIONS = [
       {
         text: 'No hints this time.',
         question: 'You get $20. What is a good choice?',
+        gen:(v)=>{
+          const pair=v.pick([[10,1],[15,1],[20,2],[25,2],[30,3]]);
+          const got=pair[0], save=pair[1];
+          return {
+            question:'You get $'+got+'. What is a good choice?',
+            choices:[
+              {label:'Save $'+save+' first, then spend the rest',correct:true},
+              {label:'Spend all $'+got+' today',correct:false,mis:'savings-skippable'}
+            ]
+          };
+        },
         choices: [
           { label: 'Save $2 first, then spend the rest', correct: true },
           { label: 'Spend all $20 today' }
@@ -102,6 +159,19 @@ export const SIMPLE_SECTIONS = [
       {
         text: 'Maya saved $5 each week for 4 weeks.',
         question: 'How much did she save in all?',
+        gen:(v)=>{
+          const per=v.pick([3,4,5,6]);
+          const weeks=v.pick([3,4,5]);
+          const total=per*weeks;
+          return {
+            question:'Maya saved $'+per+' each week for '+weeks+' weeks. How much did she save in all?',
+            choices:[
+              {label:'$'+total,correct:true},
+              {label:'$'+per,correct:false},
+              {label:'$'+(total+per),correct:false}
+            ]
+          };
+        },
         choices: [
           { label: '$20', correct: true },
           { label: '$5' },
@@ -124,6 +194,17 @@ export const SIMPLE_SECTIONS = [
       {
         text: 'Maya has $45 and 7 days. Her daily number is about $6. Remember: one day of spending should be near $6.',
         question: 'Maya spends $12 on lunch Monday. What happens?',
+        gen:(v)=>{
+          const set=v.pick([[35,5],[42,6],[45,6],[49,7],[56,8]]);
+          const left=set[0], daily=set[1], spend=daily*2;
+          return {
+            question:'Maya has $'+left+' and 7 days, so about $'+daily+' a day. She spends $'+spend+' on lunch Monday. What happens?',
+            choices:[
+              {label:'She has less for the other days',correct:true},
+              {label:'Nothing changes',correct:false,mis:'pace-absorbs'}
+            ]
+          };
+        },
         choices: [
           { label: 'She has less for the other days', correct: true },
           { label: 'Nothing changes' }
@@ -146,6 +227,16 @@ export const SIMPLE_SECTIONS = [
       {
         text: 'Candy is on sale. Maya did not plan to buy candy. Remember: a sale on something you do not need is not saving.',
         question: 'What is smart?',
+        gen:(v)=>{
+          const item=v.pick(['Candy','Chips','Soda','A comic book','Fancy socks']);
+          return {
+            question:item+' is on sale. Maya did not plan to buy it. What is smart?',
+            choices:[
+              {label:'Skip it',correct:true},
+              {label:'Buy a lot because it is cheap',correct:false,mis:'sale-not-needed'}
+            ]
+          };
+        },
         choices: [
           { label: 'Skip it', correct: true },
           { label: 'Buy a lot because it is cheap' }
@@ -157,6 +248,23 @@ export const SIMPLE_SECTIONS = [
       {
         text: 'No hints this time. Check what one cup costs.',
         question: 'Big bag of rice: $8 for 8 cups. Small bag: $5 for 4 cups. Which costs less per cup?',
+        gen:(v)=>{
+          const set=v.pick([
+            [8,8,5,4],
+            [9,9,5,4],
+            [10,10,6,4],
+            [12,12,7,5],
+            [12,6,7,4],
+            [10,5,6,4]
+          ]);
+          return {
+            question:'Big bag of rice: $'+set[0]+' for '+set[1]+' cups. Small bag: $'+set[2]+' for '+set[3]+' cups. Which costs less per cup?',
+            choices:[
+              {label:'The big bag',correct:true},
+              {label:'The small bag',correct:false,mis:'total-not-unit'}
+            ]
+          };
+        },
         choices: [
           { label: 'The big bag', correct: true },
           { label: 'The small bag' }
@@ -168,6 +276,22 @@ export const SIMPLE_SECTIONS = [
       {
         text: 'Maya needs rice. The big bag is $8. Her daily number is $6.',
         question: 'The big bag costs more than one day of money. What can Maya do?',
+        gen:(v)=>{
+          const wrong=v.pick([
+            'Buy the small bag every week instead',
+            'Just buy the small bag each week',
+            'Keep getting the small bag every week',
+            'Buy the small bag again next week',
+            'Stick with the small bag weekly'
+          ]);
+          return {
+            question:'The big bag costs more than one day of money. What can Maya do?',
+            choices:[
+              {label:'Save a little each day, then buy the big bag',correct:true},
+              {label:wrong,correct:false,mis:'smaller-is-safer'}
+            ]
+          };
+        },
         choices: [
           { label: 'Save a little each day, then buy the big bag', correct: true },
           { label: 'Buy the small bag every week instead' }
@@ -190,6 +314,22 @@ export const SIMPLE_SECTIONS = [
       {
         text: 'No hints this time.',
         question: 'Which number do you plan your spending with?',
+        gen:(v)=>{
+          const wrong=v.pick([
+            'The big number before deductions',
+            'The big number on the check first',
+            'The number before money is taken out',
+            'The big number at the top of the check',
+            'The full number before anything is taken out'
+          ]);
+          return {
+            question:'Which number do you plan your spending with?',
+            choices:[
+              {label:'Take-home pay',correct:true},
+              {label:wrong,correct:false,mis:'paycheck-gross'}
+            ]
+          };
+        },
         choices: [
           { label: 'Take-home pay', correct: true },
           { label: 'The big number before deductions' }
@@ -211,6 +351,17 @@ export const SIMPLE_SECTIONS = [
       {
         text: 'Remember: $10 a month is $120 a year.',
         question: 'A $10-a-month app Maya never uses. What is smart?',
+        gen:(v)=>{
+          const price=v.pick([8,10,12,15]);
+          const wrong=v.pick(['Keep paying','Keep it and pay anyway','Just keep paying each month']);
+          return {
+            question:'A $'+price+'-a-month app Maya never uses. What is smart?',
+            choices:[
+              {label:'Cancel it',correct:true},
+              {label:wrong,correct:false,mis:'someday-subscription'}
+            ]
+          };
+        },
         choices: [
           { label: 'Cancel it', correct: true },
           { label: 'Keep paying' }
@@ -221,6 +372,18 @@ export const SIMPLE_SECTIONS = [
       {
         text: 'No hints this time.',
         question: 'Maya pays $8 a month for music and $5 a month for a game. How much is that per year?',
+        gen:(v)=>{
+          const music=v.pick([6,7,8,9,10]);
+          const game=v.pick([3,4,5,6]);
+          const month=music+game, year=month*12;
+          return {
+            question:'Maya pays $'+music+' a month for music and $'+game+' a month for a game. How much is that per year?',
+            choices:[
+              {label:'$'+year,correct:true},
+              {label:'$'+month,correct:false,mis:'period-math'}
+            ]
+          };
+        },
         choices: [
           { label: '$156', correct: true },
           { label: '$13' }

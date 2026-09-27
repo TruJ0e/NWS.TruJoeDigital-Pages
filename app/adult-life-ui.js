@@ -1,5 +1,6 @@
-import { ADULT_LIFE_REVIEW, ADULT_LIFE_MODULES } from '../content/adult-life.js';
-import { adultLifeAssessmentForSkill, adultLifeModuleForSkill } from '../content/adult-life-assessment.js';
+import { ADULT_LIFE_REVIEW, ADULT_LIFE_MODULES, adultPracticeVariants, adultVariantSlot } from '../content/adult-life.js';
+import { adultLifeModuleForSkill, adultTransferVariants, adultRetentionVariants, normalizeAdultChoices } from '../content/adult-life-assessment.js';
+import '../content/adult-life-variants.js';
 import { loadState, saveState } from './state.js';
 import { completeDelayedCheck, scheduleDelayedCheck } from './retrieval.js';
 import { recordLearningDecision } from './mastery.js';
@@ -27,7 +28,24 @@ function practiceChoice(module,choice){
 }
 
 function transferChoice(choice){
-  return `<button type="button" class="btn secondary adult-life-transfer-choice" data-adult-transfer-answer="${esc(choice[0])}">${esc(choice[1])}</button>`;
+  return `<button type="button" class="btn secondary adult-life-transfer-choice" data-adult-transfer-answer="${esc(choice.key)}">${esc(choice.label)}</button>`;
+}
+
+/* ===== Gap B variant resolution: deterministic per-learner slots =====
+   Each learner is assigned a stable slot per module/kind via adultVariantSlot,
+   so the same variant renders on every visit. Choice keys are stable across
+   variants, so stored answers and delayed-check records stay valid. */
+function practiceFor(module){
+  const variants=adultPracticeVariants(module.id);
+  return variants[adultVariantSlot('practice:'+module.id,variants.length)];
+}
+function transferFor(module){
+  const variants=adultTransferVariants(module.skill);
+  return variants[adultVariantSlot('transfer:'+module.skill,variants.length)];
+}
+function retentionFor(skill){
+  const variants=adultRetentionVariants(skill);
+  return variants[adultVariantSlot('retention:'+skill,variants.length)];
 }
 
 function sources(module){
@@ -35,23 +53,25 @@ function sources(module){
 }
 
 function transferCard(module){
-  const assessment=adultLifeAssessmentForSkill(module.skill,'transfer');
-  if(!assessment)return'';
+  const tv=transferFor(module);
+  if(!tv)return'';
+  const choices=normalizeAdultChoices(tv.choices);
   const answered=lastTransferAnswer?.moduleId===module.id;
-  const correct=answered&&lastTransferAnswer.choiceId===assessment.good;
-  return `<div class="card"><div class="row between"><h3>Try a new situation</h3><span class="tag info">Novel transfer</span></div><p class="sub">Same underlying skill, changed context. This is recorded separately as transfer evidence.</p><p><b>${esc(assessment.question)}</b></p><div class="stack">${assessment.choices.map(transferChoice).join('')}</div>${answered?`<div class="result" role="status"><b>${correct?'This applies the skill in the changed situation.':'This changed situation still uses the same decision process.'}</b><p>${esc(assessment.help)}</p></div>`:''}</div>`;
+  const correct=answered&&lastTransferAnswer.choiceId===tv.good;
+  return `<div class="card"><div class="row between"><h3>Try a new situation</h3><span class="tag info">Novel transfer</span></div><p class="sub">Same underlying skill, changed context. This is recorded separately as transfer evidence.</p><p><b>${esc(tv.question)}</b></p><div class="stack">${choices.map(transferChoice).join('')}</div>${answered?`<div class="result" role="status"><b>${correct?'This applies the skill in the changed situation.':'This changed situation still uses the same decision process.'}</b><p>${esc(tv.help)}</p></div>`:''}</div>`;
 }
 
 function renderDetail(module){
+  const pv=practiceFor(module);
   const answered=lastAnswer?.moduleId===module.id;
-  const chosen=answered?module.practice.choices.find(x=>x.id===lastAnswer.choiceId):null;
-  const correct=answered&&lastAnswer.choiceId===module.practice.correct;
+  const chosen=answered?pv.choices.find(x=>x.id===lastAnswer.choiceId):null;
+  const correct=answered&&lastAnswer.choiceId===pv.correct;
   const transfer=answered&&correct
     ? transferCard(module)
     : answered
       ? '<div class="callout"><b>Transfer check stays locked for now.</b> Retry the quick practice successfully before applying the skill in a changed situation.</div>'
       : '<div class="callout"><b>Transfer comes next.</b> Complete the quick practice first; NWS will then give you a changed-context version of the same skill.</div>';
-  return `<div class="stack"><div class="hero"><h3>Independent-life practice</h3><p class="sub">Practice the financial processes that show up when college support begins shifting toward independent adult responsibilities.</p><div class="callout"><b>Current module:</b> ${esc(module.title)}. Work one decision at a time; use the official source when a rule depends on current law, plan terms, or location.</div></div><div class="card"><h3>${esc(module.title)}</h3><p>${esc(module.summary)}</p><h3>What to know</h3><ul>${module.durableConcepts.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div><div class="card"><h3>Quick practice</h3><p><b>${esc(module.practice.prompt)}</b></p><div class="stack">${module.practice.choices.map(choice=>practiceChoice(module,choice)).join('')}</div>${answered?`<div class="result" role="status"><b>${correct?'This choice protects the decision process.':'Review the consequence and try again if useful.'}</b><p>${esc(chosen?.feedback||'')}</p></div>`:''}<p class="sub">Retries are allowed. This first response contributes accuracy and independence evidence through the same NWS evidence system. A separate changed-context item is used for transfer.</p></div>${transfer}${sources(module)}</div>`;
+  return `<div class="stack"><div class="hero"><h3>Independent-life practice</h3><p class="sub">Practice the financial processes that show up when college support begins shifting toward independent adult responsibilities.</p><div class="callout"><b>Current module:</b> ${esc(module.title)}. Work one decision at a time; use the official source when a rule depends on current law, plan terms, or location.</div></div><div class="card"><h3>${esc(module.title)}</h3><p>${esc(module.summary)}</p><h3>What to know</h3><ul>${module.durableConcepts.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div><div class="card"><h3>Quick practice</h3><p><b>${esc(pv.prompt)}</b></p><div class="stack">${pv.choices.map(choice=>practiceChoice(module,choice)).join('')}</div>${answered?`<div class="result" role="status"><b>${correct?'This choice protects the decision process.':'Review the consequence and try again if useful.'}</b><p>${esc(chosen?.feedback||'')}</p></div>`:''}<p class="sub">Retries are allowed. This first response contributes accuracy and independence evidence through the same NWS evidence system. A separate changed-context item is used for transfer.</p></div>${transfer}${sources(module)}</div>`;
 }
 
 function render(){
@@ -70,9 +90,10 @@ function render(){
 
 function recordChoice(module,choiceId){
   ensureInitialPracticeMode();
-  const correct=choiceId===module.practice.correct;
+  const pv=practiceFor(module);
+  const correct=choiceId===pv.correct;
   const quizId=`adult-life-${module.id}`;
-  if(window.app?.quiz) window.app.quiz(quizId,choiceId,module.practice.correct,module.skill);
+  if(window.app?.quiz) window.app.quiz(quizId,choiceId,pv.correct,module.skill);
   lastAnswer={moduleId:module.id,choiceId,correct};
   lastTransferAnswer=null;
   render();
@@ -80,13 +101,13 @@ function recordChoice(module,choiceId){
 }
 
 function recordTransferChoice(module,choiceId){
-  const assessment=adultLifeAssessmentForSkill(module.skill,'transfer');
-  if(!assessment||!window.app?.quiz)return;
+  const tv=transferFor(module);
+  if(!tv||!window.app?.quiz)return;
   ensureInitialPracticeMode();
   if(!loadState().transferMode&&window.app?.toggleTransfer) window.app.toggleTransfer();
-  window.app.quiz(`adult-life-transfer-${module.id}`,choiceId,assessment.good,module.skill);
+  window.app.quiz(`adult-life-transfer-${module.id}`,choiceId,tv.good,module.skill);
   if(loadState().transferMode&&window.app?.toggleTransfer) window.app.toggleTransfer();
-  const correct=choiceId===assessment.good;
+  const correct=choiceId===tv.good;
   lastTransferAnswer={moduleId:module.id,choiceId,correct};
   render();
   [...document.querySelectorAll('[data-adult-transfer-answer]')].find(button=>button.dataset.adultTransferAnswer===choiceId)?.focus();
@@ -95,14 +116,14 @@ function recordTransferChoice(module,choiceId){
 function adultLifeRetrievalContext(){
   const persisted=loadState();
   const check=(persisted.learning?.delayedChecks||[]).find(x=>x.id===persisted.activeRetrievalCheck&&x.status==='scheduled');
-  const assessment=check?adultLifeAssessmentForSkill(check.skill,'retention'):null;
+  const assessment=check?retentionFor(check.skill):null;
   return assessment?{persisted,check,assessment,module:adultLifeModuleForSkill(check.skill)}:null;
 }
 
 function completeAdultLifeRetrieval(id,choiceId){
   const persisted=loadState();
   const check=(persisted.learning?.delayedChecks||[]).find(x=>x.id===id&&x.status==='scheduled');
-  const assessment=check?adultLifeAssessmentForSkill(check.skill,'retention'):null;
+  const assessment=check?retentionFor(check.skill):null;
   if(!check||!assessment)return;
   const correct=choiceId===assessment.good;
   const prompted=!!persisted.retrievalHelpUsed?.[id];

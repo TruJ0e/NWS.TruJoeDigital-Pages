@@ -22,9 +22,9 @@ export const ADULT_LIFE_MODULES = [
       prompt:'Your app shows $45. A $40 utility autopay is scheduled for tomorrow, and you are considering a $20 purchase today. What should you do first?',
       choices:[
         {id:'check-obligations',label:'Protect the scheduled $40 first and check what will remain.',feedback:'This uses the NWS decision routine: account for a known required payment before treating the visible balance as flexible money.'},
-        {id:'spend-visible',label:'Spend the $20 because the app currently shows $45.',feedback:'The displayed balance does not erase a known scheduled payment. A pending obligation still matters.'},
-        {id:'assume-overdraft',label:'Spend it and assume overdraft coverage will handle the bill.',feedback:'Overdraft coverage can involve fees or borrowing. It is not extra income.'},
-        {id:'split-purchase',label:'Buy a $5 version now and the rest after the autopay clears.',feedback:'Splitting still spends flexible money before a known required payment posts. Protect the $40 first, then decide with what remains.'}
+        {id:'spend-visible',mis:'spend-before-obligation',label:'Spend the $20 because the app currently shows $45.',feedback:'The displayed balance does not erase a known scheduled payment. A pending obligation still matters.'},
+        {id:'assume-overdraft',mis:'overdraft-as-backup',label:'Spend it and assume overdraft coverage will handle the bill.',feedback:'Overdraft coverage can involve fees or borrowing. It is not extra income.'},
+        {id:'split-purchase',mis:'spend-before-obligation',label:'Buy a $5 version now and the rest after the autopay clears.',feedback:'Splitting still spends flexible money before a known required payment posts. Protect the $40 first, then decide with what remains.'}
       ],
       correct:'check-obligations'
     },
@@ -49,9 +49,9 @@ export const ADULT_LIFE_MODULES = [
       prompt:'A $300 purchase will not fit your current plan. A credit card would let you buy it today. What is the financially accurate way to classify the card?',
       choices:[
         {id:'borrowed',label:'Borrowed money that creates a future payment obligation.',feedback:'Correct. Credit changes when you pay, not whether the purchase ultimately has a cost.'},
-        {id:'income',label:'Extra income because the card increases what I can spend today.',feedback:'A credit limit is not income. Using it creates debt that must be repaid.'},
-        {id:'savings',label:'Savings because I can delay paying for the purchase.',feedback:'Delaying payment does not turn a purchase into savings and may add interest or fees.'},
-        {id:'free-until-bill',label:'Free money until the statement arrives.',feedback:'The statement arrives with the full $300 owed plus any interest or fees. Later is a due date, not a discount.'}
+        {id:'income',mis:'credit-as-income',label:'Extra income because the card increases what I can spend today.',feedback:'A credit limit is not income. Using it creates debt that must be repaid.'},
+        {id:'savings',mis:'delay-is-savings',label:'Savings because I can delay paying for the purchase.',feedback:'Delaying payment does not turn a purchase into savings and may add interest or fees.'},
+        {id:'free-until-bill',mis:'later-is-free',label:'Free money until the statement arrives.',feedback:'The statement arrives with the full $300 owed plus any interest or fees. Later is a due date, not a discount.'}
       ],
       correct:'borrowed'
     },
@@ -76,9 +76,9 @@ export const ADULT_LIFE_MODULES = [
       prompt:'A caller says your electricity will be shut off in 30 minutes unless you pay with a gift card. What is the best first action?',
       choices:[
         {id:'verify',label:'End the contact and call the utility using the number on a real bill or its known website.',feedback:'Correct. Separate the verification step from the person creating the urgency.'},
-        {id:'pay',label:'Pay quickly so the power stays on, then verify afterward.',feedback:'Urgent gift-card payment is a major scam signal. Paying first can make recovery difficult.'},
+        {id:'pay',mis:'urgency-overrides-verify',label:'Pay quickly so the power stays on, then verify afterward.',feedback:'Urgent gift-card payment is a major scam signal. Paying first can make recovery difficult.'},
         {id:'share',label:'Give account information so the caller can prove the balance.',feedback:'Do not provide financial/account information to an unexpected caller. Verify independently.'},
-        {id:'callback',label:'Call back the number the caller gave you to confirm.',feedback:'A scammer\u2019s callback number reaches the scammer. Verify through a number you already know: the bill, the app, or the official site.'}
+        {id:'callback',mis:'their-number-verifies',label:'Call back the number the caller gave you to confirm.',feedback:'A scammer\u2019s callback number reaches the scammer. Verify through a number you already know: the bill, the app, or the official site.'}
       ],
       correct:'verify'
     },
@@ -103,9 +103,9 @@ export const ADULT_LIFE_MODULES = [
       prompt:'You are planning next month using your first paycheck. Which number belongs in the amount-available step?',
       choices:[
         {id:'take-home',label:'The take-home amount actually deposited or paid to you.',feedback:'Correct. Budget from money actually available after deductions, not the larger gross-pay figure.'},
-        {id:'gross',label:'Gross wages before any deductions.',feedback:'Gross pay helps describe earnings, but it is not the same as the amount available to spend after withholding/deductions.'},
-        {id:'annual',label:'The annual salary divided by twelve, no matter how payroll works.',feedback:'Pay frequency, withholding, and deductions matter. Use the actual take-home amount for the immediate plan.'},
-        {id:'gross-minus-guess',label:'Gross minus a rough guess at taxes.',feedback:'Guessing at deductions is still guessing. The take-home amount is the number that actually reaches you; budget from that.'}
+        {id:'gross',mis:'paycheck-gross',label:'Gross wages before any deductions.',feedback:'Gross pay helps describe earnings, but it is not the same as the amount available to spend after withholding/deductions.'},
+        {id:'annual',mis:'paycheck-gross',label:'The annual salary divided by twelve, no matter how payroll works.',feedback:'Pay frequency, withholding, and deductions matter. Use the actual take-home amount for the immediate plan.'},
+        {id:'gross-minus-guess',mis:'guess-is-good-enough',label:'Gross minus a rough guess at taxes.',feedback:'Guessing at deductions is still guessing. The take-home amount is the number that actually reaches you; budget from that.'}
       ],
       correct:'take-home'
     },
@@ -130,9 +130,9 @@ export const ADULT_LIFE_MODULES = [
       prompt:'Plan A has the lowest monthly premium. Does that automatically make it the least expensive plan for the year?',
       choices:[
         {id:'no-total',label:'No. Compare premiums plus expected deductible/copay/coinsurance and plan coverage.',feedback:'Correct. A low premium can come with higher cost sharing; actual needs and plan rules matter.'},
-        {id:'yes-premium',label:'Yes. The premium is the only cost that matters.',feedback:'Premium is only one part of total health-plan cost.'},
-        {id:'ignore-network',label:'Yes, as long as I ignore whether providers are in network.',feedback:'Network rules can materially affect what you pay and whether costs count toward plan limits.'},
-        {id:'ask-friend',label:'Yes, if a friend with the same plan pays less overall.',feedback:'Someone else\u2019s care needs are not yours. Total cost depends on your expected care, deductible, copays, and network.'}
+        {id:'yes-premium',mis:'premium-is-total',label:'Yes. The premium is the only cost that matters.',feedback:'Premium is only one part of total health-plan cost.'},
+        {id:'ignore-network',mis:'network-doesnt-matter',label:'Yes, as long as I ignore whether providers are in network.',feedback:'Network rules can materially affect what you pay and whether costs count toward plan limits.'},
+        {id:'ask-friend',mis:'friend-math',label:'Yes, if a friend with the same plan pays less overall.',feedback:'Someone else\u2019s care needs are not yours. Total cost depends on your expected care, deductible, copays, and network.'}
       ],
       correct:'no-total'
     },
@@ -161,9 +161,9 @@ export const ADULT_LIFE_MODULES = [
       prompt:'An apartment is advertised at $700/month. What should you calculate before deciding it fits an $850 monthly housing budget?',
       choices:[
         {id:'bundle',label:'Rent plus lease-required fees and expected utilities/recurring housing costs.',feedback:'Correct. Sticker rent can be only one part of the recurring housing obligation.'},
-        {id:'rent-only',label:'Only the advertised $700 rent.',feedback:'The lease may assign additional recurring costs. Include those before deciding how much is flexible.'},
-        {id:'deposit-only',label:'Only the security deposit because it is due first.',feedback:'Upfront costs matter, but the recurring monthly bundle must also fit after move-in.'},
-        {id:'negotiate-later',label:'Only the $700 rent; extra fees can be negotiated away later.',feedback:'Lease-required fees and utilities are part of the recurring cost whether you negotiate or not. Plan the full bundle first.'}
+        {id:'rent-only',mis:'sticker-rent',label:'Only the advertised $700 rent.',feedback:'The lease may assign additional recurring costs. Include those before deciding how much is flexible.'},
+        {id:'deposit-only',mis:'upfront-is-all',label:'Only the security deposit because it is due first.',feedback:'Upfront costs matter, but the recurring monthly bundle must also fit after move-in.'},
+        {id:'negotiate-later',mis:'fees-negotiable',label:'Only the $700 rent; extra fees can be negotiated away later.',feedback:'Lease-required fees and utilities are part of the recurring cost whether you negotiate or not. Plan the full bundle first.'}
       ],
       correct:'bundle'
     },
@@ -188,9 +188,9 @@ export const ADULT_LIFE_MODULES = [
       prompt:'Before signing a lease, the listing says “utilities vary.” What information is most useful for your budget?',
       choices:[
         {id:'responsibility',label:'Which utilities I pay, typical/available cost information, setup/deposit requirements, and due timing.',feedback:'Correct. Confirm both responsibility and timing before deciding how much housing cost fits.'},
-        {id:'assume',label:'Assume all utilities are included unless the first bill arrives.',feedback:'Utility responsibility should be checked in the lease/with the legitimate provider before move-in.'},
-        {id:'ignore-variable',label:'Ignore utilities because variable bills cannot be planned for.',feedback:'Variable costs can still be estimated and buffered; uncertainty is a reason to plan, not omit the cost.'},
-        {id:'listing-word',label:'Take the listing at its word; \u201cvary\u201d means roughly average.',feedback:'\u201cVary\u201d is not a number. Ask which utilities you pay and get typical costs before the lease locks them in.'}
+        {id:'assume',mis:'assume-included',label:'Assume all utilities are included unless the first bill arrives.',feedback:'Utility responsibility should be checked in the lease/with the legitimate provider before move-in.'},
+        {id:'ignore-variable',mis:'variable-means-unplannable',label:'Ignore utilities because variable bills cannot be planned for.',feedback:'Variable costs can still be estimated and buffered; uncertainty is a reason to plan, not omit the cost.'},
+        {id:'listing-word',mis:'vary-is-a-number',label:'Take the listing at its word; \u201cvary\u201d means roughly average.',feedback:'\u201cVary\u201d is not a number. Ask which utilities you pay and get typical costs before the lease locks them in.'}
       ],
       correct:'responsibility'
     },
@@ -216,9 +216,9 @@ export const ADULT_LIFE_MODULES = [
       prompt:'You have $35 for groceries until the next refill. Which first step gives you the best planning information?',
       choices:[
         {id:'inventory',label:'Check what food you already have, then plan meals and the missing items.',feedback:'Correct. Inventory-first planning reduces duplicate purchases and connects spending to actual meals.'},
-        {id:'sale',label:'Buy every sale item first and figure out meals afterward.',feedback:'A sale only helps if the item fits your actual plan and will be used.'},
-        {id:'percentage',label:'Apply the same grocery percentage everyone should use.',feedback:'There is no single useful grocery percentage for every learner and budget. Start with needs, resources, and the actual period.'},
-        {id:'list-memory',label:'Write the list from memory without checking the kitchen.',feedback:'A memory list duplicates what you already own and misses what you need. A two-minute inventory prevents both.'}
+        {id:'sale',mis:'sale-not-needed',label:'Buy every sale item first and figure out meals afterward.',feedback:'A sale only helps if the item fits your actual plan and will be used.'},
+        {id:'percentage',mis:'one-percent-fits-all',label:'Apply the same grocery percentage everyone should use.',feedback:'There is no single useful grocery percentage for every learner and budget. Start with needs, resources, and the actual period.'},
+        {id:'list-memory',mis:'memory-inventory',label:'Write the list from memory without checking the kitchen.',feedback:'A memory list duplicates what you already own and misses what you need. A two-minute inventory prevents both.'}
       ],
       correct:'inventory'
     },
@@ -242,9 +242,9 @@ export const ADULT_LIFE_MODULES = [
       prompt:'A used car payment looks affordable by itself. What should you compare before deciding it fits?',
       choices:[
         {id:'total',label:'Payment plus insurance, fuel, maintenance/repairs, parking, and alternatives such as transit.',feedback:'Correct. Transportation is a bundle of costs and constraints, not just the loan/payment amount.'},
-        {id:'payment',label:'Only the monthly car payment.',feedback:'Ownership/operation can add several other required or variable costs.'},
-        {id:'fuel',label:'Only fuel because that changes most often.',feedback:'Fuel matters, but so do fixed and irregular costs such as insurance, parking, maintenance, and repairs.'},
-        {id:'payment-plus-insurance',label:'Payment plus insurance; the rest is too small to matter.',feedback:'Fuel, maintenance, repairs, and parking add up fast. Small recurring costs are exactly what break a tight car budget.'}
+        {id:'payment',mis:'payment-is-total',label:'Only the monthly car payment.',feedback:'Ownership/operation can add several other required or variable costs.'},
+        {id:'fuel',mis:'volatile-means-only',label:'Only fuel because that changes most often.',feedback:'Fuel matters, but so do fixed and irregular costs such as insurance, parking, maintenance, and repairs.'},
+        {id:'payment-plus-insurance',mis:'small-costs-dont-matter',label:'Payment plus insurance; the rest is too small to matter.',feedback:'Fuel, maintenance, repairs, and parking add up fast. Small recurring costs are exactly what break a tight car budget.'}
       ],
       correct:'total'
     },
@@ -255,6 +255,47 @@ export const ADULT_LIFE_MODULES = [
 ];
 
 export function getAdultLifeModule(id){ return ADULT_LIFE_MODULES.find(module=>module.id===id)||null; }
+
+/* ===== Gap B variant wiring (adult-life question variants) =====
+   Variant files (authored separately, e.g. adult-life-variants-1.js) populate
+   this bank instead of adult-life.js importing them, so adult-life.js stays
+   importable when zero variant files are present:
+     import { ADULT_PRACTICE_VARIANT_BANK } from './adult-life.js';
+     Object.assign(ADULT_PRACTICE_VARIANT_BANK,{ banking:[{prompt,choices,correct},...] });
+*/
+export const ADULT_PRACTICE_VARIANT_BANK = {};
+
+/** Canonical practice question first (index 0), authored variants after. */
+export function adultPracticeVariants(moduleId){
+  const module=getAdultLifeModule(moduleId);
+  if(!module||!module.practice) return [];
+  return [module.practice,...(ADULT_PRACTICE_VARIANT_BANK[moduleId]||[])];
+}
+
+const ADULT_SLOT_KEY='nws-adult-slot';
+function adultSlotSalt(){
+  try{
+    if(typeof localStorage!=='undefined'&&localStorage){
+      let salt=localStorage.getItem(ADULT_SLOT_KEY);
+      if(!salt){
+        salt='salt-'+Math.random().toString(36).slice(2)+Date.now().toString(36);
+        localStorage.setItem(ADULT_SLOT_KEY,salt);
+      }
+      return salt;
+    }
+  }catch{/* node / private-mode fallback */}
+  return 'node-fallback-salt';
+}
+
+/** Deterministic per-learner slot 0..count-1 for a key (stable until the
+    browser salt is cleared; safe in node via the fixed fallback salt). */
+export function adultVariantSlot(key,count){
+  if(!Number.isInteger(count)||count<1) return 0;
+  const text=adultSlotSalt()+'|'+String(key);
+  let hash=0;
+  for(let i=0;i<text.length;i++) hash=(Math.imul(hash,31)+text.charCodeAt(i))|0;
+  return Math.abs(hash)%count;
+}
 
 export function adultLifeSourcesNeedingReview(now=new Date()){
   const currentYear=now.getUTCFullYear();

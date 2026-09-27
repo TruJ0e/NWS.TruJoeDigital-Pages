@@ -1,6 +1,7 @@
 import { loadState } from './state.js';
 import { dueDelayedChecks } from './retrieval.js';
 import { dueRecoveryFollowups } from './recovery-followup.js';
+import { resolveTry, orderedChoices, recordSkillAttempt, skillStats, skillLabel, misconceptionLine, topMisconception, parseAttempt } from './variants.js';
 
 const COURSE_STATE_KEY='nwsCourseShell.v1';
 const CONTEXT_KEY='nwsCourseShell.context';
@@ -31,6 +32,7 @@ export const MODULES=[
       {id:'pacing-basics',est:8,title:'Pacing money over time',summary:'Turn a weekly, monthly, or semester amount into a usable pace.',screen:'pacing-value',pacingFocus:'pacing',kind:'lesson'},
       {id:'safe-to-spend',est:7,title:'Balance vs. safe to spend',summary:'Protect future Needs and planned savings before calling money flexible.',screen:'pacing-value',pacingFocus:'safe',kind:'lesson'},
       {id:'savings-purpose',est:6,title:'Savings is money for later',summary:'Savings can become a future Need, emergency resource, or planned goal.',screen:'pacing-value',pacingFocus:'savings-purpose',kind:'lesson'},
+      {id:'savings-apy',est:8,title:'Compounding: growth on growth',summary:'Watch growth earn growth, tell APY from APR, and use the rule of 72.',screen:'save',kind:'lesson'},
       {id:'irregular-income',est:8,title:'Irregular income',summary:'Plan without pretending money that has not arrived is guaranteed.',screen:'pacing-value',pacingFocus:'irregular',kind:'lesson'},
       {id:'semester-plan',est:10,title:'Plan a longer time period',summary:'Break a semester lump sum or paycheck cycle into smaller usable periods.',screen:'plan',kind:'tool',toolKind:'Calculator'}
     ]
@@ -40,6 +42,7 @@ export const MODULES=[
     summary:'A lower price is useful only when it fits the plan and creates real value.',outcomes:['Judge sales, subscriptions, and bulk deals by usable value, not sticker price.','Compare options by unit cost and practical cost, not the loudest discount.','Spot the true cost of a subscription before it becomes a leak.'],
     lessons:[
       {id:'sales-decisions',est:12,title:'Sales and discounts',summary:'A discount is not savings when it causes an unnecessary purchase.',screen:'spend',kind:'practice'},
+      {id:'sales-tax',est:8,title:'Sales tax at the register',summary:'The tag is not the total: tax the discounted price, then compare out-the-door totals.',screen:'spend',kind:'practice'},
       {id:'usable-value',est:8,title:'Quantity, unit price, and waste',summary:'Compare the amount you will actually use, not just package size.',screen:'pacing-value',pacingFocus:'value',kind:'lesson'},
       {id:'gas-value',est:7,title:'Gas price vs. travel cost',summary:'Count the cost of getting the deal before calling it a savings.',screen:'pacing-value',pacingFocus:'gas',kind:'lesson'},
       {id:'subscriptions-lesson',est:10,title:'Subscriptions and recurring costs',summary:'Turn small repeating charges into monthly and yearly decisions.',screen:'subscriptions',kind:'tool',toolKind:'Calculator'}
@@ -52,6 +55,7 @@ export const MODULES=[
       {id:'banking',est:8,title:'Banking and overdrafts',summary:'Track pending obligations instead of trusting only the displayed balance.',screen:'adult-life',adultModule:'banking',kind:'lesson'},
       {id:'first-job',est:8,title:'Paychecks and tax paperwork',summary:'Use take-home pay and recognize the basic employment paperwork sequence.',screen:'adult-life',adultModule:'first-job',kind:'lesson'},
       {id:'credit',est:8,title:'Credit and borrowing',summary:'Treat credit as borrowed money with a future obligation.',screen:'adult-life',adultModule:'credit',kind:'lesson'},
+      {id:'credit-cards',est:10,title:'Credit cards: borrowed money has a price',summary:'Turn APR into a monthly rate, price the minimum-payment trap, and dodge card fees.',screen:'spend',kind:'practice'},
       {id:'scams',est:6,title:'Scams and payment safety',summary:'Use a stop-and-verify routine when someone creates urgency around money.',screen:'adult-life',adultModule:'scams',kind:'lesson'}
     ]
   },
@@ -207,6 +211,23 @@ function modulePageTopNav(){
   return `<nav class="topnav" aria-label="Course sections"><div class="topnav-scroll">${items.map(([hash,label])=>`<a class="topnav-link${hash==='#/modules'?' active':''}" href="${hash}">${esc(label)}</a>`).join('')}<a class="topnav-link topnav-simple" href="./simple.html">Simple mode</a></div></nav>`;
 }
 
+// Per-skill evidence on module lesson rows: what the learner's accuracy
+// looks like for each skill the lesson practices. Gates are by skill,
+// never by total score; this display is evidence, not a block.
+function lessonSkillSummary(lessonId){
+  const content=lessonContent(lessonId);
+  if(!content)return '';
+  const skills=[...new Set(content.steps.filter(s=>s.t==='try'&&s.skill).map(s=>s.skill))];
+  if(!skills.length)return '';
+  const parts=skills.map(sid=>{
+    const st=skillStats(sid);
+    if(st.pct==null)return null;
+    const mark=st.status==='solid'?'✓':st.status==='building'?'~':'!';
+    return `${mark} ${esc(skillLabel(sid))}: ${st.pct}%`;
+  }).filter(Boolean);
+  if(!parts.length)return '';
+  return `<small class="course-skills">Skills — ${parts.join(' · ')}</small>`;
+}
 function renderModulePage(moduleId){
   const host=document.getElementById('module-page'); if(!host)return;
   const module=MODULES.find(entry=>entry.id===moduleId);
@@ -220,7 +241,7 @@ function renderModulePage(moduleId){
   const rows=module.lessons.map(lesson=>{
     stepNum+=1;
     const visited=!!state.visited[lesson.id];
-    return `<button type="button" class="course-lesson${visited?' visited':''}" onclick="course.openLesson('${esc(lesson.id)}')" aria-label="Lesson ${stepNum}: ${esc(lesson.title)}${visited?' (visited)':''}"><span class="course-step-num" aria-hidden="true">${stepNum}</span><span class="course-lesson-meta"><b>${esc(lesson.title)}</b><small>${esc(lesson.summary)}</small></span><span class="course-kind">${esc(kindTag(lesson))}</span><span class="course-est">${lesson.est} min</span><span class="course-check" aria-hidden="true">✓</span><span class="course-lesson-action">${visited?'Open again':'Start'}</span></button>`;
+    return `<button type="button" class="course-lesson${visited?' visited':''}" onclick="course.openLesson('${esc(lesson.id)}')" aria-label="Lesson ${stepNum}: ${esc(lesson.title)}${visited?' (visited)':''}"><span class="course-step-num" aria-hidden="true">${stepNum}</span><span class="course-lesson-meta"><b>${esc(lesson.title)}</b><small>${esc(lesson.summary)}</small>${lessonSkillSummary(lesson.id)}</span><span class="course-kind">${esc(kindTag(lesson))}</span><span class="course-est">${lesson.est} min</span><span class="course-check" aria-hidden="true">✓</span><span class="course-lesson-action">${visited?'Open again':'Start'}</span></button>`;
   }).join('');
   host.innerHTML=
 `${modulePageTopNav()}<div class="module-page-head"><p class="lp-kicker">Module ${module.number} of ${MODULES.length}</p><h2>${esc(module.title)}</h2><p class="sub">${esc(module.summary)}</p><p class="module-page-meta"><span class="tag">${done}/${module.lessons.length} visited</span><span class="sub">about ${moduleMinutes(module)} min</span></p></div>`
@@ -547,7 +568,21 @@ function lessonModule(lesson){return MODULES.find(entry=>entry.id===lesson.modul
 function initPlayerState(id,stepIdx){
   const prev=readPlayerState();
   const answers=(prev&&prev.lessonId===id&&Array.isArray(prev.answers))?prev.answers:[];
-  writePlayerState({lessonId:id,idx:stepIdx,answers});
+  const attempts=(prev&&prev.lessonId===id&&prev.attempts&&typeof prev.attempts==='object')?prev.attempts:{};
+  const focusSkills=(prev&&prev.lessonId===id&&Array.isArray(prev.focusSkills))?prev.focusSkills:null;
+  writePlayerState({lessonId:id,idx:stepIdx,answers,attempts,focusSkills});
+}
+// Retry attempt per step: attempt 0 is the base variant; each "Try a similar
+// one" bumps the attempt so the learner gets a FRESH variant of the same skill.
+// The attempt may carry a diagnosed misconception ("n|mis-id") so the retry
+// targets the same misconception, not just the same skill.
+function playerAttemptFor(stepIdx){
+  const ps=readPlayerState();
+  if(!ps||!ps.attempts) return 0;
+  const a=ps.attempts[stepIdx];
+  if(Number.isInteger(a)&&a>=0) return a;
+  if(typeof a==='string'&&/^(\d+)(\|[a-z0-9-]+)?$/.test(a)) return a;
+  return 0;
 }
 function playerRecord(rec){
   const ps=readPlayerState(); if(!ps)return;
@@ -579,9 +614,23 @@ function lpTeach(step){return `<h2>${esc(step.h)}</h2><div class="lp-body">${ste
 function lpExample(step){
   return `<h2>${esc(step.h)}</h2><p class="lp-story">${step.story}</p><ul class="lp-points">${step.points.map(point=>`<li>${point}</li>`).join('')}</ul>`;
 }
+// Practice-set progress: within a lesson, consecutive try steps read as one
+// practice set, so show "Question i of n" above the question.
+function practiceProgress(ps){
+  const content=lessonContent(ps.lessonId);
+  if(!content)return '';
+  const tries=content.steps.map((s,i)=>s.t==='try'?i:-1).filter(i=>i>=0);
+  if(tries.length<2)return '';
+  const n=tries.indexOf(ps.idx)+1;
+  return n>0?`Question ${n} of ${tries.length}`:'';
+}
 function lpTry(ps,step){
-  const rec=playerAnswerFor(ps.idx,0);
-  const choices=step.choices.map((choice,ci)=>{
+  const lessonId=ps.lessonId, stepIdx=ps.idx;
+  const attempt=playerAttemptFor(stepIdx);
+  const q=resolveTry(lessonId,stepIdx,step,attempt);
+  const choices=orderedChoices(q,lessonId,stepIdx);
+  const rec=playerAnswerFor(stepIdx,0);
+  const buttons=choices.map((choice,ci)=>{
     let cls='lp-choice',mark='';
     if(rec){
       if(choice.ok){cls+=' correct';mark='<span aria-hidden="true"> ✓</span>';}
@@ -590,13 +639,26 @@ function lpTry(ps,step){
     return `<button type="button" class="${cls}"${rec?' disabled':''} onclick="course.playerAnswer(${ci})">${esc(choice.label)}${mark}</button>`;
   }).join('');
   let extra='';
-  if(!rec&&step.hint)extra=`<button type="button" class="linklike lp-hint-btn" onclick="course.playerHint(this)">Need a hint?</button><p class="lp-hint hidden">${esc(step.hint)}</p>`;
+  if(!rec){
+    // Guided tier: the next reasoning step is visible up front, then fades.
+    if(q.tier==='guided'&&(q.cue||q.hint)){
+      extra=`<div class="lp-guide" role="note">${q.cue?`<p class="lp-cue"><b>Start here:</b> ${esc(q.cue)}</p>`:''}${q.hint?`<p class="lp-hint-open">${esc(q.hint)}</p>`:''}</div>`;
+    }else if(q.hint){
+      extra=`<button type="button" class="linklike lp-hint-btn" onclick="course.playerHint(this)">Need a hint?</button><p class="lp-hint hidden">${esc(q.hint)}</p>`;
+    }
+  }
   let fb='';
   if(rec){
-    const choice=step.choices[rec.choice];
-    fb=`<div class="lp-feedback ${choice.ok?'good':'miss'}" role="status"><p><b>${esc(choice.ok?step.good:step.bad)}</b></p>${step.why?`<p class="lp-why">${step.why}</p>`:''}</div>`;
+    const choice=choices[rec.choice];
+    const ok=!!(choice&&choice.ok);
+    const misLine=!ok&&choice&&choice.mis?misconceptionLine(choice.mis):null;
+    fb=`<div class="lp-feedback ${ok?'good':'miss'}" role="status"><p><b>${esc(ok?q.good:q.bad)}</b></p>${misLine?`<p class="lp-mis"><b>The trap:</b> ${esc(misLine)}</p>`:''}${q.why?`<p class="lp-why">${q.why}</p>`:''}`
+      +(!ok?`<p><button type="button" class="btn secondary" onclick="course.playerRetry()">Try a similar one →</button></p>`:'')
+      +`</div>`;
   }
-  return `<h2>Try it</h2><p class="lp-q">${esc(step.q)}</p><div class="lp-choices">${choices}</div>${extra}${fb}`;
+  const tierTag=q.tier==='stretch'?' <span class="tag stretch-tag">Stretch</span>':'';
+  const prog=practiceProgress(ps);
+  return `<h2>Try it${tierTag}</h2>${prog?`<p class="lp-qprog">${esc(prog)}</p>`:''}<p class="lp-q">${esc(q.q)}</p><div class="lp-choices">${buttons}</div>${extra}${fb}`;
 }
 function lpSort(step){
   return `<h2>${esc(step.h)}</h2><div class="lp-body">${step.body}</div>`
@@ -632,9 +694,22 @@ function renderPlayerStep(){
   const content=lessonContent(ps.lessonId);
   if(!lesson||!content){host.innerHTML='';return;}
   const steps=content.steps;
+  // Focus mode: skip everything except try steps for the focus skills.
+  if(ps.focusSkills&&ps.focusSkills.length&&ps.idx<steps.length){
+    const st=steps[ps.idx];
+    if(!(st.t==='try'&&ps.focusSkills.includes(st.skill))){
+      ps.idx+=1; writePlayerState(ps);
+      renderPlayerStep(); return;
+    }
+  }
   if(ps.idx>=steps.length){renderPlayerReview(host,lesson,content,ps);return;}
   const step=steps[ps.idx];
-  const kicker=`Module ${lesson.moduleNumber} · Lesson ${lessonSeqNum(ps.lessonId)} of ${lessonSequence().length} · Step ${ps.idx+1} of ${steps.length}`;
+  let kicker=`Module ${lesson.moduleNumber} · Lesson ${lessonSeqNum(ps.lessonId)} of ${lessonSequence().length} · Step ${ps.idx+1} of ${steps.length}`;
+  if(ps.focusSkills&&ps.focusSkills.length){
+    const focusIdx=steps.map((s,i)=>({s,i})).filter(({s})=>s.t==='try'&&ps.focusSkills.includes(s.skill)).map(({i})=>i);
+    const pos=focusIdx.indexOf(ps.idx)+1;
+    if(pos>0)kicker=`Module ${lesson.moduleNumber} · Focused practice · Question ${pos} of ${focusIdx.length}`;
+  }
   let body='';
   if(step.t==='teach')body=lpTeach(step);
   else if(step.t==='example')body=lpExample(step);
@@ -656,7 +731,9 @@ function renderPlayerReview(host,lesson,content,ps){
   const isCorrect=a=>{
     if(a.bucket!==undefined)return !!a.correct;
     const step=content.steps[a.step];
-    const choice=step&&step.choices[a.choice];
+    const rq=resolveTry(ps.lessonId,a.step,step,a.att||0);
+    const rchoices=orderedChoices(rq,ps.lessonId,a.step);
+    const choice=rchoices[a.choice];
     return !!(choice&&choice.ok);
   };
   const correct=answers.filter(isCorrect).length;
@@ -675,21 +752,69 @@ function renderPlayerReview(host,lesson,content,ps){
         correctLabel=step.buckets[bucketIndexOf(step,item.a)]||capFirst(item.a);
         why=item.why; ok=!!a.correct;
       }else{
-        const choice=step.choices[a.choice];
-        q=step.q; chose=choice.label;
-        const ci=step.choices.findIndex(c=>c.ok);
-        correctLabel=step.choices[ci]?step.choices[ci].label:'';
-        why=step.why; ok=!!choice.ok;
+        const rq=resolveTry(ps.lessonId,a.step,step,a.att||0);
+        const rchoices=orderedChoices(rq,ps.lessonId,a.step);
+        const choice=rchoices[a.choice]||{};
+        q=rq.q; chose=choice.label||'';
+        const ci=rchoices.findIndex(c=>c.ok);
+        correctLabel=rchoices[ci]?rchoices[ci].label:'';
+        why=rq.why; ok=!!choice.ok;
       }
       return `<div class="lp-ritem ${ok?'ok':'miss'}"><p class="lp-ri-q">${esc(q)}</p><p class="lp-ri-a">You chose <b>${esc(chose)}</b> ${ok?'<span class="tag good-tag">Correct</span>':`<span class="tag miss-tag">Correct answer: <b>${esc(correctLabel)}</b></span>`}</p>${why?`<p class="lp-ri-why">${why}</p>`:''}</div>`;
     }).join('');
   }
   const pct=total?Math.round(correct/total*100):100;
   const verdict=!total?'':pct===100?'Perfect run — the routine is yours.':pct>=70?'Solid. The misses are the interesting part — read the why.':'Worth a second pass. Redo the lesson, then try again.';
+  // Per-skill evidence: what each practiced skill's accuracy looks like.
+  // Gating is by skill, never by total score. This-lesson accuracy decides
+  // completion; the cumulative stats below are long-term evidence.
+  const skillIds=[...new Set(content.steps.filter(s=>s.t==='try'&&s.skill).map(s=>s.skill))];
+  const lessonSkill={};
+  for(const a of answers){
+    if(a.bucket!==undefined)continue;
+    const st=content.steps[a.step];
+    const sid=st&&st.skill; if(!sid)continue;
+    lessonSkill[sid]=lessonSkill[sid]||{asked:0,correct:0};
+    lessonSkill[sid].asked+=1;
+    if(isCorrect(a))lessonSkill[sid].correct+=1;
+  }
+  const weakSkills=skillIds.filter(sid=>{
+    const s=lessonSkill[sid];
+    return s&&s.asked>0&&(s.correct/s.asked)<0.7;
+  });
+  const wasFocus=!!(ps.focusSkills&&ps.focusSkills.length);
+  if(wasFocus){ps.focusSkills=null;writePlayerState(ps);}
+  const gated=weakSkills.length>0;
+  let skillHtml='';
+  if(skillIds.length){
+    skillHtml='<div class="lp-skills"><h3>Skills you practiced</h3><ul>'
+      +skillIds.map(sid=>{
+        const st=skillStats(sid);
+        const pctText=st.pct==null?'no tries yet':st.pct+'% right ('+st.correct+' of '+st.asked+')';
+        const tag=st.status==='solid'?' <span class="tag good-tag">Solid</span>':st.status==='needs-practice'?' <span class="tag miss-tag">Needs practice</span>':'';
+        return `<li><b>${esc(skillLabel(sid))}</b> — ${esc(pctText)}${tag}</li>`;
+      }).join('')
+      +'</ul><p class="sub">Solid over time: 3+ tries and 70%+ right. This lesson completes when every skill above hits 70%+ today.</p></div>';
+  }
+  // Gated review: weak skills get a focused-practice path (fresh variants of
+  // just those skills), not a full redo. The lesson completes only when every
+  // practiced skill hits 70%+ in this lesson.
+  let gateHtml='';
+  if(gated){
+    const weakList=weakSkills.map(sid=>{
+      const s=lessonSkill[sid];
+      return `<li><b>${esc(skillLabel(sid))}</b> — ${s.correct} of ${s.asked} right this time</li>`;
+    }).join('');
+    gateHtml=`<div class="lp-card lp-gate"><h3>Almost there</h3><p>These skills need a bit more practice before this lesson counts as complete:</p><ul>${weakList}</ul><p class="sub">Fresh questions, same skills — a quick round, not the whole lesson.</p><div class="lp-nav"><button type="button" class="btn" onclick='course.playerFocusPractice(${esc(JSON.stringify(weakSkills))})'">Practice these skills →</button></div></div>`;
+  }
+  const navButtons=gated
+    ?`${nextId?`<button type="button" class="btn secondary" onclick="course.openLesson('${esc(nextId)}')">Skip ahead anyway →</button>`:`<button type="button" class="btn secondary" onclick="course.openModulePage('${esc(lesson.moduleId)}')">Back to Module ${lesson.moduleNumber} →</button>`}`
+    :`${nextId?`<button type="button" class="btn" onclick="course.openLesson('${esc(nextId)}')">Next lesson →</button>`:`<button type="button" class="btn" onclick="course.openModulePage('${esc(lesson.moduleId)}')">Back to Module ${lesson.moduleNumber} →</button>`}`;
   host.innerHTML=`<div class="lp-wrap"><p class="lp-kicker">Module ${lesson.moduleNumber} · Lesson ${lessonSeqNum(ps.lessonId)} of ${seq.length} · End-of-lesson review</p>`
-  +`<div class="lp-card lp-review"><h2>End of lesson review</h2>${total?`<p class="lp-score">You got <b>${correct} of ${total}</b> right. ${esc(verdict)}</p>`:`<p class="lp-score">Review of what this lesson covered.</p>`}<div class="lp-review-list">${items}</div></div>`
-  +`<div class="lp-nav"><button type="button" class="btn secondary" onclick="course.playerGo(-1)">← Back into the lesson</button><button type="button" class="btn secondary" onclick="course.playerRedo()">Redo lesson</button>${nextId?`<button type="button" class="btn" onclick="course.openLesson('${esc(nextId)}')">Next lesson →</button>`:`<button type="button" class="btn" onclick="course.openModulePage('${esc(lesson.moduleId)}')">Back to Module ${lesson.moduleNumber} →</button>`}</div></div>`;
-  markCompleted(ps.lessonId);
+  +`<div class="lp-card lp-review"><h2>End of lesson review</h2>${total?`<p class="lp-score">You got <b>${correct} of ${total}</b> right. ${esc(verdict)}</p>`:`<p class="lp-score">Review of what this lesson covered.</p>`}${skillHtml}<div class="lp-review-list">${items}</div></div>`
+  +gateHtml
+  +`<div class="lp-nav"><button type="button" class="btn secondary" onclick="course.playerGo(-1)">← Back into the lesson</button><button type="button" class="btn secondary" onclick="course.playerRedo()">Redo lesson</button>${navButtons}</div></div>`;
+  if(!gated)markCompleted(ps.lessonId);
   document.title=`Review: ${lesson.title} — NWS Money Masterclass`;
   host.scrollIntoView({block:'start',behavior:'auto'});
 }
@@ -709,10 +834,52 @@ function playerAnswer(choiceIdx){
   const step=content&&content.steps[ps.idx];
   if(!step||step.t!=='try')return;
   if(playerAnswerFor(ps.idx,0))return;
-  playerRecord({step:ps.idx,item:0,choice:choiceIdx});
+  const attempt=playerAttemptFor(ps.idx);
+  const q=resolveTry(ps.lessonId,ps.idx,step,attempt);
+  const choices=orderedChoices(q,ps.lessonId,ps.idx);
+  const choice=choices[choiceIdx];
+  playerRecord({step:ps.idx,item:0,choice:choiceIdx,att:attempt});
+  // Per-skill evidence (gates are computed on skill accuracy, never total score).
+  recordSkillAttempt(q.skill,!!(choice&&choice.ok),{misconception:choice&&!choice.ok?(choice.mis||null):null});
   renderPlayerStep();
   const fb=document.querySelector('#lesson-player .lp-feedback');
   if(fb)fb.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+// Miss-triggered retry: a FRESH variant of the same skill, targeted at the
+// diagnosed misconception when one is known (same skill + same misconception),
+// falling back to a same-skill variant otherwise — never the identical
+// question. Wrong → explanation → targeted retry → confidence rebuild,
+// never a punishment loop.
+function playerRetry(){
+  const ps=readPlayerState(); if(!ps)return;
+  const content=lessonContent(ps.lessonId);
+  const step=content&&content.steps[ps.idx];
+  if(!step||step.t!=='try')return;
+  const rec=playerAnswerFor(ps.idx,0);
+  if(!rec)return;
+  // Diagnose the miss: the misconception behind the chosen wrong answer, else
+  // the learner's most-missed misconception for this skill, else untargeted.
+  let targetMis=null;
+  try{
+    const att=playerAttemptFor(ps.idx);
+    const q=resolveTry(ps.lessonId,ps.idx,step,att);
+    const choices=orderedChoices(q,ps.lessonId,ps.idx);
+    const chosen=choices[rec.choice];
+    if(chosen&&!chosen.ok&&chosen.mis&&misconceptionLine(chosen.mis)) targetMis=chosen.mis;
+  }catch{}
+  if(!targetMis&&step.skill){
+    const top=topMisconception(step.skill);
+    if(top&&misconceptionLine(top.id)) targetMis=top.id;
+  }
+  ps.answers=(ps.answers||[]).filter(a=>!(a.step===ps.idx&&a.item===0));
+  ps.attempts=ps.attempts||{};
+  const prev=parseAttempt(ps.attempts[ps.idx]);
+  const n=(prev.n||0)+1;
+  ps.attempts[ps.idx]=targetMis?(n+'|'+targetMis):n;
+  writePlayerState(ps);
+  renderPlayerStep();
+  const card=document.querySelector('#lesson-player .lp-card');
+  if(card)card.scrollIntoView({block:'start',behavior:'auto'});
 }
 function playerHint(btn){
   const hint=btn&&btn.nextElementSibling;
@@ -724,6 +891,32 @@ function playerRedo(){
   const ps=readPlayerState(); if(!ps)return;
   writePlayerState({lessonId:ps.lessonId,idx:0,answers:[]});
   openLesson(ps.lessonId,0);
+}
+// Focused practice: fresh variants of ONLY the given skills (non-punitive
+// retry route). Clears this-lesson answers for those skills so the retry is
+// a clean slate, bumps attempts for fresh variants, and jumps to the first
+// matching try step. Other steps are skipped while focusSkills is set.
+function playerFocusPractice(skills){
+  const ps=readPlayerState(); if(!ps)return;
+  const content=lessonContent(ps.lessonId);
+  const focus=Array.isArray(skills)?skills:[skills];
+  ps.focusSkills=focus;
+  ps.answers=(ps.answers||[]).filter(a=>{
+    const st=content&&content.steps[a.step];
+    return !(st&&st.t==='try'&&focus.includes(st.skill));
+  });
+  ps.attempts=ps.attempts||{};
+  let first=-1;
+  content.steps.forEach((st,i)=>{
+    if(st.t==='try'&&focus.includes(st.skill)){
+      const prevA=parseAttempt(ps.attempts[i]);
+      ps.attempts[i]=(prevA.n||0)+1;
+      if(first<0)first=i;
+    }
+  });
+  ps.idx=first>=0?first:0;
+  writePlayerState(ps);
+  openLesson(ps.lessonId,ps.idx);
 }
 
 // ---------- Animated sort game (Module 1 decision routine) ----------
@@ -797,4 +990,4 @@ function sortFinish(host){
   renderPlayerStep();
 }
 
-Object.assign(window.course,{playerGo,playerAnswer,playerHint,playerRedo,sortPick,sortNext});
+Object.assign(window.course,{playerGo,playerAnswer,playerHint,playerRedo,playerRetry,playerFocusPractice,sortPick,sortNext});

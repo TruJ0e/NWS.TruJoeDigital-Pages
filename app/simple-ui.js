@@ -11,6 +11,7 @@
 
 import { SIMPLE_SECTIONS } from '../content/simple-lessons.js';
 import { renderTool } from './simple-tools.js';
+import { learnerSeed, makeVariant } from './variants.js';
 import {
   PROGRESS_KEY, getSettings, applyTextSize,
   renderGate, renderSettings
@@ -126,6 +127,13 @@ function renderStep(container, sectionId, stepIndex) {
   if (stepIndex >= total) { location.hash = '#/done/' + sectionId; return; }
   const step = sec.steps[stepIndex];
   const settings = getSettings();
+  // Seeded variants: stable per learner (early wording stays stable), varied
+  // across learners. The gen keeps the correct choice within the first two.
+  const vStep = (typeof step.gen === 'function')
+    ? step.gen(makeVariant(learnerSeed(), 'simple', sectionId, stepIndex))
+    : null;
+  const questionText = (vStep && vStep.question) || step.question;
+  const choiceList = (vStep && vStep.choices) || step.choices;
 
   container.innerHTML = '';
   const back = el('a', 'back-link', '← Back');
@@ -152,10 +160,10 @@ function renderStep(container, sectionId, stepIndex) {
       markStepDone(sectionId, stepIndex, total);
       showNext();
     }, toolDiv);
-  } else if (step.question) {
-    const q = el('p', 'step-text', step.question);
+  } else if (questionText) {
+    const q = el('p', 'step-text', questionText);
     container.appendChild(q);
-    const choices = step.choices.slice(0, settings.choices);
+    const choices = choiceList.slice(0, settings.choices);
     const feedback = el('div', 'feedback');
     feedback.hidden = true;
     feedback.setAttribute('role', 'status');
