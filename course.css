@@ -150,6 +150,15 @@
 .mq-progress{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--mint)}
 .mq-title{font-size:1.1rem;font-weight:700;color:#fff}
 .mq-tagline{font-size:.85rem;color:rgba(255,255,255,.88)}
+/* Skill dots: subtle, small, under the module number. Informational only. */
+.mq-dots{display:flex;gap:5px;flex-wrap:wrap;align-items:center;min-height:10px}
+.mq-dot{width:9px;height:9px;border-radius:50%;border:1px solid rgba(255,255,255,.45);background:transparent}
+.mq-dot-attempted{background:rgba(255,255,255,.35)}
+.mq-dot-familiar{background:#9fc3e8}
+.mq-dot-proficient{background:#e8f1fc;border-color:#e8f1fc}
+.mq-dot-mastered{background:#f2c14e;border-color:#f2c14e}
+/* Informational weak-skills nudge on the end-of-lesson review (not a gate). */
+.lp-nudge{border-left:4px solid var(--brand)}
 @media(max-width:900px){
   .module-quicklist{grid-template-columns:repeat(2,1fr)}
 }

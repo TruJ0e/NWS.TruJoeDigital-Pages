@@ -1,7 +1,7 @@
 import { loadState } from './state.js';
 import { dueDelayedChecks } from './retrieval.js';
 import { dueRecoveryFollowups } from './recovery-followup.js';
-import { resolveTry, orderedChoices, recordSkillAttempt, skillStats, skillLabel, misconceptionLine, topMisconception, parseAttempt } from './variants.js';
+import { resolveTry, orderedChoices, recordSkillAttempt, skillStats, skillLabel, misconceptionLine, topMisconception, parseAttempt, skillDotStatus } from './variants.js';
 
 const COURSE_STATE_KEY='nwsCourseShell.v1';
 const CONTEXT_KEY='nwsCourseShell.context';
@@ -218,7 +218,23 @@ function moduleQuickCard(module){
   const total=module.lessons.length;
   const done=module.lessons.filter(lesson=>state.completed[lesson.id]).length;
   const inProgress=module.lessons.filter(lesson=>state.visited[lesson.id]&&!state.completed[lesson.id]).length;
-  return `<button type="button" class="module-quick-card" onclick="course.openModulePage('${esc(module.id)}')" aria-label="Module ${module.number}: ${esc(module.title)} — ${inProgress} in progress, ${done} of ${total} completed"><span class="mq-num" aria-hidden="true">${module.number}</span><span class="mq-progress" aria-hidden="true">${inProgress} in progress / ${done} completed</span><b class="mq-title">${esc(module.title)}</b><small class="mq-tagline">${esc(MODULE_TAGLINES[module.id]||module.summary)}</small></button>`;
+  return `<button type="button" class="module-quick-card" onclick="course.openModulePage('${esc(module.id)}')" aria-label="Module ${module.number}: ${esc(module.title)} — ${inProgress} in progress, ${done} of ${total} completed, about ${moduleMinutes(module)} minutes"><span class="mq-num" aria-hidden="true">${module.number}</span>${moduleSkillDots(module)}<span class="mq-progress" aria-hidden="true">${inProgress} in progress / ${done} completed · about ${moduleMinutes(module)} min</span><b class="mq-title">${esc(module.title)}</b><small class="mq-tagline">${esc(MODULE_TAGLINES[module.id]||module.summary)}</small></button>`;
+}
+
+// Khan-style skill dots on module cards: subtle, small, under the module
+// number. Informational only — they never gate advancement. One dot per
+// skill the module's lessons practice; the title names the skill + level.
+function moduleSkillDots(module){
+  const skills=[...new Set(module.lessons.flatMap(lesson=>{
+    const content=lessonContent(lesson.id);
+    return content?content.steps.filter(s=>s.t==='try'&&s.skill).map(s=>s.skill):[];
+  }))];
+  if(!skills.length)return '';
+  const dots=skills.map(sid=>{
+    const d=skillDotStatus(sid);
+    return `<span class="mq-dot mq-dot-${d.level}" title="${esc(skillLabel(sid))}: ${d.label}"></span>`;
+  }).join('');
+  return `<span class="mq-dots" aria-hidden="true">${dots}</span>`;
 }
 
 // Standalone module page: top navigation (sidebar moves to the top inside
@@ -674,7 +690,7 @@ function lpTry(ps,step){
       +`</div>`;
   }
   const prog=practiceProgress(ps);
-  const tryTitle=q.tier==='stretch'?'Stretch: try it':'Try it';
+  const tryTitle=q.tier==='guided'?'Guided practice':q.tier==='stretch'?'Stretch: try it':'Try it on your own';
   return `<h2>${tryTitle}</h2>${prog?`<p class="lp-qprog">${esc(prog)}</p>`:''}<p class="lp-q">${esc(q.q)}</p><div class="lp-choices">${buttons}</div>${extra}${fb}`;
 }
 function lpSort(step){
@@ -804,7 +820,6 @@ function renderPlayerReview(host,lesson,content,ps){
   });
   const wasFocus=!!(ps.focusSkills&&ps.focusSkills.length);
   if(wasFocus){ps.focusSkills=null;writePlayerState(ps);}
-  const gated=weakSkills.length>0;
   let skillHtml='';
   if(skillIds.length){
     skillHtml='<div class="lp-skills"><h3>Skills you practiced</h3><ul>'
@@ -814,27 +829,25 @@ function renderPlayerReview(host,lesson,content,ps){
         const tag=st.status==='solid'?' <span class="tag good-tag">Solid</span>':st.status==='needs-practice'?' <span class="tag miss-tag">Needs practice</span>':'';
         return `<li><b>${esc(skillLabel(sid))}</b> — ${esc(pctText)}${tag}</li>`;
       }).join('')
-      +'</ul><p class="sub">Solid over time: 3+ tries and 70%+ right. This lesson completes when every skill above hits 70%+ today.</p></div>';
+      +'</ul><p class="sub">Solid over time: 3+ tries and 70%+ right. Reaching this review completes the lesson — the dots on your module cards track how each skill is really doing.</p></div>';
   }
-  // Gated review: weak skills get a focused-practice path (fresh variants of
-  // just those skills), not a full redo. The lesson completes only when every
-  // practiced skill hits 70%+ in this lesson.
-  let gateHtml='';
-  if(gated){
+  // Informational nudge (never a blocker): weak skills get a focused-practice
+  // path with fresh variants of just those skills. Completion = reaching this
+  // review; mastery dots on module cards carry the richer signal.
+  let nudgeHtml='';
+  if(weakSkills.length){
     const weakList=weakSkills.map(sid=>{
       const s=lessonSkill[sid];
       return `<li><b>${esc(skillLabel(sid))}</b> — ${s.correct} of ${s.asked} right this time</li>`;
     }).join('');
-    gateHtml=`<div class="lp-card lp-gate"><h3>Almost there</h3><p>These skills need a bit more practice before this lesson counts as complete:</p><ul>${weakList}</ul><p class="sub">Fresh questions, same skills — a quick round, not the whole lesson.</p><div class="lp-nav"><button type="button" class="btn" onclick='course.playerFocusPractice(${esc(JSON.stringify(weakSkills))})'">Practice these skills →</button></div></div>`;
+    nudgeHtml=`<div class="lp-card lp-nudge"><h3>Worth another look</h3><p>These skills were shaky this time. A quick fresh round helps more than rereading:</p><ul>${weakList}</ul><div class="lp-nav"><button type="button" class="btn" onclick='course.playerFocusPractice(${esc(JSON.stringify(weakSkills))})'">Practice these skills →</button></div></div>`;
   }
-  const navButtons=gated
-    ?`${nextId?`<button type="button" class="btn secondary" onclick="course.openLesson('${esc(nextId)}')">Skip ahead anyway →</button>`:`<button type="button" class="btn secondary" onclick="course.openModulePage('${esc(lesson.moduleId)}')">Back to Module ${lesson.moduleNumber} →</button>`}`
-    :`${nextId?`<button type="button" class="btn" onclick="course.openLesson('${esc(nextId)}')">Next lesson →</button>`:`<button type="button" class="btn" onclick="course.openModulePage('${esc(lesson.moduleId)}')">Back to Module ${lesson.moduleNumber} →</button>`}`;
+  const navButtons=`${nextId?`<button type="button" class="btn" onclick="course.openLesson('${esc(nextId)}')">Next lesson →</button>`:`<button type="button" class="btn" onclick="course.openModulePage('${esc(lesson.moduleId)}')">Back to Module ${lesson.moduleNumber} →</button>`}`;
   host.innerHTML=`<div class="lp-wrap"><p class="lp-kicker">Module ${lesson.moduleNumber} · Lesson ${lessonSeqNum(ps.lessonId)} of ${seq.length} · End-of-lesson review</p>`
   +`<div class="lp-card lp-review"><h2>End of lesson review</h2>${total?`<p class="lp-score">You got <b>${correct} of ${total}</b> right. ${esc(verdict)}</p>`:`<p class="lp-score">Review of what this lesson covered.</p>`}${skillHtml}<div class="lp-review-list">${items}</div></div>`
-  +gateHtml
+  +nudgeHtml
   +`<div class="lp-nav"><button type="button" class="btn secondary" onclick="course.playerGo(-1)">← Back into the lesson</button><button type="button" class="btn secondary" onclick="course.playerRedo()">Redo lesson</button>${navButtons}</div></div>`;
-  if(!gated)markCompleted(ps.lessonId);
+  markCompleted(ps.lessonId);
   document.title=`Review: ${lesson.title} — NWS Money Masterclass`;
   host.scrollIntoView({block:'start',behavior:'auto'});
 }

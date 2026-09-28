@@ -300,6 +300,19 @@ export function topMisconception(skill){
 }
 export function misconceptionLine(id){ return MISCONCEPTIONS[id]||null; }
 
+// --- Khan-style skill dots (informational only — never gates advancement).
+// Thresholds are set so a click-through learner (~25% on 4-choice questions)
+// can never reach Proficient: it requires sustained high accuracy.
+export function skillDotStatus(skill){
+  const st=skillStats(skill);
+  if(!st.asked) return {level:'not-started',label:'Not started'};
+  if(st.asked>=8&&st.pct>=85) return {level:'mastered',label:'Mastered'};
+  if(st.asked>=5&&st.pct>=80) return {level:'proficient',label:'Proficient'};
+  if(st.asked>=3&&st.pct>=50) return {level:'familiar',label:'Familiar'};
+  return {level:'attempted',label:'Attempted'};
+}
+export const DOT_LEVELS=['not-started','attempted','familiar','proficient','mastered'];
+
 // Human-readable skill names for review screens.
 export const SKILL_LABELS={
   'unit-price-usable':'Unit price (what you use)',

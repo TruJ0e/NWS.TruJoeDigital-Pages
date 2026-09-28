@@ -804,6 +804,7 @@ Object.assign(LESSON_CONTENT,{
     bad:`A compounds: ${v.money(P)} \u00d7 1.05 \u00d7 1.05 = ${A}. B adds: ${v.money(P)} \u00d7 (1 + 0.102) = ${B}. A wins by ${diff}.`,
     why:`The bigger digit lost. ${rApr}% APR adds the same slice twice; ${rApy}% APY grows the growth. Over 2 years on ${v.money(P)}, compounding beats the bigger number by ${diff}.`};
   }},
+ {t:'tool',screen:'save',h:'Watch growth compound',body:'<p>Open the savings tools, set a goal, and project what steady saving plus compounding does to it year by year.</p>',cta:'Open savings tools'}
 ]},
 'irregular-income':{intro:'Do not budget money that has not arrived yet.',steps:[
  {t:'teach',h:'Irregular income needs a stricter rule',
@@ -1262,6 +1263,7 @@ Object.assign(LESSON_CONTENT,{
     bad:`Discount first, then tax, on each store: A = ${v.money(pC/100)} \u00d7 ${(100-d)/100} \u00d7 ${(100+rA)/100} = ${v.money(tAC/100)}; B = ${v.money(pC/100)} \u00d7 ${(100-e)/100} \u00d7 ${(100+rB)/100} = ${v.money(tBC/100)}.`,
     why:'Two moves, in order, on each store. The bigger sticker discount does not always win \u2014 the tax rates vote too.'};
   }},
+ {t:'tool',screen:'spend',h:'Compare out-the-door totals',body:'<p>Open the spending tools and run two deals side by side — tag price, tax, trip cost — and see which one is actually cheaper out the door.</p>',cta:'Open spending tools'}
 ]},
 'usable-value':{intro:'Compare what you will USE, not what is in the package.',steps:[
  {t:'teach',h:'Unit price is only half the story',
@@ -1588,7 +1590,7 @@ Object.assign(LESSON_CONTENT,{
  {t:'teach',h:'The balance that would not shrink',
   body:'<p>Maya puts <b>$240</b> on her card and pays <b>$25</b>. Next month she expects to owe $215.</p><p>She owes <b>$219.80</b>. The extra $4.80 is <b>interest</b> \u2014 the price of borrowing \u2014 charged every month on whatever is left.</p><p>Pay $25, owe $219.80. The debt shrinks slower than the payments.</p>'},
  {t:'teach',h:'APR, minimums, and fees',
-  body:'<p>The vocabulary, now that you have felt the bite:</p><ul><li><b>APR</b> = the <b>yearly</b> rate. Monthly rate = APR \u00f7 12. A 24% APR charges about 2% a month.</li><li><b>Minimum payment</b> = the smallest the card allows \u2014 not a plan. The rest keeps charging interest every month.</li><li><b>Fees:</b> late fee (dodge it: pay on time), annual fee (dodge it: pick a no-annual-fee card), cash-advance fee (dodge it: never take cash advances).</li></ul>'},
+  body:'<p>The vocabulary, now that you have felt the bite:</p><ul><li><b>APR</b> = the <b>yearly</b> rate. Monthly rate = APR \u00f7 12. A 24% APR charges about 2% a month.</li><li><b>Minimum payment</b> = the smallest the card allows \u2014 not a plan. The rest keeps charging interest every month.</li><li><b>Fees:</b> late fee (dodge it: pay on time), annual fee (dodge it: pick a no-annual-fee card), cash-advance fee (dodge it: never take cash advances).</li></ul><p class="sub">Learning tool, not financial advice. Every example here uses fictional money. Real cards have terms that change — the cardholder agreement is the source of truth.</p>'},
  {t:'example',h:'Maya pays $25 a month',story:'<p>Maya owes <b>$240</b> at 24% APR \u2014 about 2% a month. She pays <b>$25/month</b>.</p>',
   points:['Month 1: $240 + $4.80 interest \u2212 $25 = <b>$219.80</b>','Every month, the 2% applies to what is LEFT \u2014 not the original $240','It takes about <b>11 payments</b> to clear it','Total extra lost to interest: about <b>$30</b>. Paying in full would have cost $0.']},
  {t:'try',skill:'apr-to-monthly',tier:'guided',
@@ -1677,6 +1679,7 @@ Object.assign(LESSON_CONTENT,{
     bad:`Add $35 to month 2\u2019s balance and rerun the months: Plan B runs ${B.m} months at about ${v.money(costB)} total cost vs ${A.m} months and ${v.money(costA)} for Plan A.`,
     why:'Fees compound: the $35 does not sit still \u2014 it joins the balance and charges interest every month after. "Barely changes anything" and "exactly $35" both miss the interest it earns.'};
   }},
+ {t:'tool',screen:'adult-life',focus:'credit',h:'See credit in action',body:'<p>Open the credit module and watch what minimum payments do to a balance over time — with fictional money, not yours.</p>',cta:'Open the credit module'}
 ]},
 });
 
