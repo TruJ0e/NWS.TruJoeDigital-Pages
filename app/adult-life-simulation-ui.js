@@ -48,6 +48,11 @@ function stateWithSimulation(){
   const sim=state.adultLifeSimulation||null;
   if(sim) enableAdultLifeRecovery(sim);
   return {state,sim};
+
+function simShapeValid(sim){
+  return !!sim&&Array.isArray(sim.periods)&&sim.periods.length>0&&Array.isArray(sim.history)&&
+    Number.isInteger(sim.periodIndex)&&sim.periodIndex>=0&&sim.periodIndex<sim.periods.length;
+}
 }
 
 function reloadIntoSimulation(state){
@@ -67,7 +72,7 @@ function addPeriodHistory(state,sim,period){
     adultLifePeriod:period.period,
     adultLifePeriodId:period.id,
     scaffold:state.profile.scaffold,
-    starting:null,
+    starting:(sim.periodStartBalance??null),
     remaining:sim.balance,
     protectedNeeds:decisions.every(x=>x.defensible)||sim.missedRequired===0,
     hintsUsed:evidence.filter(x=>x.prompted).length,
@@ -230,7 +235,7 @@ export function renderAdultLifeSimulation(){
   if(!host)return;
   const {sim}=stateWithSimulation();
   host.setAttribute('aria-labelledby','life-sim-heading');
-  host.innerHTML=!sim?emptyView():adultLifeSimulationComplete(sim)?completedView(sim):activeView(sim);
+  host.innerHTML=!sim||!simShapeValid(sim)?emptyView():adultLifeSimulationComplete(sim)?completedView(sim):activeView(sim);
   bind();
 }
 

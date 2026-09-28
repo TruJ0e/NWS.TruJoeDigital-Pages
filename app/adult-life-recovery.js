@@ -67,7 +67,6 @@ function definitionFor(outcome){
 
 export function enableAdultLifeRecovery(sim){
   if(!sim) return sim;
-  sim.version=ADULT_LIFE_RECOVERY_SIM_VERSION;
   sim.recoveryPending=sim.recoveryPending||null;
   sim.recoveryHelpUsed=sim.recoveryHelpUsed||{};
   return sim;

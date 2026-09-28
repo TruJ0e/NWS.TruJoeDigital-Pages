@@ -1,7 +1,8 @@
 import { scaledAmount, weeklyEquivalent } from './money.js';
 import { hashSeed, seededRandom } from './scenarios.js';
 
-export const ADULT_LIFE_SIM_VERSION = 1;
+// v2: persisted shape includes recovery fields (recoveryPending, recoveryHelpUsed) written by adult-life-recovery.js
+export const ADULT_LIFE_SIM_VERSION = 2;
 export const ADULT_LIFE_SIM_MODE = 'adult-life-multiperiod';
 
 const round=value=>Math.round((Number(value)||0)*100)/100;
@@ -160,6 +161,7 @@ export function beginAdultLifePeriod(sim){
   sim.balance=round(carry+period.income-pending);
   sim.pendingCost=0;
   sim.periodStarted=true;
+  sim.periodStartBalance=sim.balance;
   sim.lastOutcome={kind:'period-start',text:`Period ${period.period} added ${period.income} of simulated income/refill${pending?` and applied ${pending} of carried cost`:''}.`};
   return sim;
 }
