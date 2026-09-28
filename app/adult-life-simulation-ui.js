@@ -48,11 +48,11 @@ function stateWithSimulation(){
   const sim=state.adultLifeSimulation||null;
   if(sim) enableAdultLifeRecovery(sim);
   return {state,sim};
+}
 
 function simShapeValid(sim){
   return !!sim&&Array.isArray(sim.periods)&&sim.periods.length>0&&Array.isArray(sim.history)&&
     Number.isInteger(sim.periodIndex)&&sim.periodIndex>=0&&sim.periodIndex<sim.periods.length;
-}
 }
 
 function reloadIntoSimulation(state){
