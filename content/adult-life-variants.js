@@ -4,3 +4,4 @@
 // the banks are populated wherever adult-life content resolves.
 import './adult-life-variants-1.js';
 import './adult-life-variants-2.js';
+import './adult-life-variants-3.js';

@@ -162,7 +162,8 @@ export function beginAdultLifePeriod(sim){
   sim.pendingCost=0;
   sim.periodStarted=true;
   sim.periodStartBalance=sim.balance;
-  sim.lastOutcome={kind:'period-start',text:`Period ${period.period} added ${period.income} of simulated income/refill${pending?` and applied ${pending} of carried cost`:''}.`};
+  sim.lastOutcome={kind:'period-start',period:period.period,income:period.income,balance:sim.balance,savings:sim.savings,debt:sim.debt,text:`Period ${period.period} added ${period.income} of simulated income/refill${pending?` and applied ${pending} of carried cost`:''}.`};
+  sim.history.push(sim.lastOutcome);
   return sim;
 }
 

@@ -1,6 +1,8 @@
 import { loadState } from './state.js';
-import { dueDelayedChecks } from './retrieval.js';
+import { dueDelayedChecks, retrievalStatus } from './retrieval.js';
 import { dueRecoveryFollowups } from './recovery-followup.js';
+import { SKILLS } from '../content/curriculum.js';
+import { ttsControlsHTML, bindTTSControls, speakText, stopTTS, ttsSupported } from './tts.js';
 import { resolveTry, orderedChoices, recordSkillAttempt, skillStats, skillLabel, misconceptionLine, topMisconception, parseAttempt, skillDotStatus } from './variants.js';
 
 const COURSE_STATE_KEY='nwsCourseShell.v1';
@@ -302,26 +304,59 @@ function openModulePage(moduleId){
   else location.hash=hash;
 }
 
-const PRACTICE_ITEMS=[
-  ['NWS decisions','Needs, Wants, sales, affordability, and contextual choices.','spend'],
-  ['Pacing & safe to spend','Practice calculations and decisions for money that must last.','pacing-value'],
-  ['Savings & goals','Move simulated money and work backward from a goal.','save'],
-  ['Subscriptions','Compare recurring services, yearly cost, use, and value.','subscriptions'],
-  ['Paychecks & semester planning','Practice take-home pay and longer time periods.','plan'],
-  ['Adult-life skills','Choose one adult-life topic and practice the decision.','adult-life']
-];
+// Practice mirrors the module outline: one section per module with that
+// module's guided practice lessons plus its hands-on tool screens.
+const MODULE_PRACTICE_TOOLS={
+  foundations:[['spend','NWS decisions','Needs, Wants, sales, affordability, and contextual choices.']],
+  pacing:[['pacing-value','Pacing & safe to spend','Practice calculations and decisions for money that must last.'],['plan','Paychecks & semester planning','Practice take-home pay and longer time periods.']],
+  value:[['spend','Sales practice','Sales, discounts, and whether the purchase fits the plan.'],['pacing-value','Value checks','Unit value, comparisons, and usable value.'],['subscriptions','Subscriptions','Compare recurring services, yearly cost, use, and value.']],
+  'adult-money':[['adult-life','Adult-life practice','Banking, credit, scams, and the first job.'],['spend','Credit cards','Credit-card decisions and interest.']],
+  'living-costs':[['adult-life','Adult-life practice','Renting, utilities, groceries, transportation, health insurance.']],
+  support:[['save','Savings & goals','Move simulated money and work backward from a goal.'],['benefits','Benefits basics','What benefits are and where to check them.'],['pacing-value','Decision routine','Run the full NWS routine on a new situation.']]
+};
 function renderPractice(){
   const host=document.getElementById('practice-hub'); if(!host)return;
-  host.innerHTML=`<div class="hero"><span class="tag">Practice</span><h2>Practice what you learned</h2><p class="sub">Try a skill after its lesson — learning first, then doing.</p></div><div class="course-card-grid">${PRACTICE_ITEMS.map(([title,text,screen])=>`<button type="button" class="card course-action-card" onclick="course.openTool('${screen}','practice-hub')"><span class="tag">Practice</span><h3>${esc(title)}</h3><p>${esc(text)}</p><b>Open practice →</b></button>`).join('')}</div>`;
+  host.innerHTML=`<div class="hero"><span class="tag">Practice</span><h2>Practice what you learned</h2><p class="sub">Practice follows the same path as the modules. Pick a module, then a practice activity.</p></div>`+MODULES.map(m=>{
+    const practices=m.lessons.filter(l=>l.kind==='practice');
+    const tools=MODULE_PRACTICE_TOOLS[m.id]||[];
+    const rows=practices.map(l=>`<button type="button" class="card course-action-card" onclick="course.openLesson('${esc(l.id)}')"><span class="tag">Guided practice</span><h3>${esc(l.title)}</h3><p>${esc(l.summary||'')} · ${l.est} min</p><b>Start practice →</b></button>`).join('')
+      +tools.map(([screen,title,text])=>`<button type="button" class="card course-action-card" onclick="course.openTool('${esc(screen)}','practice-hub')"><span class="tag">Hands-on tool</span><h3>${esc(title)}</h3><p>${esc(text)}</p><b>Open practice →</b></button>`).join('');
+    return `<div class="section-title"><div><h2>Module ${m.number}: ${esc(m.title)}</h2><p>${esc(m.summary)}</p></div></div><div class="course-card-grid">${rows}</div>`;
+  }).join('');
 }
 
-function renderReviews(){
+// Reviews hub: the real review center. Due checks start in place (no
+// redirect to Practice → Progress), recovery follow-ups link to their home,
+// and a retention overview folds in the advisor-facing summary.
+export function renderReviews(){
   const host=document.getElementById('reviews'); if(!host)return;
   const state=loadState();
-  const ordinary=dueDelayedChecks(state).length;
-  const recovery=dueRecoveryFollowups(state).length;
-  const total=ordinary+recovery;
-  host.innerHTML=`<div class="hero"><span class="tag">Reviews</span><h2>Review after time has passed</h2><p class="sub">Reviews bring back older material so it sticks. Not a lesson, not a simulation.</p><div class="stats"><div class="stat"><span>Due now</span><b>${total}</b></div><div class="stat"><span>Regular reviews</span><b>${ordinary}</b></div><div class="stat"><span>Recovery follow-ups</span><b>${recovery}</b></div></div><div style="height:14px"></div><button class="btn" type="button" onclick="course.openTool('progress','reviews')">${total?'Start due reviews':'Open review center'}</button></div><div class="section-title"><h2>What belongs here?</h2></div><div class="card"><ul><li>Recalling material you learned earlier, after time has passed.</li><li>A follow-up in a changed situation, after a recovery attempt.</li><li>Revisiting a module when a review shows the idea needs more teaching.</li></ul><p class="sub">Reviews check what stuck — not just what you finished.</p></div>`;
+  const due=dueDelayedChecks(state).sort((a,b)=>new Date(a.dueAt)-new Date(b.dueAt));
+  const dueIds=new Set(due.map(x=>x.id));
+  const upcoming=(state.learning?.delayedChecks||[]).filter(x=>x.status==='scheduled'&&!dueIds.has(x.id)).sort((a,b)=>new Date(a.dueAt)-new Date(b.dueAt));
+  const recovery=dueRecoveryFollowups(state);
+  const total=due.length+recovery.length;
+  const activeQ=(window.app&&state.activeRetrievalCheck)?window.app.reviewQuestion(state.activeRetrievalCheck):null;
+  const fmt=d=>{try{return new Date(d).toLocaleDateString();}catch{return '';}};
+  const skillLabel=id=>SKILLS.find(s=>s.id===id)?.label||id;
+  const stageName={1:'Day 1',7:'Day 7',21:'Day 21'};
+  const dueRows=due.length
+    ?due.map(x=>`<div class="row between"><div><b>${esc(skillLabel(x.skill))}</b><div class="sub">${esc(stageName[x.stage]||('Stage '+x.stage))} check · due ${esc(fmt(x.dueAt))}</div></div><button type="button" class="btn" onclick="app.startReview('${esc(x.id)}')">Start review</button></div>`).join('')
+    :'<p class="positive">Nothing due right now. New reviews appear after you complete lessons and practice.</p>';
+  const activeCard=activeQ
+    ?`<div class="card"><span class="tag info">Review in progress</span><h3 style="margin:8px 0">${esc(activeQ.skillLabel)}</h3><p><b>${esc(activeQ.question)}</b></p><div class="stack">${activeQ.choices.map(c=>`<button type="button" class="btn secondary" onclick="app.answerReview('${esc(activeQ.id)}','${esc(c.id)}')">${esc(c.label)}</button>`).join('')}</div><div style="height:10px"></div>${activeQ.helped?`<div class="hint">${esc(activeQ.help)}</div>`:`<button type="button" class="btn ghost" onclick="app.reviewHelp('${esc(activeQ.id)}')">Show help</button>`}<div style="height:10px"></div><button type="button" class="btn ghost" onclick="app.startReview('')">Put this review back</button></div>`
+    :'';
+  const recoveryRows=recovery.length
+    ?recovery.map(x=>`<div class="row between"><div><b>Recovery follow-up</b><div class="sub">${esc(x.phase||'follow-up')} · due ${esc(fmt(x.dueAt))}</div></div><button type="button" class="btn secondary" onclick="course.openTool('progress','reviews')">Open</button></div>`).join('')
+    :'<p class="sub">No recovery follow-ups due. These appear after a Life Simulation recovery.</p>';
+  const upcomingRows=upcoming.length
+    ?upcoming.map(x=>`<div class="row between"><div><b>${esc(skillLabel(x.skill))}</b><div class="sub">${esc(stageName[x.stage]||('Stage '+x.stage))} check</div></div><span class="tag">${esc(fmt(x.dueAt))}</span></div>`).join('')
+    :'<p class="sub">Nothing scheduled yet.</p>';
+  const skillRows=SKILLS.map(s=>({label:s.label,...retrievalStatus(state,s.id)})).filter(x=>x.due||x.scheduled||x.completed);
+  const overview=skillRows.length
+    ?`<div class="section-title"><h2>Retention overview</h2></div><div class="card"><div style="overflow-x:auto"><table><thead><tr><th>Skill</th><th>Due</th><th>Scheduled</th><th>Remembered later</th></tr></thead><tbody>${skillRows.map(x=>`<tr><td>${esc(x.label)}</td><td>${x.due}</td><td>${x.scheduled}</td><td>${x.retentionPercent==null?'—':x.retentionPercent+'%'}</td></tr>`).join('')}</tbody></table></div><p class="sub">“Remembered later” counts independent correct answers on delayed checks — no hints used. Not a grade.</p></div>`
+    :'';
+  host.innerHTML=`<div class="hero"><span class="tag">Reviews</span><h2>Review what you learned</h2><p class="sub">Reviews bring back older material after time has passed, so it sticks. Start each review right here.</p><div class="stats"><div class="stat"><span>Due now</span><b>${total}</b></div><div class="stat"><span>Regular reviews</span><b>${due.length}</b></div><div class="stat"><span>Recovery follow-ups</span><b>${recovery.length}</b></div></div></div>${activeCard}<div class="section-title"><h2>Due now</h2></div><div class="card"><div class="stack">${dueRows}</div></div><div class="section-title"><h2>Recovery follow-ups</h2></div><div class="card"><div class="stack">${recoveryRows}</div></div><div class="section-title"><h2>Coming up</h2></div><div class="card"><div class="stack">${upcomingRows}</div></div>${overview}`;
 }
 
 function refCard(title,body){return `<div class="card quick-ref"><h3>${esc(title)}</h3>${body}</div>`;}
@@ -480,6 +515,7 @@ function openLesson(id,stepIdx=0){
 // focus: optional {pacingFocus} or {adultModule} from a lesson tool-step, so
 // the tool opens on the section the lesson was teaching.
 function _openTool(screen,origin='practice-hub',focus=null){
+  stopTTS(); // the reader belongs to the lesson player; never bleed into tools
   if(focus&&focus.pacingFocus){try{sessionStorage.setItem(PACING_FOCUS_KEY,focus.pacingFocus);}catch{}}
   else if(focus&&focus.adultModule){try{sessionStorage.setItem(ADULT_FOCUS_KEY,focus.adultModule);}catch{}}
   else clearFocus();
@@ -544,7 +580,10 @@ function initialize(){
     const screen=button.dataset.screen;
     if(!window.NWSRouter){ renderArea(screen); window.app?.show?.(screen,{restoreScroll:true}); return; }
     try{sessionStorage.setItem('nwsRestoreScroll','1');}catch{}
-    const hash=window.NWSRouter.hubHash(screen);
+    // Instructor/tool screens are not course hubs: hubHash() falls back to
+    // '#/modules' for them, which made Setup/Evidence clicks silently land on
+    // Modules. Use toolHash() (#/instructor/<screen>) for non-hub screens.
+    const hash=window.NWSRouter.HUB_IDS.has(screen)?window.NWSRouter.hubHash(screen):window.NWSRouter.toolHash(screen);
     queueMicrotask(()=>renderArea(screen));
     if((location.hash||'')===hash) window.app?.show?.(screen,{restoreScroll:true});
     else location.hash=hash;
@@ -725,6 +764,7 @@ function lpNav(ps,total){
 
 function renderPlayerStep(){
   const host=document.getElementById('lesson-player'); if(!host)return;
+  stopTTS(); // a new screen never inherits the previous screen's audio
   const ps=readPlayerState(); if(!ps){host.innerHTML='';return;}
   const lesson=LESSONS.get(ps.lessonId);
   const content=lessonContent(ps.lessonId);
@@ -753,7 +793,12 @@ function renderPlayerStep(){
   else if(step.t==='sort')body=sortStepDone(ps,step)?lpSortDone(ps,step):lpSort(step);
   else if(step.t==='tool')body=lpTool(ps,step,lesson);
   else body=lpTeach({h:'Lesson',body:'<p>Content coming right up.</p>'});
-  host.innerHTML=`<div class="lp-wrap"><p class="lp-kicker">${esc(kicker)}</p><div class="lp-card">${body}</div>${lpNav(ps,steps.length)}</div>`;
+  host.innerHTML=`<div class="lp-wrap"><div class="row between"><p class="lp-kicker">${esc(kicker)}</p>${ttsSupported()?`<div class="tts-slot">${ttsControlsHTML()}<button type="button" class="tts-speak-btn" data-tts-read-screen aria-label="Read this screen aloud" title="Read this screen aloud">🔊 Read screen</button></div>`:''}</div><div class="lp-card">${body}</div>${lpNav(ps,steps.length)}</div>`;
+  bindTTSControls(host);
+  host.querySelector('[data-tts-read-screen]')?.addEventListener('click',()=>{
+    const card=host.querySelector('.lp-card');
+    if(card)speakText(card.textContent||'');
+  });
   if(step.t==='sort'&&!sortStepDone(ps,step))initSortGame(ps,step);
   const card=host.querySelector('.lp-card');
   if(card)card.scrollIntoView({block:'start',behavior:'auto'});

@@ -287,6 +287,11 @@ export const ADULT_RETENTION_VARIANTS = {
   ]
 };
 
-Object.assign(ADULT_PRACTICE_VARIANT_BANK, ADULT_PRACTICE_VARIANTS);
-Object.assign(ADULT_TRANSFER_VARIANT_BANK, ADULT_TRANSFER_VARIANTS);
-Object.assign(ADULT_RETENTION_VARIANT_BANK, ADULT_RETENTION_VARIANTS);
+// Append-merge (not Object.assign): each batch adds variants alongside the
+// others instead of replacing them. Canonical items stay at index 0.
+for (const [__k, __v] of Object.entries(ADULT_PRACTICE_VARIANTS))
+  ADULT_PRACTICE_VARIANT_BANK[__k] = [...(ADULT_PRACTICE_VARIANT_BANK[__k] || []), ...__v];
+for (const [__k, __v] of Object.entries(ADULT_TRANSFER_VARIANTS))
+  ADULT_TRANSFER_VARIANT_BANK[__k] = [...(ADULT_TRANSFER_VARIANT_BANK[__k] || []), ...__v];
+for (const [__k, __v] of Object.entries(ADULT_RETENTION_VARIANTS))
+  ADULT_RETENTION_VARIANT_BANK[__k] = [...(ADULT_RETENTION_VARIANT_BANK[__k] || []), ...__v];

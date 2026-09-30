@@ -307,3 +307,13 @@ body.module-view .layout .nav{display:none}
   .event-question{font-size:.98rem;padding:9px 10px}
   .decision-recap{padding:9px 10px}
 }
+
+/* Sim bank (life simulation): bank-account framing with visible money movement */
+.bank-balance{display:flex;align-items:baseline;gap:10px;margin:10px 0 4px}
+.bank-balance span{font-size:.85rem;opacity:.75}
+.bank-balance b{font-size:2rem;font-weight:800;letter-spacing:-.5px}
+.period-dots{display:flex;gap:8px;margin:12px 0 4px}
+.pdot{width:12px;height:12px;border-radius:50%;background:var(--border,#d7dce3);border:1px solid var(--border,#d7dce3)}
+.pdot.done{background:var(--accent,#1a7f4b);border-color:var(--accent,#1a7f4b)}
+.pdot.now{background:transparent;border:2px solid var(--accent,#1a7f4b);width:10px;height:10px}
+.money-delta{font-size:1.05rem}

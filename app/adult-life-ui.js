@@ -1,4 +1,5 @@
 import { ADULT_LIFE_REVIEW, ADULT_LIFE_MODULES, adultPracticeVariants, adultVariantSlot } from '../content/adult-life.js';
+import { ADULT_WORKED_EXAMPLES } from '../content/adult-life-variants-3.js';
 import { adultLifeModuleForSkill, adultTransferVariants, adultRetentionVariants, normalizeAdultChoices } from '../content/adult-life-assessment.js';
 import '../content/adult-life-variants.js';
 import { loadState, saveState } from './state.js';
@@ -7,7 +8,8 @@ import { recordLearningDecision } from './mastery.js';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let activeModuleId=ADULT_LIFE_MODULES[0]?.id||null;
-let lastAnswer=null;
+let practiceSeq=null;      // {moduleId,index} — position in the practice question sequence
+let practiceAnswers={};    // `${moduleId}:${index}` -> {choiceId,correct}
 let lastTransferAnswer=null;
 let retrievalPatched=false;
 
@@ -31,13 +33,17 @@ function transferChoice(choice){
   return `<button type="button" class="btn secondary adult-life-transfer-choice" data-adult-transfer-answer="${esc(choice.key)}">${esc(choice.label)}</button>`;
 }
 
-/* ===== Gap B variant resolution: deterministic per-learner slots =====
-   Each learner is assigned a stable slot per module/kind via adultVariantSlot,
-   so the same variant renders on every visit. Choice keys are stable across
-   variants, so stored answers and delayed-check records stay valid. */
-function practiceFor(module){
-  const variants=adultPracticeVariants(module.id);
-  return variants[adultVariantSlot('practice:'+module.id,variants.length)];
+/* ===== Practice question sequences =====
+   Every module now serves its full question set (canonical + variant banks)
+   as a stepped sequence with progress, instead of one stable question.
+   Choice keys are stable across variants, so stored answers and delayed-check
+   records stay valid. */
+function practiceQuestions(module){
+  return adultPracticeVariants(module.id);
+}
+function seqState(module){
+  if(!practiceSeq||practiceSeq.moduleId!==module.id) practiceSeq={moduleId:module.id,index:0};
+  return practiceSeq;
 }
 function transferFor(module){
   const variants=adultTransferVariants(module.skill);
@@ -62,16 +68,23 @@ function transferCard(module){
 }
 
 function renderDetail(module){
-  const pv=practiceFor(module);
-  const answered=lastAnswer?.moduleId===module.id;
-  const chosen=answered?pv.choices.find(x=>x.id===lastAnswer.choiceId):null;
-  const correct=answered&&lastAnswer.choiceId===pv.correct;
+  const questions=practiceQuestions(module);
+  const seq=seqState(module);
+  const idx=Math.min(seq.index,questions.length-1);
+  const q=questions[idx]||{prompt:'',choices:[],correct:''};
+  const ans=practiceAnswers[module.id+':'+idx];
+  const answered=!!ans;
+  const chosen=answered?q.choices.find(x=>x.id===ans.choiceId):null;
+  const correct=answered&&ans.choiceId===q.correct;
+  const doneCount=questions.filter((_,i)=>practiceAnswers[module.id+':'+i]).length;
+  const isLast=idx===questions.length-1;
+  const pctDone=questions.length?Math.round(100*doneCount/questions.length):0;
   const transfer=answered&&correct
     ? transferCard(module)
-    : answered
-      ? '<div class="callout"><b>Transfer check stays locked for now.</b> Retry the quick practice successfully before applying the skill in a changed situation.</div>'
-      : '<div class="callout"><b>Transfer comes next.</b> Complete the quick practice first; NWS will then give you a changed-context version of the same skill.</div>';
-  return `<div class="stack"><div class="hero"><h3>Independent-life practice</h3><p class="sub">Practice the financial processes that show up when college support begins shifting toward independent adult responsibilities.</p><div class="callout"><b>Current module:</b> ${esc(module.title)}. Work one decision at a time; use the official source when a rule depends on current law, plan terms, or location.</div></div><div class="card"><h3>${esc(module.title)}</h3><p>${esc(module.summary)}</p><h3>What to know</h3><ul>${module.durableConcepts.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div><div class="card"><h3>Quick practice</h3><p><b>${esc(pv.prompt)}</b></p><div class="stack">${pv.choices.map(choice=>practiceChoice(module,choice)).join('')}</div>${answered?`<div class="result" role="status"><b>${correct?'This choice protects the decision process.':'Review the consequence and try again if useful.'}</b><p>${esc(chosen?.feedback||'')}</p></div>`:''}<p class="sub">Retries are allowed. This first response contributes accuracy and independence evidence through the same NWS evidence system. A separate changed-context item is used for transfer.</p></div>${transfer}${sources(module)}</div>`;
+    : '<div class="callout"><b>Transfer comes next.</b> Answer a practice question correctly and NWS will give you a changed-context version of the same skill.</div>';
+  const worked=ADULT_WORKED_EXAMPLES[module.id];
+  const workedCard=worked?`<div class="card"><div class="row between"><h3>Worked example</h3><span class="tag">See it done once</span></div><p><b>${esc(worked.h)}</b></p><p>${esc(worked.story)}</p><p class="hint"><b>The math:</b> ${esc(worked.math)}</p></div>`:'';
+  return `<div class="stack"><div class="hero"><h3>Independent-life practice</h3><p class="sub">Practice the financial processes that show up when college support begins shifting toward independent adult responsibilities.</p><div class="callout"><b>Current module:</b> ${esc(module.title)}. Work one decision at a time; use the official source when a rule depends on current law, plan terms, or location.</div></div><div class="card"><h3>${esc(module.title)}</h3><p>${esc(module.summary)}</p><h3>What to know</h3><ul>${module.durableConcepts.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>${workedCard}<div class="card"><div class="row between"><h3>Practice</h3><span class="tag">Question ${idx+1} of ${questions.length}</span></div><div class="progressbar" role="progressbar" aria-valuemin="0" aria-valuemax="${questions.length}" aria-valuenow="${doneCount}" aria-label="Practice questions answered"><i style="width:${pctDone}%"></i></div><p><b>${esc(q.prompt)}</b></p><div class="stack">${q.choices.map(choice=>practiceChoice(module,choice)).join('')}</div>${answered?`<div class="result" role="status"><b>${correct?'Correct — this choice protects the decision process.':'Not quite — read the consequence and try again.'}</b><p>${esc(chosen?.feedback||'')}</p></div>`:''}${answered?(isLast?`<p class="positive"><b>Practice set complete.</b> ${doneCount} of ${questions.length} questions answered.</p>`:`<div style="height:10px"></div><button type="button" class="btn" data-adult-next>Next question →</button>`):''}<p class="sub">Retries are allowed. Take your time — every question is a fresh situation testing the same skill.</p></div>${transfer}${sources(module)}</div>`;
 }
 
 function render(){
@@ -90,14 +103,27 @@ function render(){
 
 function recordChoice(module,choiceId){
   ensureInitialPracticeMode();
-  const pv=practiceFor(module);
-  const correct=choiceId===pv.correct;
-  const quizId=`adult-life-${module.id}`;
-  if(window.app?.quiz) window.app.quiz(quizId,choiceId,pv.correct,module.skill);
-  lastAnswer={moduleId:module.id,choiceId,correct};
+  const questions=practiceQuestions(module);
+  const seq=seqState(module);
+  const idx=Math.min(seq.index,questions.length-1);
+  const q=questions[idx];
+  const correct=choiceId===q.correct;
+  const quizId=`adult-life-${module.id}-q${idx+1}`;
+  if(window.app?.quiz) window.app.quiz(quizId,choiceId,q.correct,module.skill);
+  practiceAnswers[module.id+':'+idx]={choiceId,correct};
   lastTransferAnswer=null;
   render();
   [...document.querySelectorAll('[data-adult-answer]')].find(button=>button.dataset.adultAnswer===choiceId)?.focus();
+}
+
+function nextQuestion(){
+  const module=activeModule();
+  const questions=practiceQuestions(module);
+  const seq=seqState(module);
+  seq.index=Math.min(seq.index+1,questions.length-1);
+  render();
+  document.getElementById('adult-life-heading')?.focus({preventScroll:true});
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function recordTransferChoice(module,choiceId){
@@ -201,7 +227,7 @@ let lessonMode=false;
 function openModule(moduleId,fromLesson){
   lessonMode=!!fromLesson;
   if(moduleId&&ADULT_LIFE_MODULES.some(m=>m.id===moduleId)){
-    activeModuleId=moduleId; lastAnswer=null; lastTransferAnswer=null;
+    activeModuleId=moduleId; practiceSeq=null; practiceAnswers={}; lastTransferAnswer=null;
   }
   render();
 }
@@ -210,12 +236,14 @@ window.nwsAdultLifeOpenModule=openModule;
 function bind(){
   document.querySelectorAll('[data-adult-module]').forEach(button=>button.addEventListener('click',()=>{
     activeModuleId=button.dataset.adultModule;
-    lastAnswer=null;
+    practiceSeq=null;
+    practiceAnswers={};
     lastTransferAnswer=null;
     render();
     document.getElementById('adult-life')?.focus({preventScroll:true});
   }));
   document.querySelectorAll('[data-adult-answer]').forEach(button=>button.addEventListener('click',()=>recordChoice(activeModule(),button.dataset.adultAnswer)));
+  document.querySelectorAll('[data-adult-next]').forEach(button=>button.addEventListener('click',nextQuestion));
   document.querySelectorAll('[data-adult-transfer-answer]').forEach(button=>button.addEventListener('click',()=>recordTransferChoice(activeModule(),button.dataset.adultTransferAnswer)));
 }
 
