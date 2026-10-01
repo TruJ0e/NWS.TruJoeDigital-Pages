@@ -310,8 +310,8 @@ const MODULE_PRACTICE_TOOLS={
   foundations:[['spend','NWS decisions','Needs, Wants, sales, affordability, and contextual choices.']],
   pacing:[['pacing-value','Pacing & safe to spend','Practice calculations and decisions for money that must last.'],['plan','Paychecks & semester planning','Practice take-home pay and longer time periods.']],
   value:[['spend','Sales practice','Sales, discounts, and whether the purchase fits the plan.'],['pacing-value','Value checks','Unit value, comparisons, and usable value.'],['subscriptions','Subscriptions','Compare recurring services, yearly cost, use, and value.']],
-  'adult-money':[['adult-life','Adult-life practice','Banking, credit, scams, and the first job.'],['spend','Credit cards','Credit-card decisions and interest.']],
-  'living-costs':[['adult-life','Adult-life practice','Renting, utilities, groceries, transportation, health insurance.']],
+  'adult-money':[['adult-life','Adult-life practice: banking & work','Banking, credit, scams, and the first job.'],['spend','Credit cards','Credit-card decisions and interest.']],
+  'living-costs':[['adult-life','Adult-life practice: housing & daily costs','Renting, utilities, groceries, transportation, health insurance.']],
   support:[['save','Savings & goals','Move simulated money and work backward from a goal.'],['benefits','Benefits basics','What benefits are and where to check them.'],['pacing-value','Decision routine','Run the full NWS routine on a new situation.']]
 };
 function renderPractice(){

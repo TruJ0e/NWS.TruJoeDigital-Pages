@@ -47,7 +47,7 @@ export function buildResponsibilityTransferSequence(state){
       scaffold:'Teach',
       seed:`${seed}-RESP-1`,
       title:'Preview a new responsibility',
-      text:`Starting next period, a ${phone} phone cost will become part of your own plan. Identify where it will fit before it is due.`,
+      text:`Starting next period, a $${phone} phone cost will become part of your own plan. Identify where it will fit before it is due.`,
       obligations:[{id:'transport',title:'Transportation',amount:transport,required:true}],
       transfer:false
     },

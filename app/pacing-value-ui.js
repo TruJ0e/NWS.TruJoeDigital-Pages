@@ -16,7 +16,7 @@ function readUi(){
 function writeUi(value){localStorage.setItem(UI_KEY,JSON.stringify(value));}
 function field(label,id,value,step='1'){
   const n=Number(value);
-  const shown=Number.isFinite(n)?(Number.isInteger(n)?n:Math.round(n*100)/100):value;
+  const shown=Number.isFinite(n)?(Number.isInteger(n)?n:Number(n.toFixed(2))):value;
   return `<div class="field"><label for="${id}">${esc(label)}</label><input id="${id}" type="number" min="0" step="${step}" value="${esc(shown)}"></div>`;
 }
 function answerStatus(id){
