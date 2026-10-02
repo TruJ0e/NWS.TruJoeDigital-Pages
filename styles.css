@@ -157,6 +157,11 @@ tr:last-child td{border-bottom:0}
 
 /* ---------- Footer disclaimer ---------- */
 .footer-note{color:var(--muted);font-size:.85rem;text-align:center;margin:26px 0 10px;display:flex;gap:10px;justify-content:center;align-items:baseline;flex-wrap:wrap}
+/* NWS ad slot: footer strip only, never inside lesson/practice/simulation flows. */
+.nws-ad-slot{margin:6px auto 18px;max-width:728px;padding:0 12px;text-align:center}
+.house-ad{display:inline-flex;gap:8px;align-items:baseline;justify-content:center;flex-wrap:wrap;color:var(--muted);font-size:.8rem;border:1px dashed var(--line,#d8d2c4);border-radius:10px;padding:8px 14px;background:var(--card,#fffdf8)}
+.house-ad-tag{font-weight:700;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--brand);border:1px solid var(--brand);border-radius:6px;padding:1px 6px}
+.house-ad a{color:var(--brand);font-weight:600}
 .site-credit a{color:var(--muted);text-decoration:underline dotted;text-underline-offset:2px}
 .site-credit a:hover{color:var(--brand)}
 .disclaimer{display:inline}
