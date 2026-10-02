@@ -1,12 +1,5 @@
 # NWS ads.txt — Authorized Digital Sellers
-#
-# HOW TO ACTIVATE (owner moves):
-# 1. Apply for AdSense under your Google account and get your publisher ID
-#    (format: pub-XXXXXXXXXXXXXXXX).
-# 2. Replace REPLACE_WITH_PUBLISHER_ID below with your real ID.
-# 3. Uncomment the google.com line (remove the leading "# ").
-# 4. Redeploy. Verify at https://nws.trujoedigital.com/ads.txt
-#
-# Until then this file declares no authorized sellers.
-#
-# google.com, REPLACE_WITH_PUBLISHER_ID, DIRECT, f08c47fec0942fa0
+# Activated 2026-10-02. Publisher: pub-1942036847459762 (trujoedigital.com account).
+# Youth-safety: non-personalized ads + strict category blocks required before going live (see docs/ADS.md).
+
+google.com, pub-1942036847459762, DIRECT, f08c47fec0942fa0
