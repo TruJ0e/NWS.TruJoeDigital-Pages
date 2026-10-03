@@ -5,3 +5,4 @@
 import './adult-life-variants-1.js';
 import './adult-life-variants-2.js';
 import './adult-life-variants-3.js';
+import './adult-life-variants-4.js';
