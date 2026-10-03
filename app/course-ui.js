@@ -527,6 +527,9 @@ function _openTool(screen,origin='practice-hub',focus=null){
   if(screen==='adult-life')window.nwsAdultLifeOpenModule?.(focus&&focus.adultModule?focus.adultModule:null,!!(focus&&focus.adultModule));
   window.app?.show?.(screen);
   queueMicrotask(()=>{updateTrail();renderCourse();});
+  // Scroll again after tool content renders — the page height changes during
+  // render, which can leave the viewport mid-page (especially on mobile).
+  requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'auto'})));
 }
 
 function openTool(screen,origin='practice-hub',focus=null){
