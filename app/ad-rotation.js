@@ -54,8 +54,10 @@ export function renderAdSlot(){
   } else {
     inner = houseAdHTML();
   }
-  // Quiet label: present for transparency, visually minimal.
-  slot.innerHTML = `<div class="ad-label" aria-hidden="true">Advertisement</div>${inner}`;
+  // Label only for paid ads (direct spots, AdSense). House ad gets its own quiet tag.
+  const isPaid = spots.length > 0 || ADSENSE_ENABLED;
+  const label = isPaid ? `<div class="ad-label" aria-hidden="true">Advertisement</div>` : `<div class="ad-label house-label" aria-hidden="true">From TruJoe Digital</div>`;
+  slot.innerHTML = `${label}${inner}`;
 }
 
 // Auto-render on load.
