@@ -1668,13 +1668,13 @@ Object.assign(LESSON_CONTENT,{
    const costA=A.interestC/100, costB=(B.interestC+3500)/100;
    const diffC=(B.interestC+3500)-A.interestC;
    return {
-    q:`${person} owes ${v.money(bal)} at 24% APR and pays ${v.money(pay)} a month. Plan A: never late. Plan B: the same, except a $35 late fee lands in month 2. Which plan costs less overall \u2014 and by about how much?`,
+    q:`${person} owes ${v.money(bal)} on a card and pays ${v.money(pay)} a month. Plan A: always on time. Plan B: same, but a $35 late fee hits in month 2. Which plan costs less in the end \u2014 and by about how much?`,
     choices:[
      {label:`Plan A (never late) \u2014 about ${v.money(diffC/100)} cheaper`,ok:true},
      {label:`Plan B \u2014 the fee is only $35, so it barely changes anything`,ok:false,mis:'fee-face-value'},
      {label:`They cost the same \u2014 $35 is $35 either way`,ok:false,mis:'fee-face-value'},
      {label:`Plan A saves exactly $35.00 \u2014 the fee, nothing more`,ok:false,mis:'fee-face-value'}],
-    hint:'A fee does not just cost its face value \u2014 it joins the balance and earns 2% a month too.',
+    hint:'A fee does not just cost $35. It gets added to what you owe, and then you pay interest on it too.',
     good:`Right: Plan A costs about ${v.money(costA)} in interest; Plan B costs about ${v.money(costB)}. The $35 fee really costs about ${v.money(diffC/100)}.`,
     bad:`Add $35 to month 2\u2019s balance and rerun the months: Plan B runs ${B.m} months at about ${v.money(costB)} total cost vs ${A.m} months and ${v.money(costA)} for Plan A.`,
     why:'Fees compound: the $35 does not sit still \u2014 it joins the balance and charges interest every month after. "Barely changes anything" and "exactly $35" both miss the interest it earns.'};
@@ -1874,7 +1874,7 @@ Object.assign(LESSON_CONTENT,{
 ]},
 'benefits-lesson':{intro:'Support programs exist. Learn how to read them correctly.',steps:[
  {t:'teach',h:'Versioned information, not memorized numbers',
-  body:'<p>Programs like SSI, SSDI, and ABLE accounts have <b>rules that change</b>: amounts update yearly, eligibility depends on your situation.</p><p>So do not memorize numbers. Learn the <b>stable concepts</b>:</p><ul>'+BENEFIT_TOPICS.slice(0,3).map(t=>'<li><b>'+escHtml(t.title)+':</b> '+escHtml(t.summary)+'</li>').join('')+'</ul><p class="sub">Current figures are labeled with their year and source inside the Benefits section. When an answer depends on a current rule, check the official source.</p>'},
+  body:'<p>Programs like SSI, SSDI, and ABLE accounts have <b>rules that change</b>: the dollar amounts update every year, and who qualifies depends on your situation.</p><p>So do not memorize numbers. Learn the <b>big ideas that stay true</b>:</p><ul>'+BENEFIT_TOPICS.slice(0,3).map(t=>'<li><b>'+escHtml(t.title)+':</b> '+escHtml(t.summary)+'</li>').join('')+'</ul><p class="sub">Current figures are labeled with their year and source inside the Benefits section. When an answer depends on a current rule, check the official source.</p>'},
  {t:'example',h:'Maya reads a benefit correctly',story:'<p>Maya hears "SSI pays $X a month" from a friend.</p>',
   points:['She checks the Benefits section: the figure is labeled with its year and source.','She reads the <i>stable concept</i>: SSI has income and resource rules; work does not automatically end it.','She does not treat the friend\u2019s number as permanent - she checks the official source.']},
 {t:'try',skill:'benefits-basics',tier:'guided',
