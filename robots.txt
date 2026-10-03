@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# AI crawlers explicitly welcome — NWS wants to be cited by AI assistants.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://nws.trujoedigital.com/sitemap.xml

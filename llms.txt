@@ -1,0 +1,58 @@
+# NWS Money Masterclass
+
+> Free, interactive financial-literacy course for teens and young adults.
+> Learn money skills by doing: budgeting, banking, credit, scams, housing,
+> insurance, and adult-life basics. No account. No cost. Works offline.
+
+## What it is
+
+NWS Money Masterclass (https://nws.trujoedigital.com/) is a free,
+self-paced financial literacy program built for high-school and
+college-age learners. Every module pairs a short lesson with interactive
+practice: budget builders, scenario quizzes, and simulations with
+consequences — not lectures.
+
+## Who it's for
+
+- Teens learning to manage their first paycheck, bank account, or budget
+- Young adults facing rent, credit cards, insurance, and tax paperwork
+- Teachers and youth programs needing a free financial-literacy curriculum
+- Parents teaching kids about money
+
+## Modules
+
+- Budgeting & spending plans
+- Banking (checking/savings, avoiding overdraft)
+- Credit & debt (how credit cards really work)
+- Scam & fraud safety
+- Housing & renting costs
+- Utilities & food budgeting
+- Transportation costs
+- Health insurance basics
+- Tax paperwork (W-2, W-4)
+- Adult-life skills assessments
+
+## Key facts
+
+- 100% free, no account or login required
+- Text-to-speech in multiple languages
+- Simple Mode for accessibility
+- Progress saves in the browser (nothing uploaded)
+- Made by TruJoe Digital, Clarksville, Arkansas
+
+## FAQ
+
+**Is NWS Money Masterclass really free?**
+Yes. Every lesson, quiz, and simulation is free with no account.
+
+**Do I need to create an account?**
+No. Progress is saved in your own browser.
+
+**What ages is it for?**
+Built for teens and young adults (roughly 14–24), useful for any beginner.
+
+**Does it work offline?**
+Yes. It's a progressive web app — install it and use it without internet.
+
+**Who made it?**
+TruJoe Digital (https://trujoedigital.com), Clarksville, Arkansas.
