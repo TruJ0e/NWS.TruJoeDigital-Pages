@@ -19,7 +19,7 @@ const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 
 export const MODULES=[
   {
-    id:'foundations',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1 1.5-1.5 3-1.5s3 .5 3 1.5-1 1.5-3 2-3 1-3 2 1.5 1.5 3 1.5 3-.5 3-1.5"/></svg>`,number:1,title:'Money Foundations',
+    id:'foundations',img:'images/modules/module-foundations.webp',number:1,title:'Money Foundations',
     summary:'Learn what money is for before deciding what to do with it.',outcomes:['Sort any expense into Need, Want, or Savings — and handle the “it depends” cases.','Run the full NWS decision routine: sort, check, then decide.','Say a clear, respectful no to pressure spending without guilt.'],
     lessons:[
       {id:'nws-routine',est:8,title:'Needs, Wants, Savings',summary:'Use NWS as a decision tool, not a moral label.',screen:'home',kind:'tool',toolKind:'Dashboard'},
@@ -28,7 +28,7 @@ export const MODULES=[
     ]
   },
   {
-    id:'pacing',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`,number:2,title:'Make Money Last',
+    id:'pacing',img:'images/modules/module-pacing.webp',number:2,title:'Make Money Last',
     summary:'Learn to divide money by both purpose and time.',outcomes:['Turn a paycheck or a semester lump sum into a weekly pace you can follow.','Read your real safe-to-spend number instead of trusting the account balance.','Recalculate your pace when spending changes instead of hoping it works out.'],
     lessons:[
       {id:'pacing-basics',est:8,title:'Pacing money over time',summary:'Turn a weekly, monthly, or semester amount into a usable pace.',screen:'pacing-value',pacingFocus:'pacing',kind:'lesson'},
@@ -40,7 +40,7 @@ export const MODULES=[
     ]
   },
   {
-    id:'value',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>`,number:3,title:'Spend Smart',
+    id:'value',img:'images/modules/module-value.webp',number:3,title:'Spend Smart',
     summary:'A lower price is useful only when it fits the plan and creates real value.',outcomes:['Judge sales, subscriptions, and bulk deals by usable value, not sticker price.','Compare options by unit cost and practical cost, not the loudest discount.','Spot the true cost of a subscription before it becomes a leak.'],
     lessons:[
       {id:'sales-decisions',est:12,title:'Sales and discounts',summary:'A discount is not savings when it causes an unnecessary purchase.',screen:'spend',kind:'practice'},
@@ -51,7 +51,7 @@ export const MODULES=[
     ]
   },
   {
-    id:'adult-money',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg>`,number:4,title:'Everyday Adult Money',
+    id:'adult-money',img:'images/modules/module-adult-money.webp',number:4,title:'Everyday Adult Money',
     summary:'Learn the financial processes that appear when support shifts toward independent living.',outcomes:['Handle banking, paychecks, credit, and scams without learning the hard way.','Read a pay stub and know where the money went.','Treat credit as a tool with rules, not free money.'],
     lessons:[
       {id:'banking',est:8,title:'Banking and overdrafts',summary:'Track pending obligations instead of trusting only the displayed balance.',screen:'adult-life',adultModule:'banking',kind:'lesson'},
@@ -62,7 +62,7 @@ export const MODULES=[
     ]
   },
   {
-    id:'living-costs',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>`,number:5,title:'Living Costs',
+    id:'living-costs',img:'images/modules/module-living-costs.webp',number:5,title:'Living Costs',
     summary:'Plan the real bundles of costs that come with housing, food, transportation, and health care.',outcomes:['Plan housing, food, transport, and health costs as one real budget.','Compare housing and transport options by total monthly cost.','Build a grocery routine that feeds you without draining you.'],
     lessons:[
       {id:'renting',est:10,title:'Renting and leases',summary:'Look beyond advertised rent to written rules, fees, utilities, and recurring costs.',screen:'adult-life',adultModule:'renting',kind:'lesson'},
@@ -73,7 +73,7 @@ export const MODULES=[
     ]
   },
   {
-    id:'support',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,number:6,title:'Future Money and Support',
+    id:'support',img:'images/modules/module-support.webp',number:6,title:'Future Money and Support',
     summary:'Protect future needs, understand changing benefits information, and prepare for unexpected changes.',outcomes:['Protect future needs with emergency money before the emergency.','Know which benefits information is versioned and where to verify it.','Run one decision routine that travels across every money situation.'],
     lessons:[
       {id:'future-needs',est:8,title:'Future Needs and emergency money',summary:'Reserve money for predictable irregular costs before they become emergencies.',screen:'save',kind:'tool',toolKind:'Calculator'},
@@ -220,7 +220,7 @@ function moduleQuickCard(module){
   const total=module.lessons.length;
   const done=module.lessons.filter(lesson=>state.completed[lesson.id]).length;
   const inProgress=module.lessons.filter(lesson=>state.visited[lesson.id]&&!state.completed[lesson.id]).length;
-  return `<button type="button" class="module-quick-card" onclick="course.openModulePage('${esc(module.id)}')" aria-label="Module ${module.number}: ${esc(module.title)} — ${inProgress} in progress, ${done} of ${total} completed, about ${moduleMinutes(module)} minutes"><span class="mq-icon" aria-hidden="true">${module.icon||''}</span>${moduleSkillDots(module)}<span class="mq-progress" aria-hidden="true">${inProgress} in progress / ${done} completed · about ${moduleMinutes(module)} min</span><b class="mq-title">${esc(module.title)}</b><small class="mq-tagline">${esc(MODULE_TAGLINES[module.id]||module.summary)}</small></button>`;
+  return `<button type="button" class="module-quick-card" onclick="course.openModulePage('${esc(module.id)}')" aria-label="Module ${module.number}: ${esc(module.title)} — ${inProgress} in progress, ${done} of ${total} completed, about ${moduleMinutes(module)} minutes"><img class="mq-img" src="${module.img||''}" alt="" aria-hidden="true" loading="lazy"/>${moduleSkillDots(module)}<span class="mq-progress" aria-hidden="true">${inProgress} in progress / ${done} completed · about ${moduleMinutes(module)} min</span><b class="mq-title">${esc(module.title)}</b><small class="mq-tagline">${esc(MODULE_TAGLINES[module.id]||module.summary)}</small></button>`;
 }
 
 // Khan-style skill dots on module cards: subtle, small, under the module
