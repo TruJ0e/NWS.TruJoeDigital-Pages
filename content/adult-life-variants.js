@@ -7,3 +7,7 @@ import './adult-life-variants-2.js';
 import './adult-life-variants-3.js';
 import './adult-life-variants-4.js';
 import './adult-life-variants-5.js';
+import './adult-life-variants-gen.js';
+import './adult-life-variants-gen2.js';
+import './adult-life-variants-gen3.js';
+import './adult-life-variants-gen4.js';
