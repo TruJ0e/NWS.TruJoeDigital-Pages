@@ -52,7 +52,7 @@ export const MODULES=[
   },
   {
     id:'adult-money',img:'images/modules/module-adult-money.png',number:4,title:'Everyday Adult Money',
-    summary:'Learn the financial processes that appear when support shifts toward independent living.',outcomes:['Handle banking, paychecks, credit, and scams without learning the hard way.','Read a pay stub and know where the money went.','Treat credit as a tool with rules, not free money.'],
+    summary:'Learn the money processes that show up as you start handling things on your own.',outcomes:['Handle banking, paychecks, credit, and scams without learning the hard way.','Read a pay stub and know where the money went.','Treat credit as a tool with rules, not free money.'],
     lessons:[
       {id:'banking',est:8,title:'Banking and overdrafts',summary:'Track pending obligations instead of trusting only the displayed balance.',screen:'adult-life',adultModule:'banking',kind:'lesson'},
       {id:'first-job',est:8,title:'Paychecks and tax paperwork',summary:'Use take-home pay and recognize the basic employment paperwork sequence.',screen:'adult-life',adultModule:'first-job',kind:'lesson'},
