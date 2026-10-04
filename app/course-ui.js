@@ -4,6 +4,8 @@ import { dueRecoveryFollowups } from './recovery-followup.js';
 import { SKILLS } from '../content/curriculum.js';
 import { ttsControlsHTML, bindTTSControls, speakText, stopTTS, ttsSupported } from './tts.js';
 import { resolveTry, orderedChoices, recordSkillAttempt, skillStats, skillLabel, misconceptionLine, topMisconception, parseAttempt, skillDotStatus, beginLessonVisit } from './variants.js';
+import { VARIATION_BANKS } from '../content/banks/index.js';
+import { drawBankSteps, resolveBankStep, noteBankVisit, peekBankVisit } from './lesson-banks.js';
 
 const COURSE_STATE_KEY='nwsCourseShell.v1';
 const CONTEXT_KEY='nwsCourseShell.context';
@@ -538,6 +540,20 @@ function updateTrail(){
 function _openLesson(id,stepIdx=0){
   const lesson=LESSONS.get(id); if(!lesson)return;
   if(stepIdx===0) beginLessonVisit(id); // fresh variants on each revisit
+  if(stepIdx===0){
+    noteBankVisit(id); // fresh bank draw for the new visit
+    // A new draw means new bank steps: drop previous bank-step answers so
+    // stale indices never render against the fresh draw.
+    try{
+      const ps0=readPlayerState();
+      const baseLen=(LESSON_CONTENT[id]&&LESSON_CONTENT[id].steps||[]).length;
+      if(ps0&&ps0.lessonId===id&&Array.isArray(ps0.answers)){
+        ps0.answers=ps0.answers.filter(a=>a.step<baseLen);
+        writePlayerState(ps0);
+      }
+    }catch{}
+  }
+  bankArmedLesson = id; // splice this lesson's bank steps while open
   const content=lessonContent(id);
   if(!content){location.hash='#/modules/'+lesson.moduleId;return;}
   markVisited(id);
@@ -691,7 +707,27 @@ else document.addEventListener('DOMContentLoaded',initialize,{once:true});
 const PLAYER_KEY='nwsLessonPlayer.v1';
 function readPlayerState(){try{return JSON.parse(sessionStorage.getItem(PLAYER_KEY))||null;}catch{return null;}}
 function writePlayerState(state){try{sessionStorage.setItem(PLAYER_KEY,JSON.stringify(state));}catch{}}
-function lessonContent(id){return LESSON_CONTENT[id]||null;}
+// ---------- Scaffolded variation banks ----------
+// Each lesson carries a bank of 50 confirmed variation templates
+// (src/content/banks/*). While a lesson is open, lessonContent() splices in
+// the visit's drawn bank steps (up to 8, easy -> hard) after the authored
+// steps. Draws persist per visit so reloads re-serve identical steps.
+let bankArmedLesson = null;
+const splicedStepsCache = new Map();
+function lessonContent(id){
+  const base = LESSON_CONTENT[id] || null;
+  if(!base) return null;
+  if(bankArmedLesson !== id) return base;
+  const visit = peekBankVisit(id);
+  const key = id + ':' + visit;
+  let steps = splicedStepsCache.get(key);
+  if(!steps){
+    const bankSteps = drawBankSteps(id, visit);
+    steps = bankSteps.length ? [...base.steps, ...bankSteps] : base.steps;
+    splicedStepsCache.set(key, steps);
+  }
+  return steps === base.steps ? base : { ...base, steps };
+}
 function lessonSeqNum(id){return lessonSequence().indexOf(id)+1;}
 function lessonModule(lesson){return MODULES.find(entry=>entry.id===lesson.moduleId);}
 function initPlayerState(id,stepIdx){
@@ -732,6 +768,8 @@ function playerStepComplete(ps){
   if(!step)return true;
   if(step.t==='try')return !!playerAnswerFor(ps.idx,0);
   if(step.t==='sort')return sortStepDone(ps,step);
+  if(step.t==='build')return !!playerAnswerFor(ps.idx,0);
+  if(step.t==='explain')return !!playerAnswerFor(ps.idx,0);
   return true;
 }
 function bucketIndexOf(step,answer){
@@ -753,10 +791,20 @@ function practiceProgress(ps){
   const n=tries.indexOf(ps.idx)+1;
   return n>0?`Question ${n} of ${tries.length}`:'';
 }
+// Interaction verbs: choice-family bank templates ride the try pipeline with
+// verb-specific framing. decide/spot/compare/predict share the choice shape
+// ({q, choices, hint, good, bad, why}) plus optional scenario/context HTML.
+const VERB_FRAME={
+  decide:{title:'Decide',kicker:'Your call \u2014 then face what happens.'},
+  spot:{title:'Spot the mistake',kicker:'Something is off. Find it.'},
+  compare:{title:'Compare',kicker:'Two options. Which is the better deal?'},
+  predict:{title:'Predict',kicker:'What happens next?'},
+};
 function lpTry(ps,step){
   const lessonId=ps.lessonId, stepIdx=ps.idx;
   const attempt=playerAttemptFor(stepIdx);
   const q=resolveTry(lessonId,stepIdx,step,attempt);
+  const verb=step.verb||'choice', frame=VERB_FRAME[verb]||null;
   const choices=orderedChoices(q,lessonId,stepIdx);
   const rec=playerAnswerFor(stepIdx,0);
   const buttons=choices.map((choice,ci)=>{
@@ -786,8 +834,10 @@ function lpTry(ps,step){
       +`</div>`;
   }
   const prog=practiceProgress(ps);
-  const tryTitle=q.tier==='guided'?'Guided practice':q.tier==='stretch'?'Stretch: try it':'Try it on your own';
-  return `<h2>${tryTitle}</h2>${prog?`<p class="lp-qprog">${esc(prog)}</p>`:''}<p class="lp-q">${esc(q.q)}</p><div class="lp-choices">${buttons}</div>${extra}${fb}`;
+  const tryTitle=frame?frame.title:(q.tier==='guided'?'Guided practice':q.tier==='stretch'?'Stretch: try it':'Try it on your own');
+  const kicker=frame?`<p class="lp-kicker">${esc(frame.kicker)}</p>`:'';
+  const framing=(q.scenario||q.context)?`<div class="lp-scenario">${q.scenario||q.context}</div>`:'';
+  return `<h2>${tryTitle}</h2>${kicker}${prog?`<p class="lp-qprog">${esc(prog)}</p>`:''}${framing}<p class="lp-q">${esc(q.q)}</p><div class="lp-choices">${buttons}</div>${extra}${fb}`;
 }
 function lpSort(step){
   return `<h2>${esc(step.h)}</h2><div class="lp-body">${step.body}</div>`
@@ -808,6 +858,105 @@ function lpTool(ps,step,lesson){
   const origin=`lessonstep:${lesson.id}:${ps.idx}`;
   return `<h2>${esc(step.h)}</h2><div class="lp-body">${step.body}</div><div class="lp-tool-cta"><button type="button" class="btn" onclick="course._openTool('${esc(step.screen)}','${esc(origin)}',${focus})">${esc(step.cta)} →</button><p class="sub">Opens the real tool. Your browser-back button brings you right back to this screen.</p></div>`;
 }
+// ---------- Build verb: allocate dollars with sliders ----------
+// Payload: {h, body, totalDollars, buckets:[{id,label}], targets:{id:dollars},
+// hint, good, bad, why}. Correct = sums to total AND every bucket within 5%
+// of its target.
+function lpBuild(ps,step){
+  const b=resolveBankStep(ps.lessonId,step,peekBankVisit(ps.lessonId));
+  const rec=playerAnswerFor(ps.idx,0);
+  const max=b.totalDollars;
+  const sliders=b.buckets.map(bk=>`
+    <div class="build-row">
+      <label for="build-${esc(bk.id)}">${esc(bk.label)}</label>
+      <input type="range" id="build-${esc(bk.id)}" data-build-bucket="${esc(bk.id)}"
+        min="0" max="${max}" step="1" value="0"
+        oninput="course.buildPreview()" aria-label="${esc(bk.label)} dollars">
+      <span class="build-val" data-build-val="${esc(bk.id)}">$0</span>
+    </div>`).join('');
+  let fb='';
+  if(rec&&rec.buildVals){
+    const vals=rec.buildVals;
+    const chose=b.buckets.map(bk=>`${bk.label} $${vals[bk.id]||0}`).join(' · ');
+    const want=b.buckets.map(bk=>`${bk.label} $${b.targets[bk.id]}`).join(' · ');
+    fb=`<div class="lp-feedback ${rec.correct?'good':'miss'}" role="status"><p><b>${esc(rec.correct?b.good:b.bad)}</b></p><p class="sub">You built: ${esc(chose)}<br>Target: ${esc(want)}</p>${b.why?`<p class="lp-why">${b.why}</p>`:''}</div>`;
+  }
+  return `<h2>${esc(b.h)}</h2><div class="lp-body">${b.body}</div>`
+    +`<div class="build-game"><p class="sub">Split <b>$${max}</b> across the buckets. Every dollar needs a job.</p>`
+    +sliders
+    +`<p class="build-total">Allocated: <b data-build-total>$0</b> of $${max}</p>`
+    +(!rec?`<button type="button" class="btn" onclick="course.playerBuildCheck()">Check my split →</button><p><button type="button" class="linklike lp-hint-btn" onclick="course.playerHint(this)">Need a hint?</button><p class="lp-hint hidden">${esc(b.hint||'')}</p></p>`:'')
+    +fb+`</div>`;
+}
+function playerBuildCheck(){
+  const ps=readPlayerState(); if(!ps)return;
+  const content=lessonContent(ps.lessonId);
+  const step=content&&content.steps[ps.idx];
+  if(!step||step.t!=='build'||playerAnswerFor(ps.idx,0))return;
+  const b=resolveBankStep(ps.lessonId,step,peekBankVisit(ps.lessonId));
+  const vals={}; let sum=0;
+  for(const bk of b.buckets){
+    const el=document.querySelector(`[data-build-bucket="${bk.id}"]`);
+    const v=el?Math.max(0,parseInt(el.value,10)||0):0;
+    vals[bk.id]=v; sum+=v;
+  }
+  let ok=sum===b.totalDollars;
+  if(ok) for(const bk of b.buckets){
+    const t=b.targets[bk.id];
+    if(Math.abs(vals[bk.id]-t)>Math.max(1,t*0.05)){ok=false;break;}
+  }
+  const chose=b.buckets.map(bk=>`${bk.label} $${vals[bk.id]}`).join(' · ');
+  const want=b.buckets.map(bk=>`${bk.label} $${b.targets[bk.id]}`).join(' · ');
+  playerRecord({step:ps.idx,item:0,correct:ok,
+    snap:{q:b.h,chose:'You built: '+chose,correctLabel:'Target: '+want,why:b.why}});
+  recordSkillAttempt(step.skill,ok,{});
+  renderPlayerStep();
+}
+// ---------- Explain verb: teach it back, then self-check ----------
+// Payload: {h, prompt, keyPoints[3-4], modelAnswer, hint}. Two phases:
+// write, then check your explanation against the key points yourself.
+const explainDrafts={};
+function lpExplain(ps,step){
+  const b=resolveBankStep(ps.lessonId,step,peekBankVisit(ps.lessonId));
+  const rec=playerAnswerFor(ps.idx,0);
+  if(rec){
+    return `<h2>${esc(b.h)}</h2><div class="lp-done" role="status"><p><b>Explained and checked.</b></p><p class="sub">Your words:</p><blockquote class="lp-quote">${esc(explainDrafts[ps.idx]||'')}</blockquote><p class="sub">Model answer: ${esc(b.modelAnswer)}</p></div>`;
+  }
+  const draft=explainDrafts[ps.idx];
+  if(draft===undefined){
+    return `<h2>${esc(b.h)}</h2><div class="lp-body"><p>${esc(b.prompt)}</p></div>`
+      +`<textarea class="explain-input" data-explain-input rows="4" aria-label="Your explanation" placeholder="Explain it the way you'd tell a friend..."></textarea>`
+      +`<p><button type="button" class="btn" onclick="course.playerExplainSubmit()">Done — check my explanation →</button></p>`
+      +(b.hint?`<p><button type="button" class="linklike lp-hint-btn" onclick="course.playerHint(this)">Need a hint?</button><p class="lp-hint hidden">${esc(b.hint)}</p></p>`:'');
+  }
+  const points=b.keyPoints.map((kp,i)=>`
+    <label class="explain-point"><input type="checkbox" data-explain-point="${i}"> <span>${esc(kp)}</span></label>`).join('');
+  return `<h2>${esc(b.h)}</h2><p class="sub">Your explanation:</p><blockquote class="lp-quote">${esc(draft)}</blockquote>`
+    +`<div class="lp-body"><p><b>Did you cover these?</b> Tick each one your explanation mentioned:</p>${points}</div>`
+    +`<div class="lp-body"><p class="sub"><b>Model answer:</b> ${esc(b.modelAnswer)}</p></div>`
+    +`<p><button type="button" class="btn" onclick="course.playerExplainDone()">I've checked — continue →</button></p>`;
+}
+function playerExplainSubmit(){
+  const ps=readPlayerState(); if(!ps)return;
+  const ta=document.querySelector('[data-explain-input]');
+  explainDrafts[ps.idx]=ta?ta.value.trim():'';
+  renderPlayerStep();
+}
+function playerExplainDone(){
+  const ps=readPlayerState(); if(!ps)return;
+  const content=lessonContent(ps.lessonId);
+  const step=content&&content.steps[ps.idx];
+  if(!step||step.t!=='explain'||playerAnswerFor(ps.idx,0))return;
+  const b=resolveBankStep(ps.lessonId,step,peekBankVisit(ps.lessonId));
+  const ticked=document.querySelectorAll('[data-explain-point]:checked').length;
+  const ok=ticked>=Math.ceil(b.keyPoints.length*0.6);
+  playerRecord({step:ps.idx,item:0,correct:ok,
+    snap:{q:b.h,chose:(explainDrafts[ps.idx]||'(no text)')+' — self-checked '+ticked+' of '+b.keyPoints.length+' key points',
+      correctLabel:'Key points: '+b.keyPoints.join(' · '),why:b.modelAnswer}});
+  recordSkillAttempt(step.skill,ok,{});
+  delete explainDrafts[ps.idx];
+  renderPlayerStep();
+}
 function lpNav(ps,total){
   const isLast=ps.idx===total-1;
   const prev=ps.idx>0?`<button type="button" class="btn secondary" onclick="course.playerGo(-1)">← Back</button>`:'<span></span>';
@@ -815,7 +964,7 @@ function lpNav(ps,total){
   const blocked=!playerStepComplete(ps);
   // A disabled Next with no explanation reads as broken: say what unlocks it.
   const step=lessonContent(ps.lessonId)?.steps[ps.idx];
-  const whyBlocked=blocked?(step&&step.t==='sort'?'Finish sorting to continue':'Choose an answer to continue'):'';
+  const whyBlocked=blocked?(step&&step.t==='sort'?'Finish sorting to continue':step&&step.t==='build'?'Finish building your split to continue':step&&step.t==='explain'?'Write and check your explanation to continue':'Choose an answer to continue'):'';
   return `<div class="lp-nav">${prev}<span class="lp-nav-next"><button type="button" class="btn" data-lp-next${blocked?' disabled':''} onclick="course.playerGo(1)">${label}</button>${blocked?`<small class="lp-blocked-hint">${whyBlocked}</small>`:''}</span></div>`;
 }
 
@@ -848,6 +997,8 @@ function renderPlayerStep(){
   else if(step.t==='example')body=lpExample(step);
   else if(step.t==='try')body=lpTry(ps,step);
   else if(step.t==='sort')body=sortStepDone(ps,step)?lpSortDone(ps,step):lpSort(step);
+  else if(step.t==='build')body=lpBuild(ps,step);
+  else if(step.t==='explain')body=lpExplain(ps,step);
   else if(step.t==='tool')body=lpTool(ps,step,lesson);
   else body=lpTeach({h:'Lesson',body:'<p>Content coming right up.</p>'});
   host.innerHTML=`<div class="lp-wrap"><div class="row between"><p class="lp-kicker">${esc(kicker)}</p>${ttsSupported()?`<div class="tts-slot">${ttsControlsHTML()}<button type="button" class="tts-speak-btn" data-tts-read-screen aria-label="Read this screen aloud" title="Read this screen aloud">🔊 Read screen</button></div>`:''}</div><div class="lp-card">${body}</div>${lpNav(ps,steps.length)}</div>`;
@@ -865,8 +1016,9 @@ function renderPlayerReview(host,lesson,content,ps){
   const seq=lessonSequence();
   const li=seq.indexOf(ps.lessonId);
   const nextId=seq[li+1]||null;
-  const answers=(ps.answers||[]).filter(a=>a.choice!==undefined||a.bucket!==undefined);
+  const answers=(ps.answers||[]).filter(a=>a.choice!==undefined||a.bucket!==undefined||a.snap!==undefined);
   const isCorrect=a=>{
+    if(a.snap!==undefined)return !!a.correct;
     if(a.bucket!==undefined)return !!a.correct;
     const step=content.steps[a.step];
     const rq=resolveTry(ps.lessonId,a.step,step,a.att||0);
@@ -883,7 +1035,9 @@ function renderPlayerReview(host,lesson,content,ps){
     items=answers.map(a=>{
       const step=content.steps[a.step];
       let q,chose,correctLabel,why,ok;
-      if(a.bucket!==undefined){
+      if(a.snap!==undefined){
+        q=a.snap.q; chose=a.snap.chose; correctLabel=a.snap.correctLabel; why=a.snap.why; ok=!!a.correct;
+      }else if(a.bucket!==undefined){
         const item=step.items[a.item];
         q='Sort: '+item.label;
         chose=step.buckets[a.bucket];
@@ -1016,6 +1170,18 @@ function playerRetry(){
   const card=document.querySelector('#lesson-player .lp-card');
   if(card)card.scrollIntoView({block:'start',behavior:'auto'});
 }
+function buildPreview(){
+  const totalEl=document.querySelector('[data-build-total]');
+  if(!totalEl)return;
+  let sum=0;
+  document.querySelectorAll('[data-build-bucket]').forEach(el=>{
+    const v=Math.max(0,parseInt(el.value,10)||0);
+    sum+=v;
+    const lab=document.querySelector(`[data-build-val="${el.getAttribute('data-build-bucket')}"]`);
+    if(lab)lab.textContent='$'+v;
+  });
+  totalEl.textContent='$'+sum;
+}
 function playerHint(btn){
   const hint=btn&&btn.nextElementSibling;
   if(!hint||!hint.classList.contains('lp-hint'))return;
@@ -1125,4 +1291,4 @@ function sortFinish(host){
   renderPlayerStep();
 }
 
-Object.assign(window.course,{playerGo,playerAnswer,playerHint,playerRedo,playerRetry,playerFocusPractice,sortPick,sortNext});
+Object.assign(window.course,{playerGo,playerAnswer,playerHint,playerRedo,playerRetry,playerFocusPractice,sortPick,sortNext,playerBuildCheck,playerExplainSubmit,playerExplainDone,buildPreview});

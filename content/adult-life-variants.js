@@ -11,3 +11,6 @@ import './adult-life-variants-gen.js';
 import './adult-life-variants-gen2.js';
 import './adult-life-variants-gen3.js';
 import './adult-life-variants-gen4.js';
+import './rwms-modules.js';
+import './rwms-variants.js';
+import './rwms-assessment.js';

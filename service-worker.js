@@ -1,5 +1,5 @@
-// Cache lineage: nws-static-v2.7-20260919 -> nws-static-v3.8-20260927 -> nws-static-v3.18-20261004 -> nws-static-v3.19-20261004 (perf: resized PNGs, font preload) -> nws-static-v3.21-20261004 (accessibility: contrast fixes, dark-theme course cards, input labels, dialog table scope) -> nws-static-v3.24-20261004 (trust/GEO: og/twitter meta, Organization JSON-LD, home "What is NWS" about card + last-updated line, llms.txt refresh; cache-first SW bump so changed asset bytes ship) -> nws-static-v3.25-20261004 (conversion: outcome hero headline, progress-aware CTAs, module completion milestone, reviews keep-going nudge; cache-first SW bump so changed asset bytes ship) -> nws-static-v3.26-20261004 (engineering hardening: storage write/read guards, pacing input null-safety, state schema-version guard, dead CSS removal; cache-first SW bump so changed asset bytes ship) -> nws-static-v3.27-20261004 (adult-life no-repeat: per-learner served sets, persisted shuffled practice sequences, transfer/retention unfreeze, exact-dupe guard; cache-first SW bump so changed asset bytes ship).
-const CACHE_NAME = 'nws-static-v3.28-20261004';
+// Cache lineage: nws-static-v2.7-20260919 -> nws-static-v3.8-20260927 -> nws-static-v3.18-20261004 -> nws-static-v3.19-20261004 (perf: resized PNGs, font preload) -> nws-static-v3.21-20261004 (accessibility: contrast fixes, dark-theme course cards, input labels, dialog table scope) -> nws-static-v3.24-20261004 (trust/GEO: og/twitter meta, Organization JSON-LD, home "What is NWS" about card + last-updated line, llms.txt refresh; cache-first SW bump so changed asset bytes ship) -> nws-static-v3.25-20261004 (conversion: outcome hero headline, progress-aware CTAs, module completion milestone, reviews keep-going nudge; cache-first SW bump so changed asset bytes ship) -> nws-static-v3.26-20261004 (engineering hardening: storage write/read guards, pacing input null-safety, state schema-version guard, dead CSS removal; cache-first SW bump so changed asset bytes ship) -> nws-static-v3.27-20261004 (adult-life no-repeat: per-learner served sets, persisted shuffled practice sequences, transfer/retention unfreeze, exact-dupe guard; cache-first SW bump so changed asset bytes ship). -> nws-static-v3.29-20261004 (scaffolding: 8-verb variation banks, 50/lesson, build/explain renderers, served-set draws; cache-first SW bump so changed asset bytes ship).
+const CACHE_NAME = 'nws-static-v3.30-20261004';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -66,6 +66,17 @@ const CORE_ASSETS = [
   './content/adult-life-variants-gen2.js',
   './content/adult-life-variants-gen3.js',
   './content/adult-life-variants-gen4.js',
+  './content/rwms-modules.js',
+  './content/rwms-variants.js',
+  './content/rwms-assessment.js',
+  './app/lesson-banks.js',
+  './content/banks/index.js',
+  './content/banks/foundations.js',
+  './content/banks/pacing.js',
+  './content/banks/value.js',
+  './content/banks/adult-money.js',
+  './content/banks/living-costs.js',
+  './content/banks/support.js',
   './content/simple-lessons.js',
   './content/recovery-followup.js',
   './content/benefits.js',

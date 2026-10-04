@@ -367,3 +367,23 @@ body[data-theme="dark"] .topnav-link.active{color:#0b1f13}
 /* Module-completion milestone banner on the course home. */
 .course-celeb{border-left:4px solid var(--good)}
 .course-celeb h3{margin:8px 0 4px}
+
+/* ---------- Scaffolded variation banks: build + explain verbs ---------- */
+.lp-kicker{color:var(--muted);font-size:.92em;margin:-.4em 0 .8em}
+.lp-scenario{background:var(--brand-soft);border:1px solid var(--line);border-radius:12px;padding:.9em 1em;margin:.6em 0 1em}
+.lp-scenario p{margin:.35em 0}
+.lp-scenario ul{margin:.4em 0 .4em 1.2em}
+.lp-quote{border-left:3px solid var(--brand);margin:.6em 0;padding:.4em .8em;background:var(--brand-soft);border-radius:0 8px 8px 0;font-style:italic}
+.build-game{margin-top:.8em}
+.build-row{display:grid;grid-template-columns:1fr 2fr auto;gap:.6em;align-items:center;margin:.55em 0}
+.build-row label{font-weight:700}
+.build-row input[type=range]{width:100%;accent-color:var(--brand);min-height:44px}
+.build-val{font-variant-numeric:tabular-nums;font-weight:700;min-width:3.2em;text-align:right}
+.build-total{margin:.7em 0;font-size:1.05em}
+.explain-input{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:12px;padding:.7em;font:inherit;min-height:96px;background:var(--panel);color:var(--ink)}
+.explain-point{display:flex;gap:.55em;align-items:flex-start;margin:.5em 0;cursor:pointer}
+.explain-point input{width:1.3em;height:1.3em;margin-top:.15em;accent-color:var(--brand);flex-shrink:0}
+@media (max-width:640px){
+  .build-row{grid-template-columns:1fr;gap:.25em}
+  .build-val{text-align:left}
+}
