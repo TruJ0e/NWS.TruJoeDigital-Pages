@@ -1,5 +1,5 @@
-// Cache lineage: nws-static-v2.7-20260919 -> nws-static-v3.8-20260927 -> ... -> nws-static-v3.17-20261002 -> nws-static-v3.18-20261004 (cache audit: added missing runtime assets to CORE_ASSETS — app/variants.js, app/ad-rotation.js, simple-mode files, adult-life-variants-4/5 + gen files, simple.html/css; SW cache bump so the new assets ship past the old cache).
-const CACHE_NAME = 'nws-static-v3.18-20261004';
+// Cache lineage: nws-static-v2.7-20260919 -> nws-static-v3.8-20260927 -> ... -> nws-static-v3.18-20261004 -> nws-static-v3.19-20261004 (perf pass: module/logo PNGs resized to display sizes, index.html font preload; cache-first SW needs a bump so resized image bytes + changed HTML ship past the old cache).
+const CACHE_NAME = 'nws-static-v3.19-20261004';
 const CORE_ASSETS = [
   './',
   './index.html',
