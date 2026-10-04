@@ -698,9 +698,9 @@ function bucketIndexOf(step,answer){
 }
 function capFirst(text){return text.charAt(0).toUpperCase()+text.slice(1);}
 
-function lpTeach(step){return `<h2>${esc(step.h)}</h2><div class="lp-body">${step.body}</div>`;}
+function lpTeach(step){return `<h2>${esc(step.h)}</h2><div class="lp-body">${step.body}</div>`+(step.diagram?`<div class="lp-diagram">${step.diagram}</div>`:'');}
 function lpExample(step){
-  return `<h2>${esc(step.h)}</h2><p class="lp-story">${step.story}</p><ul class="lp-points">${step.points.map(point=>`<li>${point}</li>`).join('')}</ul>`;
+  return `<h2>${esc(step.h)}</h2><p class="lp-story">${step.story}</p><ul class="lp-points">${step.points.map(point=>`<li>${point}</li>`).join('')}</ul>`+(step.diagram?`<div class="lp-diagram">${step.diagram}</div>`:'');
 }
 // Practice-set progress: within a lesson, consecutive try steps read as one
 // practice set, so show "Question i of n" above the question.

@@ -1,5 +1,5 @@
-// Cache lineage: nws-static-v2.7-20260919 -> nws-static-v3.8-20260927 -> nws-static-v3.18-20261004 -> nws-static-v3.19-20261004 (perf: resized PNGs, font preload) -> nws-static-v3.20-20261004 (accessibility: contrast fixes, dark-theme course cards, input labels, dialog table scope; cache-first SW bump so changed asset bytes ship).
-const CACHE_NAME = 'nws-static-v3.20-20261004';
+// Cache lineage: nws-static-v2.7-20260919 -> nws-static-v3.8-20260927 -> nws-static-v3.18-20261004 -> nws-static-v3.19-20261004 (perf: resized PNGs, font preload) -> nws-static-v3.21-20261004 (accessibility: contrast fixes, dark-theme course cards, input labels, dialog table scope; cache-first SW bump so changed asset bytes ship).
+const CACHE_NAME = 'nws-static-v3.21-20261004';
 const CORE_ASSETS = [
   './',
   './index.html',

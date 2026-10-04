@@ -356,3 +356,7 @@ body[data-theme="dark"] .module-lesson-list .course-check{color:#0b3d21}
 body[data-theme="dark"] .course-lesson.visited .course-step-num,
 body[data-theme="dark"] .course-lesson.visited .course-check{background:#22c55e;color:#0b1f13}
 body[data-theme="dark"] .topnav-link.active{color:#0b1f13}
+
+/* ---------- NWS teaching diagrams (illustration pass, v3.21) ---------- */
+.nws-diagram{display:block;width:100%;height:auto;max-width:560px;margin:14px auto}
+.nws-diagram text{font-family:var(--font-sans)}
