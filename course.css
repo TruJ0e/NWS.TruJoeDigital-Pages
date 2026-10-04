@@ -41,7 +41,7 @@
 .course-kind{flex:0 0 auto;font-size:.68rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:var(--brand-soft);color:var(--brand-deep)}
 .course-est{flex:0 0 auto;color:var(--muted);font-size:.78rem;font-weight:600;white-space:nowrap}
 .course-check{display:none;flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--good);color:#fff;font-weight:800;font-size:.85rem;align-items:center;justify-content:center}
-.course-lesson.visited .course-check{display:inline-flex}
+.course-lesson.completed .course-check{display:inline-flex}
 .course-lesson-meta{flex:1 1 auto;min-width:0;text-align:left}
 .course-lesson-meta b{display:block;font-size:.98rem}
 .course-lesson-meta small{color:var(--muted);font-size:.82rem;display:block;margin-top:2px}
@@ -179,7 +179,7 @@
 /* Phones: horizontal scroll rows so cards sit side by side with full text inside. */
 @media(max-width:640px){
   .module-quicklist{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:10px}
-  .module-quick-card{flex:0 0 80%;scroll-snap-align:start}
+  .module-quick-card-wrap{flex:0 0 80%;scroll-snap-align:start}
   .module-lesson-list{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:10px}
   .module-lesson-list .course-lesson{flex:0 0 84%;scroll-snap-align:start}
 }
@@ -372,3 +372,19 @@ body[data-theme="dark"] .topnav-link.active{color:#0b1f13}
 .sort-bucket.flash-ok,.sort-bucket.flash-bad{animation:nwsPop .32s ease}
 /* Module progress dots: gentle state transitions. */
 .mq-dot,.pdot{transition:background-color .25s ease,border-color .25s ease}
+
+/* ---------- Iteration 9: conversion pass ---------- */
+/* Module quick-cards: the wrapper owns grid/flex placement; a one-tap
+   continue button sits under each card so returning learners jump straight
+   back to their first incomplete lesson. */
+.module-quick-card-wrap{display:flex;flex-direction:column}
+.module-quick-card-wrap .module-quick-card{flex:1 1 auto;width:100%}
+.mq-continue{margin-top:10px;align-self:stretch;background:transparent;border:2px solid var(--brand);border-radius:12px;color:var(--brand-deep);font:inherit;font-weight:800;padding:12px 14px;min-height:48px;cursor:pointer;text-align:center}
+.mq-continue:hover{background:var(--brand-soft)}
+.mq-done{border-style:dashed;color:var(--good);cursor:default}
+/* Completion marks only mean "finished": the ✓ shows for completed lessons,
+   never merely visited ones. In-progress rows get an underlined Continue. */
+.module-lesson-list .course-lesson.in-progress .course-lesson-action{text-decoration:underline;text-underline-offset:3px}
+/* Module-completion milestone banner on the course home. */
+.course-celeb{border-left:4px solid var(--good)}
+.course-celeb h3{margin:8px 0 4px}

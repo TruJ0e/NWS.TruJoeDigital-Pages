@@ -179,6 +179,10 @@ function renderCourse(){
   const completedCount=allLessons.filter(lesson=>state.completed[lesson.id]).length;
   const saved=readResume();
   const resumeLesson=saved&&saved.lessonId?LESSONS.get(saved.lessonId):null;
+  // Conversion nudge (honest, never shaming): learners who have finished at
+// least one lesson see exactly how far along they are, right next to the CTA.
+  const donePct=Math.round(completedCount/total*100);
+  const doneNudge=completedCount>0?` · ${donePct}% of lessons complete`:'';
   let ctaId,ctaStep,ctaLabel,ctaNote;
   if(resumeLesson){
     const totalSteps=lessonContent(resumeLesson.id)?.steps.length||0;
@@ -186,18 +190,31 @@ function renderCourse(){
     const atReview=totalSteps>0&&ctaStep>=totalSteps;
     ctaId=resumeLesson.id;
     ctaLabel=`Continue: ${resumeLesson.title}`;
-    ctaNote=`Pick up where you left off · Module ${resumeLesson.moduleNumber} · ${atReview?'end-of-lesson review':`screen ${ctaStep+1} of ${totalSteps}`}`;
+    ctaNote=`Pick up where you left off · Module ${resumeLesson.moduleNumber} · ${atReview?'end-of-lesson review':`screen ${ctaStep+1} of ${totalSteps}`}${doneNudge}`;
   }else{
     const next=allLessons.find(lesson=>!state.visited[lesson.id]);
     const target=next||allLessons[0];
     ctaId=target.id; ctaStep=0;
     ctaLabel=visitedCount===0?'Start course':(next?`Next up: ${target.title}`:'Review course from the start');
-    ctaNote=visitedCount===0?`Begin with Module 1 · ${esc(allLessons[0].title)}`:(next?`${esc(next.title)} · ${next.est} min · Module ${next.moduleNumber}`:'You have visited every lesson — review anything, any time.');
+    ctaNote=visitedCount===0?`Begin with Module 1 · ${esc(allLessons[0].title)} · ${allLessons[0].est} min`:(next?`${esc(next.title)} · ${next.est} min · Module ${next.moduleNumber}${doneNudge}`:'You have visited every lesson — review anything, any time.');
   }
   const pct=Math.round(visitedCount/total*100);
+  // Completion celebration (warm, never shaming): when a whole module is
+  // finished, the course home says so and offers the natural next step.
+  // Pick the most recently finished module so the milestone always feels current.
+  let celebHtml='';
+  const fullyDone=MODULES.filter(module=>module.lessons.every(lesson=>state.completed[lesson.id]));
+  if(fullyDone.length){
+    const lastTs=id=>{const t=new Date(state.completed[id]||0).getTime();return Number.isFinite(t)?t:0;};
+    const moduleDoneAt=module=>Math.max(...module.lessons.map(lesson=>lastTs(lesson.id)));
+    const latest=fullyDone.reduce((a,b)=>moduleDoneAt(a)>=moduleDoneAt(b)?a:b);
+    const nextModule=MODULES[MODULES.indexOf(latest)+1]||null;
+    celebHtml=`<section class="card course-celeb" aria-label="Milestone"><span class="tag good-tag">Milestone</span><h3>Module ${latest.number}: ${esc(latest.title)} — done.</h3>${nextModule?`<p>Every lesson finished. That is real progress — ready for the next one?</p><div class="row"><button type="button" class="btn" onclick="course.openModulePage('${esc(nextModule.id)}')">Continue to Module ${nextModule.number} →</button></div>`:'<p>You finished all six modules. Come back and review anything, anytime.</p>'}</section>`;
+  }
   host.innerHTML=
-`<div class="hero course-hero"><span class="tag">NWS Course</span><h2>Learn to run your money like an adult.</h2><p class="sub">Built for college students. Plain-language lessons and hands-on practice for the money decisions that actually show up: paychecks, rent, groceries, subscriptions, and the surprises in between.</p><ul class="course-logistics" aria-label="Course logistics"><li><b>Self-paced</b><span>go in any order</span></li><li><b>Free</b><span>no account, no cost</span></li><li><b>6 modules · ${total} lessons</b><span>lessons, practice &amp; tools</span></li><li><b>${esc(courseDurationLabel())}</b><span>total, at your pace</span></li></ul><div class="row course-cta-row"><button class="btn" type="button" onclick="course.openLesson('${esc(ctaId)}',${ctaStep})">${esc(ctaLabel)}</button><span class="sub">${ctaNote}</span></div></div>`
+`<div class="hero course-hero"><span class="tag">NWS Course</span><h2>Run your money with a plan, not a guess.</h2><p class="sub">Short lessons and hands-on practice for the money decisions that actually show up: paychecks, rent, groceries, subscriptions, and the surprises in between. Free, no account, no real money involved.</p><ul class="course-logistics" aria-label="Course logistics"><li><b>Self-paced</b><span>go in any order</span></li><li><b>Free</b><span>no account, no cost</span></li><li><b>6 modules · ${total} lessons</b><span>lessons, practice &amp; tools</span></li><li><b>${esc(courseDurationLabel())}</b><span>total, at your pace</span></li></ul><div class="row course-cta-row"><button class="btn" type="button" onclick="course.openLesson('${esc(ctaId)}',${ctaStep})">${esc(ctaLabel)}</button><span class="sub">${ctaNote}</span></div></div>`
 +`<section class="card course-progress" aria-label="Course progress"><div class="course-progress-head"><h3>Your progress</h3><span class="tag">${visitedCount} of ${total} visited · ${completedCount} completed</span></div><div class="progressbar" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${visitedCount}" aria-label="Course lessons visited"><i style="width:${pct}%"></i></div><p class="sub">Visited means you opened it — they are not a mastery score. Completed means you finished every screen and its practice — that is the real progress.</p></section>`
++celebHtml
 +`<div class="section-title"><div><h2>Modules</h2><p>Each module is its own page of short lessons — one idea per screen.</p></div></div><div class="module-quicklist">${MODULES.map(moduleQuickCard).join('')}</div>`
 +`<section class="card course-simple-card" aria-label="Simple mode"><span class="tag">Easier mode</span><h3>Want the calm version? Try Simple mode.</h3><p>Same money skills, one step at a time, in plain language.</p><a class="btn" href="./simple.html">Open Simple mode →</a></section>`
 +`<section class="card course-about" aria-label="About NWS"><span class="tag">About</span><h3>What is NWS?</h3><p>NWS Money Masterclass is a free financial-literacy course from <b>TruJoe Digital</b> (Clarksville, Arkansas), built for teens and young adults. Short lessons and hands-on practice with fictional money — no real money, no account, no cost.</p><p class="sub">Course last updated October 2026.</p></section>`
@@ -233,7 +250,14 @@ function moduleQuickCard(module){
   const total=module.lessons.length;
   const done=module.lessons.filter(lesson=>state.completed[lesson.id]).length;
   const inProgress=module.lessons.filter(lesson=>state.visited[lesson.id]&&!state.completed[lesson.id]).length;
-  return `<button type="button" class="module-quick-card" onclick="course.openModulePage('${esc(module.id)}')" aria-label="Module ${module.number}: ${esc(module.title)} — ${inProgress} in progress, ${done} of ${total} completed, about ${moduleMinutes(module)} minutes"><img class="mq-img" src="${module.img||''}" alt="" aria-hidden="true" loading="lazy"/>${moduleSkillDots(module)}<span class="mq-progress" aria-hidden="true">${inProgress} in progress / ${done} completed · about ${moduleMinutes(module)} min</span><b class="mq-title">${esc(module.title)}</b><small class="mq-tagline">${esc(MODULE_TAGLINES[module.id]||module.summary)}</small></button>`;
+  // One-tap continuation: deep-link the first incomplete lesson so returning
+  // learners never have to hunt for where they stopped. Completed modules get
+  // a quiet "Module complete" marker instead.
+  const next=module.lessons.find(lesson=>!state.completed[lesson.id]);
+  const actionHtml=next
+    ?`<button type="button" class="mq-continue" onclick="course.openLesson('${esc(next.id)}')" aria-label="${state.visited[next.id]?'Continue':'Start'} where you stopped: ${esc(next.title)}">${state.visited[next.id]?'Continue':'Start'}: ${esc(next.title)} →</button>`
+    :`<span class="mq-continue mq-done"><span aria-hidden="true">✓</span> Module complete</span>`;
+  return `<div class="module-quick-card-wrap"><button type="button" class="module-quick-card" onclick="course.openModulePage('${esc(module.id)}')" aria-label="Module ${module.number}: ${esc(module.title)} — ${inProgress} in progress, ${done} of ${total} completed, about ${moduleMinutes(module)} minutes"><img class="mq-img" src="${module.img||''}" alt="" aria-hidden="true" loading="lazy"/>${moduleSkillDots(module)}<span class="mq-progress" aria-hidden="true">${inProgress} in progress / ${done} completed · about ${moduleMinutes(module)} min</span><b class="mq-title">${esc(module.title)}</b><small class="mq-tagline">${esc(MODULE_TAGLINES[module.id]||module.summary)}</small></button>${actionHtml}</div>`;
 }
 
 // Khan-style skill dots on module cards: subtle, small, under the module
@@ -289,7 +313,11 @@ function renderModulePage(moduleId){
   const rows=module.lessons.map(lesson=>{
     stepNum+=1;
     const visited=!!state.visited[lesson.id];
-    return `<button type="button" class="course-lesson${visited?' visited':''}" onclick="course.openLesson('${esc(lesson.id)}')" aria-label="Lesson ${stepNum}: ${esc(lesson.title)}${visited?' (visited)':''}"><span class="course-step-num" aria-hidden="true">${stepNum}</span><span class="course-lesson-meta"><b>${esc(lesson.title)}</b><small>${esc(lesson.summary)}</small>${lessonSkillSummary(lesson.id)}</span><span class="course-kind">${esc(kindTag(lesson))}</span><span class="course-est">${lesson.est} min</span><span class="course-check" aria-hidden="true">✓</span><span class="course-lesson-action">${visited?'Open again':'Start'}</span></button>`;
+    const completed=!!state.completed[lesson.id];
+    // Unmistakable next action: Start (new) vs Continue (begun, unfinished)
+    // vs Review (done). The ✓ mark is reserved for truly completed lessons.
+    const action=completed?'Review':visited?'Continue':'Start';
+    return `<button type="button" class="course-lesson${visited?' visited':''}${completed?' completed':''}${visited&&!completed?' in-progress':''}" onclick="course.openLesson('${esc(lesson.id)}')" aria-label="Lesson ${stepNum}: ${esc(lesson.title)}${completed?' (completed)':visited?' (in progress)':''}"><span class="course-step-num" aria-hidden="true">${stepNum}</span><span class="course-lesson-meta"><b>${esc(lesson.title)}</b><small>${esc(lesson.summary)}</small>${lessonSkillSummary(lesson.id)}</span><span class="course-kind">${esc(kindTag(lesson))}</span><span class="course-est">${lesson.est} min</span><span class="course-check" aria-hidden="true">✓</span><span class="course-lesson-action">${action}</span></button>`;
   }).join('');
   host.innerHTML=
 `${modulePageTopNav()}<div class="module-page-head"><p class="lp-kicker">Module ${module.number} of ${MODULES.length}</p><h2>${esc(module.title)}</h2><p class="sub">${esc(module.summary)}</p><p class="module-page-meta"><span class="tag">${done}/${module.lessons.length} visited</span><span class="sub">about ${moduleMinutes(module)} min</span></p></div>`
@@ -355,7 +383,7 @@ export function renderReviews(){
   const stageName={1:'Day 1',7:'Day 7',21:'Day 21'};
   const dueRows=due.length
     ?due.map(x=>`<div class="row between"><div><b>${esc(skillLabel(x.skill))}</b><div class="sub">${esc(stageName[x.stage]||('Stage '+x.stage))} check · due ${esc(fmt(x.dueAt))}</div></div><button type="button" class="btn" onclick="app.startReview('${esc(x.id)}')">Start review</button></div>`).join('')
-    :'<p class="positive">Nothing due right now. New reviews appear after you complete lessons and practice.</p>';
+    :`<p class="positive">Nothing due right now. New reviews appear after you complete lessons and practice.</p>${reviewsKeepGoingNudge()}`;
   const activeCard=activeQ
     ?`<div class="card"><span class="tag info">Review in progress</span><h3 style="margin:8px 0">${esc(activeQ.skillLabel)}</h3><p><b>${esc(activeQ.question)}</b></p><div class="stack">${activeQ.choices.map(c=>`<button type="button" class="btn secondary" onclick="app.answerReview('${esc(activeQ.id)}','${esc(c.id)}')">${esc(c.label)}</button>`).join('')}</div><div style="height:10px"></div>${activeQ.helped?`<div class="hint">${esc(activeQ.help)}</div>`:`<button type="button" class="btn ghost" onclick="app.reviewHelp('${esc(activeQ.id)}')">Show help</button>`}<div style="height:10px"></div><button type="button" class="btn ghost" onclick="app.startReview('')">Put this review back</button></div>`
     :'';
@@ -370,6 +398,16 @@ export function renderReviews(){
     ?`<div class="section-title"><h2>Retention overview</h2></div><div class="card"><div style="overflow-x:auto"><table><thead><tr><th>Skill</th><th>Due</th><th>Scheduled</th><th>Remembered later</th></tr></thead><tbody>${skillRows.map(x=>`<tr><td>${esc(x.label)}</td><td>${x.due}</td><td>${x.scheduled}</td><td>${x.retentionPercent==null?'—':x.retentionPercent+'%'}</td></tr>`).join('')}</tbody></table></div><p class="sub">“Remembered later” counts independent correct answers on delayed checks — no hints used. Not a grade.</p></div>`
     :'';
   host.innerHTML=`<div class="hero"><span class="tag">Reviews</span><h2>Review what you learned</h2><p class="sub">Reviews bring back older material after time has passed, so it sticks. Start each review right here.</p><div class="stats"><div class="stat"><span>Due now</span><b>${total}</b></div><div class="stat"><span>Regular reviews</span><b>${due.length}</b></div><div class="stat"><span>Recovery follow-ups</span><b>${recovery.length}</b></div></div></div>${activeCard}<div class="section-title"><h2>Due now</h2></div><div class="card"><div class="stack">${dueRows}</div></div><div class="section-title"><h2>Recovery follow-ups</h2></div><div class="card"><div class="stack">${recoveryRows}</div></div><div class="section-title"><h2>Coming up</h2></div><div class="card"><div class="stack">${upcomingRows}</div></div>${overview}`;
+}
+
+// Reviews empty state: when nothing is due, point at the natural next
+// lesson instead of leaving a dead end. Warm nudge, never a guilt trip.
+function reviewsKeepGoingNudge(){
+  const state=readCourseState();
+  const next=MODULES.flatMap(module=>module.lessons).find(lesson=>!state.completed[lesson.id]);
+  if(!next)return '';
+  const verb=state.visited[next.id]?'Continue':'Start';
+  return `<p class="sub">Keep going: <button type="button" class="linklike" onclick="course.openLesson('${esc(next.id)}')">${verb}: ${esc(next.title)} →</button></p>`;
 }
 
 function refCard(title,body){return `<div class="card quick-ref"><h3>${esc(title)}</h3>${body}</div>`;}
