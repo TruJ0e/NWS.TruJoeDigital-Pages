@@ -130,5 +130,35 @@
   sync();
 })();
 </script>
+<script>
+/* Iteration 6: once-only scroll reveals (transform + opacity; skipped under reduced motion). */
+(function(){
+  var reduced=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduced)return;
+  var sel='.module-quick-card,.module-lesson-list .course-lesson,.section-title';
+  var io=('IntersectionObserver' in window)?new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting)return;
+      var t=e.target;t.classList.add('in');io.unobserve(t);
+      setTimeout(function(){t.classList.remove('reveal','in');},500);
+    });
+  },{threshold:.12,rootMargin:'0px 0px -8% 0px'}):null;
+  function setup(el){
+    if(!el||el.classList.contains('reveal')||el.classList.contains('in'))return;
+    if(!io){el.classList.add('in');return;}
+    el.classList.add('reveal');io.observe(el);
+  }
+  function scan(root){if(root.querySelectorAll)root.querySelectorAll(sel).forEach(setup);}
+  scan(document);
+  var main=document.querySelector('main');
+  if(main)new MutationObserver(function(muts){
+    muts.forEach(function(m){m.addedNodes.forEach(function(n){
+      if(n.nodeType!==1)return;
+      if(n.matches&&n.matches(sel))setup(n);
+      scan(n);
+    });});
+  }).observe(main,{childList:true,subtree:true});
+})();
+</script>
 </body>
 </html>

@@ -360,3 +360,15 @@ body[data-theme="dark"] .topnav-link.active{color:#0b1f13}
 /* ---------- NWS teaching diagrams (illustration pass, v3.21) ---------- */
 .nws-diagram{display:block;width:100%;height:auto;max-width:560px;margin:14px auto}
 .nws-diagram text{font-family:var(--font-sans)}
+
+/* ---------- Iteration 6: motion/delight (transform + opacity only) ---------- */
+/* Pressed feedback on course surfaces (transform already in their transitions). */
+.course-lesson:active,.module-quick-card:active,.module-lesson-list .course-lesson:active,.lp-choice:active,.sort-bucket:active{transform:scale(.97)}
+/* Lesson step changes: .lp-card is re-rendered each step, so the animation retriggers naturally. */
+.lp-card{animation:nwsStepIn .22s ease}
+/* Quiz correct answer: gentle checkmark pop. */
+.lp-choice.correct{animation:nwsPop .3s ease}
+/* Sort-bucket drop feedback: quick pop alongside the color flash. */
+.sort-bucket.flash-ok,.sort-bucket.flash-bad{animation:nwsPop .32s ease}
+/* Module progress dots: gentle state transitions. */
+.mq-dot,.pdot{transition:background-color .25s ease,border-color .25s ease}
