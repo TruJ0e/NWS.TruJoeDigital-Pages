@@ -145,20 +145,40 @@
 })();
 </script>
 <script>
-/* Iteration 6: once-only scroll reveals (transform + opacity; skipped under reduced motion). */
+/* Scroll reveals: once-only, transform + opacity, reduced-motion safe.
+   Rough edges fixed: above-fold elements never hide-then-flash; identical
+   content is never re-animated after a re-render; classes are never
+   stripped mid-transition. */
 (function(){
   var reduced=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduced)return;
   var sel='.module-quick-card,.module-lesson-list .course-lesson,.section-title';
+  var seen={}; /* fingerprint -> true: revealed once per page view, never re-animated */
+  function fingerprint(el){
+    var t=(el.textContent||'').replace(/\s+/g,' ').slice(0,80);
+    return el.tagName+'|'+el.className+'|'+t;
+  }
+  function inViewport(el){
+    try{var r=el.getBoundingClientRect();return r.top<window.innerHeight&&r.bottom>0;}
+    catch(e){return true;}
+  }
+  if(reduced){
+    /* Reduced motion: everything visible immediately, no observation at all. */
+    document.querySelectorAll(sel).forEach(function(el){el.classList.add('in');});
+    return;
+  }
   var io=('IntersectionObserver' in window)?new IntersectionObserver(function(entries){
     entries.forEach(function(e){
       if(!e.isIntersecting)return;
-      var t=e.target;t.classList.add('in');io.unobserve(t);
-      setTimeout(function(){t.classList.remove('reveal','in');},500);
+      var t=e.target;
+      io.unobserve(t);
+      t.classList.add('in'); /* kept permanently: no strip, no re-animation risk */
     });
-  },{threshold:.12,rootMargin:'0px 0px -8% 0px'}):null;
+  },{threshold:.15,rootMargin:'0px 0px -10% 0px'}):null;
   function setup(el){
     if(!el||el.classList.contains('reveal')||el.classList.contains('in'))return;
+    var fp=fingerprint(el);
+    if(seen[fp]||inViewport(el)){el.classList.add('in');seen[fp]=true;return;}
+    seen[fp]=true;
     if(!io){el.classList.add('in');return;}
     el.classList.add('reveal');io.observe(el);
   }

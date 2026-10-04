@@ -1,5 +1,5 @@
 // Cache lineage: nws-static-v2.7-20260919 -> nws-static-v3.8-20260927 -> nws-static-v3.18-20261004 -> nws-static-v3.19-20261004 (perf: resized PNGs, font preload) -> nws-static-v3.21-20261004 (accessibility: contrast fixes, dark-theme course cards, input labels, dialog table scope) -> nws-static-v3.24-20261004 (trust/GEO: og/twitter meta, Organization JSON-LD, home "What is NWS" about card + last-updated line, llms.txt refresh; cache-first SW bump so changed asset bytes ship) -> nws-static-v3.25-20261004 (conversion: outcome hero headline, progress-aware CTAs, module completion milestone, reviews keep-going nudge; cache-first SW bump so changed asset bytes ship) -> nws-static-v3.26-20261004 (engineering hardening: storage write/read guards, pacing input null-safety, state schema-version guard, dead CSS removal; cache-first SW bump so changed asset bytes ship) -> nws-static-v3.27-20261004 (adult-life no-repeat: per-learner served sets, persisted shuffled practice sequences, transfer/retention unfreeze, exact-dupe guard; cache-first SW bump so changed asset bytes ship).
-const CACHE_NAME = 'nws-static-v3.27-20261004';
+const CACHE_NAME = 'nws-static-v3.28-20261004';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -21,6 +21,7 @@ const CORE_ASSETS = [
   './app/simple-tools.js',
   './app/simple-settings.js',
   './content/lessons.js',
+  './content/adult-life-lesson-extra.js',
   './app/pwa.js',
   './app/pacing-value.js',
   './app/pacing-value-ui.js',

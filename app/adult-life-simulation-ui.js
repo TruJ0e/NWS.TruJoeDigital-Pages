@@ -108,10 +108,23 @@ function simShapeValid(sim){
     Number.isInteger(sim.periodIndex)&&sim.periodIndex>=0&&sim.periodIndex<sim.periods.length;
 }
 
-function reloadIntoSimulation(state){
+function reducedMotion(){
+  try{return window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){return false;}
+}
+
+/* In-place refresh: re-render from saved state without a page reload.
+   (Previously every decision did location.reload(), which lost scroll
+   position and made the simulation feel broken on phones.) */
+function refreshSimulation(state,focusResult){
   saveState(state);
-  try{sessionStorage.setItem(RESUME_KEY,'1');}catch{}
-  location.reload();
+  renderAdultLifeSimulation();
+  var host=document.getElementById('life-sim');
+  if(!host)return;
+  var target=focusResult?(host.querySelector('.result[role="status"],.callout[role="status"]')||host.querySelector('.card')):null;
+  if(target){
+    try{target.setAttribute('tabindex','-1');target.focus({preventScroll:true});}catch(e){}
+    try{target.scrollIntoView({block:'nearest',behavior:reducedMotion()?'auto':'smooth'});}catch(e){}
+  }
 }
 
 function addPeriodHistory(state,sim,period){
@@ -140,13 +153,13 @@ function startSimulation(){
   const sim=enableAdultLifeRecovery(createAdultLifeSimulation(state));
   beginAdultLifePeriod(sim);
   state.adultLifeSimulation=sim;
-  reloadIntoSimulation(state);
+  refreshSimulation(state,false);
 }
 
 function resetSimulation(){
   const state=loadState();
   state.adultLifeSimulation=null;
-  reloadIntoSimulation(state);
+  refreshSimulation(state,false);
 }
 
 function showHelp(){
@@ -187,7 +200,7 @@ function answerChoice(choiceId){
   });
   if(!x.defensible) queueAdultLifeRecovery(sim,x);
   state.adultLifeSimulation=sim;
-  reloadIntoSimulation(state);
+  refreshSimulation(state,true);
 }
 
 function answerRecovery(choiceId){
@@ -205,7 +218,7 @@ function answerRecovery(choiceId){
     detail:`Adult Life recovery P${x.period} ${x.sourceDecisionId}:${x.choiceId}`
   });
   state.adultLifeSimulation=sim;
-  reloadIntoSimulation(state);
+  refreshSimulation(state,true);
 }
 
 function advancePeriod(){
@@ -215,7 +228,7 @@ function advancePeriod(){
   addPeriodHistory(state,sim,period);
   advanceAdultLifePeriod(sim);
   state.adultLifeSimulation=sim;
-  reloadIntoSimulation(state);
+  refreshSimulation(state,true);
 }
 
 function stat(label,value){return `<div class="stat"><span>${esc(label)}</span><b>${esc(value)}</b></div>`;}
