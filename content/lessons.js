@@ -1708,6 +1708,7 @@ Object.assign(LESSON_CONTENT,{
 
 /* ================= MODULES 4 & 5: built from adult-life content ================= */
 import { ADULT_LIFE_MODULES, adultPracticeVariants } from './adult-life.js';
+import { ADULT_LESSON_EXTRA } from './adult-life-lesson-extra.js';
 import { adultLifeAssessmentForSkill, adultTransferVariants, normalizeAdultChoices } from './adult-life-assessment.js';
 import './adult-life-variants.js';
 
@@ -1716,6 +1717,7 @@ const escHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'
 function adultLifeLesson(id){
   const m=ADULT_LIFE_MODULES.find(x=>x.id===id);
   if(!m) return {intro:'',steps:[]};
+  const extra=ADULT_LESSON_EXTRA[id]||null;
   const correctChoice=m.practice.choices.find(c=>c.id===m.practice.correct);
   const correctFeedback=correctChoice?correctChoice.feedback:'Correct.';
   const steps=[
@@ -1723,6 +1725,7 @@ function adultLifeLesson(id){
      body:'<p>'+escHtml(m.summary)+'</p><p class="sub">Concepts last; rules, amounts, and forms change. When an answer depends on current rules, check the official source - never memorize a number as permanent.</p>'},
     {t:'teach',h:m.title+': what to know',
      body:'<ul>'+m.durableConcepts.map(c=>'<li>'+escHtml(c)+'</li>').join('')+'</ul>'},
+    ...(extra&&extra.example?[{t:'example',h:extra.example.h,story:extra.example.story,points:extra.example.points}]:[]),
     {t:'try',skill:'adult-'+m.skill,tier:'independent',
      gen:(v)=>{
        const vars=adultPracticeVariants(m.id);
@@ -1759,6 +1762,12 @@ function adultLifeLesson(id){
           why:tv.help
         };
       }});
+  }
+  if(extra&&Array.isArray(extra.trys)){
+    for(const tr of extra.trys){
+      steps.push({t:'try',skill:'adult-'+m.skill,tier:'independent',
+        q:tr.q,choices:tr.choices,hint:tr.hint,good:tr.good,bad:tr.bad,why:tr.why});
+    }
   }
   return {intro:m.summary,steps};
 }
