@@ -1268,8 +1268,9 @@ Object.assign(LESSON_CONTENT,{
 'usable-value':{intro:'Compare what you will USE, not what is in the package.',steps:[
  {t:'teach',h:'Unit price is only half the story',
   body:'<p><b>Unit price = price \u00f7 quantity.</b> But the quantity that matters is what you will <i>actually use</i>:</p><p><b>True unit price = price \u00f7 units you will use.</b></p><p>A giant pack is only cheaper if the extra does not go in the trash. Waste is the most expensive ingredient.</p>'},
- {t:'example',h:'Maya compares two packs',story:'<p>Pasta: 12-pack for $9 ($0.75 each) vs 6-pack for $5.40 ($0.90 each).</p>',
-  points:['She will use all 12 before they expire.','True cost: $0.75 vs $0.90 per pack.','The 12-pack wins - <i>because none is wasted</i>.']},
+ {t:'example',h:'Maya buys pasta twice',story:'<p>Same two pastas on the shelf: 12-pack for <b>$9.00</b> ($0.75 each) vs 6-pack for <b>$5.40</b> ($0.90 each). The tag says the 12-pack is cheaper. Maya checks anyway.</p>',
+  points:['<b>Trip 1:</b> she will use all 12 before they expire. $9.00 \u00f7 12 = <b>$0.75</b> per pack vs $5.40 \u00f7 6 = <b>$0.90</b>. The 12-pack wins \u2014 nothing is wasted.','<b>Trip 2:</b> she will use only 6 of the 12 before the rest expire. $9.00 \u00f7 6 used = <b>$1.50</b> per pack vs $0.90. The 6-pack wins. Same shelf tags \u2014 opposite winner.','The flip is the lesson: waste rewrites the price. Always divide by what you will <i>use</i>, never by what you buy.'],
+  diagram:'<svg class=\"nws-diagram\" viewBox=\"0 0 480 300\" role=\"img\" aria-labelledby=\"dgw-t\"> <title id=\"dgw-t\">Same shelf tags, opposite winner: using all 12 makes the 12-pack win at 75 cents a pack; using only 6 of the 12 makes the 6-pack win</title> <rect x=\"8\" y=\"8\" width=\"228\" height=\"232\" rx=\"12\" fill=\"var(--brand-soft)\" stroke=\"var(--line)\"/> <text x=\"122\" y=\"40\" text-anchor=\"middle\" font-size=\"19\" font-weight=\"700\" fill=\"var(--ink)\">uses all 12</text> <text x=\"122\" y=\"80\" text-anchor=\"middle\" font-size=\"18\" fill=\"var(--ink)\">12-pack: $9.00 &#247; 12 =</text> <text x=\"122\" y=\"106\" text-anchor=\"middle\" font-size=\"21\" font-weight=\"700\" fill=\"var(--brand-deep)\">$0.75 each</text> <text x=\"122\" y=\"142\" text-anchor=\"middle\" font-size=\"18\" fill=\"var(--muted)\">6-pack: $5.40 &#247; 6 = $0.90 each</text> <rect x=\"52\" y=\"164\" width=\"140\" height=\"40\" rx=\"20\" fill=\"var(--good)\"/> <text x=\"122\" y=\"191\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"var(--panel)\">12-pack wins</text> <rect x=\"244\" y=\"8\" width=\"228\" height=\"232\" rx=\"12\" fill=\"var(--accent-soft)\" stroke=\"var(--line)\"/> <text x=\"358\" y=\"40\" text-anchor=\"middle\" font-size=\"19\" font-weight=\"700\" fill=\"var(--ink)\">uses 6 of 12</text> <text x=\"358\" y=\"80\" text-anchor=\"middle\" font-size=\"18\" fill=\"var(--ink)\">12-pack: $9.00 &#247; 6 =</text> <text x=\"358\" y=\"106\" text-anchor=\"middle\" font-size=\"21\" font-weight=\"700\" fill=\"var(--accent-deep)\">$1.50 each</text> <text x=\"358\" y=\"142\" text-anchor=\"middle\" font-size=\"18\" fill=\"var(--muted)\">6-pack: $5.40 &#247; 6 = $0.90 each</text> <rect x=\"288\" y=\"164\" width=\"140\" height=\"40\" rx=\"20\" fill=\"var(--good)\"/> <text x=\"358\" y=\"191\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"var(--panel)\">6-pack wins</text> <text x=\"240\" y=\"272\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"var(--ink)\">Waste flips the answer &#8212; divide by what you will USE</text> </svg>'},
  {t:'try',skill:'unit-price-usable',tier:'guided',
   gen:(v)=>{
    const prods=[['pasta packs','pack',12,6],['granola bars','bar',24,12],['coffee pods','pod',20,10],['trash bags','bag',30,15]];
@@ -1290,6 +1291,28 @@ Object.assign(LESSON_CONTENT,{
     good:`Right: ${ub} < ${us} per ${unit} used.`,
     bad:`${bigP} \u00f7 ${bigQ} = ${ub} each vs ${smallP} \u00f7 ${smallQ} = ${us} each. The big pack is cheaper per use.`,
     why:`When everything gets used, the lower unit price wins: ${ub} vs ${us} per ${unit}.`};
+  }},
+ {t:'try',skill:'unit-price-usable',tier:'guided',
+  gen:(v)=>{
+   const prods=[['pasta packs','pack',12,6],['granola bars','bar',24,12],['coffee pods','pod',20,10],['trash bags','bag',30,15]];
+   const [name,unit,bigQ,smallQ]=v.pick(prods);
+   const person=v.person();
+   const upBig=v.cents(0.55,0.85), upSmall=+(upBig+v.cents(0.12,0.35)).toFixed(2);
+   const bigP=v.money(upBig*bigQ), smallP=v.money(upSmall*smallQ);
+   const ub=v.money(upBig), us=v.money(upSmall);
+   const trueBig=v.money(upBig*bigQ/smallQ);
+   return {
+    q:`${person} compares ${name}: ${bigQ}-pack for ${bigP} vs ${smallQ}-pack for ${smallP}. ${person} will use ${smallQ} of the ${bigQ} before the rest expire. What is the ${bigQ}-pack\u2019s true unit price \u2014 the price per ${unit} actually used?`,
+    choices:[
+     {label:`${trueBig} per ${unit} \u2014 ${bigP} \u00f7 ${smallQ} used`,ok:true},
+     {label:`${ub} per ${unit} \u2014 the tag\u2019s unit price`,ok:false,mis:'unit-price-sticker'},
+     {label:`${bigP} \u2014 the total price is the true price`,ok:false,mis:'total-not-unit'},
+     {label:`${us} per ${unit} \u2014 just copy the small pack\u2019s unit price`,ok:false}],
+    cue:`The true unit price divides the price by the number ${person} will USE \u2014 ${smallQ}, not ${bigQ}.`,
+    hint:'Price \u00f7 units you will use.',
+    good:`Right: ${bigP} \u00f7 ${smallQ} used = ${trueBig} per ${unit} \u2014 the tag\u2019s ${ub} only holds if all ${bigQ} get used.`,
+    bad:`Divide by used, not bought: ${bigP} \u00f7 ${smallQ} = ${trueBig} per ${unit}. The tag says ${ub}, but ${bigQ-smallQ} go to waste.`,
+    why:`The tag\u2019s ${ub} pretends all ${bigQ} get used. Waste rewrites it to ${trueBig} \u2014 which is why you always divide by what you will use.`};
   }},
  {t:'try',skill:'unit-price-usable',tier:'independent',
   gen:(v)=>{
