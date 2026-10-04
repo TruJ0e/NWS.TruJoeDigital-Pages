@@ -3,6 +3,7 @@ import { ADULT_WORKED_EXAMPLES } from '../content/adult-life-variants-3.js';
 import { adultLifeModuleForSkill, adultTransferVariants, adultRetentionVariants, normalizeAdultChoices } from '../content/adult-life-assessment.js';
 import '../content/adult-life-variants.js';
 import { loadState, saveState } from './state.js';
+import { drawUnserved, getPracticeSeq, advancePracticeSeq } from './adult-served.js';
 import { completeDelayedCheck, scheduleDelayedCheck } from './retrieval.js';
 import { recordLearningDecision } from './mastery.js';
 
@@ -34,32 +35,51 @@ function transferChoice(choice){
 }
 
 /* ===== Practice question sequences =====
-   Every module now serves its full question set (canonical + variant banks)
-   as a stepped sequence with progress, instead of one stable question.
+   Every module serves its full question set (canonical + variant banks) as a
+   persisted shuffled sequence with progress. The shuffle order and position
+   live in the adult-served store, so a reload or module switch resumes
+   mid-sequence instead of restarting at question 1, and no question repeats
+   until the round is exhausted (then it reshuffles).
    Choice keys are stable across variants, so stored answers and delayed-check
    records stay valid. */
 function practiceQuestions(module){
   return adultPracticeVariants(module.id);
 }
 function seqState(module){
-  if(!practiceSeq||practiceSeq.moduleId!==module.id) practiceSeq={moduleId:module.id,index:0};
-  return practiceSeq;
+  const questions=practiceQuestions(module);
+  const seq=getPracticeSeq(module.id,questions.length);
+  // Keep the legacy in-memory mirror for minimal disruption.
+  practiceSeq={moduleId:module.id,index:seq.pos};
+  return {moduleId:module.id,index:seq.pos,order:seq.order};
 }
-function transferFor(module){
-  const variants=adultTransferVariants(module.skill);
-  return variants[adultVariantSlot('transfer:'+module.skill,variants.length)];
+/* Transfer draws: one unserved question per (module, practice-question)
+   opportunity, cached so the render and the answer-check see the same item.
+   Served-set backed: no repeats until the bank is exhausted. */
+const transferCache={};
+function transferFor(module,practiceIdx){
+  const key=module.id+':'+practiceIdx;
+  if(!transferCache[key]){
+    transferCache[key]=drawUnserved(module.skill,'transfer',adultTransferVariants(module.skill));
+  }
+  return transferCache[key];
 }
-function retentionFor(skill){
-  const variants=adultRetentionVariants(skill);
-  return variants[adultVariantSlot('retention:'+skill,variants.length)];
+/* Retention draws: one unserved question per delayed-check id, so each
+   retrieval stage sees a fresh question instead of one frozen item. */
+const retentionCache={};
+function retentionFor(skill,checkId){
+  const key=(checkId||'')+':'+skill;
+  if(!retentionCache[key]){
+    retentionCache[key]=drawUnserved(skill,'retention',adultRetentionVariants(skill));
+  }
+  return retentionCache[key];
 }
 
 function sources(module){
   return `<div class="card"><h3>Official source handoffs</h3><p class="sub">Concepts can be durable while rules, forms, prices, plan terms, and state/local law can change. Use the official source when the answer depends on current rules.</p><ul>${module.sources.map(item=>`<li><a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">${esc(item.agency)} — ${esc(item.title)}</a>${item.jurisdictionSpecific?' <span class="tag info">Location-specific rules may apply</span>':''}${item.reviewRequired?' <span class="tag info">Recheck current version</span>':''}</li>`).join('')}</ul><p class="sub">NWS source review: ${esc(ADULT_LIFE_REVIEW.lastReviewed)}</p></div>`;
 }
 
-function transferCard(module){
-  const tv=transferFor(module);
+function transferCard(module,practiceIdx){
+  const tv=transferFor(module,practiceIdx);
   if(!tv)return'';
   const choices=normalizeAdultChoices(tv.choices);
   const answered=lastTransferAnswer?.moduleId===module.id;
@@ -71,7 +91,7 @@ function renderDetail(module){
   const questions=practiceQuestions(module);
   const seq=seqState(module);
   const idx=Math.min(seq.index,questions.length-1);
-  const q=questions[idx]||{prompt:'',choices:[],correct:''};
+  const q=questions[seq.order[idx]]||{prompt:'',choices:[],correct:''};
   const ans=practiceAnswers[module.id+':'+idx];
   const answered=!!ans;
   const chosen=answered?q.choices.find(x=>x.id===ans.choiceId):null;
@@ -80,7 +100,7 @@ function renderDetail(module){
   const isLast=idx===questions.length-1;
   const pctDone=questions.length?Math.round(100*doneCount/questions.length):0;
   const transfer=answered&&correct
-    ? transferCard(module)
+    ? transferCard(module,idx)
     : answered
       ? '<div class="callout"><b>Transfer check stays locked for now.</b> Retry the question successfully before applying the skill in a changed situation.</div>'
       : '<div class="callout"><b>Transfer comes next.</b> Answer a practice question correctly and NWS will give you a changed-context version of the same skill.</div>';
@@ -108,7 +128,7 @@ function recordChoice(module,choiceId){
   const questions=practiceQuestions(module);
   const seq=seqState(module);
   const idx=Math.min(seq.index,questions.length-1);
-  const q=questions[idx];
+  const q=questions[seq.order[idx]];
   const correct=choiceId===q.correct;
   const quizId=`adult-life-${module.id}-q${idx+1}`;
   if(window.app?.quiz) window.app.quiz(quizId,choiceId,q.correct,module.skill);
@@ -120,16 +140,15 @@ function recordChoice(module,choiceId){
 
 function nextQuestion(){
   const module=activeModule();
-  const questions=practiceQuestions(module);
-  const seq=seqState(module);
-  seq.index=Math.min(seq.index+1,questions.length-1);
+  advancePracticeSeq(module.id);
   render();
   document.getElementById('adult-life-heading')?.focus({preventScroll:true});
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function recordTransferChoice(module,choiceId){
-  const tv=transferFor(module);
+  const seq=seqState(module);
+  const tv=transferFor(module,seq.index);
   if(!tv||!window.app?.quiz)return;
   ensureInitialPracticeMode();
   if(!loadState().transferMode&&window.app?.toggleTransfer) window.app.toggleTransfer();
@@ -144,14 +163,14 @@ function recordTransferChoice(module,choiceId){
 function adultLifeRetrievalContext(){
   const persisted=loadState();
   const check=(persisted.learning?.delayedChecks||[]).find(x=>x.id===persisted.activeRetrievalCheck&&x.status==='scheduled');
-  const assessment=check?retentionFor(check.skill):null;
+  const assessment=check?retentionFor(check.skill,check.id):null;
   return assessment?{persisted,check,assessment,module:adultLifeModuleForSkill(check.skill)}:null;
 }
 
 function completeAdultLifeRetrieval(id,choiceId){
   const persisted=loadState();
   const check=(persisted.learning?.delayedChecks||[]).find(x=>x.id===id&&x.status==='scheduled');
-  const assessment=check?retentionFor(check.skill):null;
+  const assessment=check?retentionFor(check.skill,check.id):null;
   if(!check||!assessment)return;
   const correct=choiceId===assessment.good;
   const prompted=!!persisted.retrievalHelpUsed?.[id];
@@ -231,7 +250,9 @@ let lessonMode=false;
 function openModule(moduleId,fromLesson){
   lessonMode=!!fromLesson;
   if(moduleId&&ADULT_LIFE_MODULES.some(m=>m.id===moduleId)){
-    activeModuleId=moduleId; practiceSeq=null; practiceAnswers={}; lastTransferAnswer=null;
+    // Persisted practice sequence resumes where the learner left off
+    // (no restart at question 1 on revisit).
+    activeModuleId=moduleId; practiceAnswers={}; lastTransferAnswer=null;
   }
   render();
 }
@@ -240,7 +261,6 @@ window.nwsAdultLifeOpenModule=openModule;
 function bind(){
   document.querySelectorAll('[data-adult-module]').forEach(button=>button.addEventListener('click',()=>{
     activeModuleId=button.dataset.adultModule;
-    practiceSeq=null;
     practiceAnswers={};
     lastTransferAnswer=null;
     render();

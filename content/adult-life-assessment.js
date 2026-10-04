@@ -156,18 +156,41 @@ export function isAdultLifeSkill(skill){ return ADULT_LIFE_SKILLS.includes(skill
 export const ADULT_TRANSFER_VARIANT_BANK = {};
 export const ADULT_RETENTION_VARIANT_BANK = {};
 
+/* Exact-duplicate guard: the seeded generator files can emit word-for-word
+   identical entries at different indices. Dedupe by content hash here (keep
+   first occurrence) so no learner ever sees the same question twice in a row
+   from different bank slots. Deterministic: same banks -> same output. */
+function fnv1a(str){
+  const s=String(str??'');
+  let h=0x811c9dc5;
+  for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,0x01000193); }
+  return (h>>>0).toString(16).padStart(8,'0');
+}
+function variantKey(v){
+  return fnv1a(JSON.stringify({q:v?.question,c:v?.choices,g:v?.good,h:v?.help}));
+}
+function dedupeVariants(variants){
+  const seen=new Set();
+  return variants.filter(v=>{
+    const k=variantKey(v);
+    if(seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+
 /** Canonical transfer item first (index 0), authored variants after. */
 export function adultTransferVariants(skill){
   const base=ADULT_LIFE_ASSESSMENTS[skill]?.transfer;
   if(!base) return [];
-  return [base,...(ADULT_TRANSFER_VARIANT_BANK[skill]||[])];
+  return dedupeVariants([base,...(ADULT_TRANSFER_VARIANT_BANK[skill]||[])]);
 }
 
 /** Canonical retention item first (index 0), authored variants after. */
 export function adultRetentionVariants(skill){
   const base=ADULT_LIFE_ASSESSMENTS[skill]?.retention;
   if(!base) return [];
-  return [base,...(ADULT_RETENTION_VARIANT_BANK[skill]||[])];
+  return dedupeVariants([base,...(ADULT_RETENTION_VARIANT_BANK[skill]||[])]);
 }
 
 /** Normalize transfer/retention choice lists to [{key,label,mis}].
