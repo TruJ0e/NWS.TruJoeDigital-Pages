@@ -166,12 +166,14 @@ function completeAdultLifeRetrieval(id,choiceId){
   if(!correct||prompted) scheduleDelayedCheck(persisted,check.skill,{stage:check.stage});
   persisted.activeRetrievalCheck=null;
   saveState(persisted);
-  sessionStorage.setItem('nws-v19-retention-feedback',JSON.stringify({
-    correct,
-    moduleTitle:adultLifeModuleForSkill(check.skill)?.title||check.skill,
-    help:assessment.help
-  }));
-  sessionStorage.setItem('nws-v19-resume-screen','progress');
+  try{
+    sessionStorage.setItem('nws-v19-retention-feedback',JSON.stringify({
+      correct,
+      moduleTitle:adultLifeModuleForSkill(check.skill)?.title||check.skill,
+      help:assessment.help
+    }));
+    sessionStorage.setItem('nws-v19-resume-screen','progress');
+  }catch{/* storage blocked: feedback card is skipped, flow continues */}
   location.reload();
 }
 
@@ -190,9 +192,9 @@ function enhanceAdultLifeRetrieval(){
 }
 
 function showRetentionFeedback(){
-  const raw=sessionStorage.getItem('nws-v19-retention-feedback');
+  let raw=null;
+  try{raw=sessionStorage.getItem('nws-v19-retention-feedback');if(raw)sessionStorage.removeItem('nws-v19-retention-feedback');}catch{}
   if(!raw)return;
-  sessionStorage.removeItem('nws-v19-retention-feedback');
   let feedback;
   try{feedback=JSON.parse(raw);}catch{return;}
   const host=document.getElementById('progress');
@@ -258,8 +260,9 @@ function initialize(){
     queueMicrotask(render);
   });
   document.querySelector('[data-screen="progress"]')?.addEventListener('click',()=>queueMicrotask(enhanceAdultLifeRetrieval));
-  if(sessionStorage.getItem('nws-v19-resume-screen')==='progress'){
-    sessionStorage.removeItem('nws-v19-resume-screen');
+  let resumeScreen=false;
+  try{resumeScreen=sessionStorage.getItem('nws-v19-resume-screen')==='progress';if(resumeScreen)sessionStorage.removeItem('nws-v19-resume-screen');}catch{}
+  if(resumeScreen){
     queueMicrotask(()=>{
       window.app?.show?.('progress');
       queueMicrotask(()=>{

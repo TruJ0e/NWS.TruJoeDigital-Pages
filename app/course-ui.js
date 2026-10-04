@@ -113,7 +113,7 @@ const DEFAULT_ORIGIN={home:'course',money:'course',spend:'practice-hub',save:'pr
 export function readCourseState(){
   try{return {visited:{},completed:{},...JSON.parse(localStorage.getItem(COURSE_STATE_KEY)||'{}')};}catch{return {visited:{},completed:{}};}
 }
-function writeCourseState(value){localStorage.setItem(COURSE_STATE_KEY,JSON.stringify(value));}
+function writeCourseState(value){try{localStorage.setItem(COURSE_STATE_KEY,JSON.stringify(value));}catch{}}
 // Used by "Reset demo": clears all course-side localStorage (progress + resume +
 // per-screen focus prefs) so the demo truly returns to a fresh state. Does not
 // touch the scenario state (state.js / persist()), which the caller resets.
@@ -136,13 +136,15 @@ function currentContext(){
   try{return JSON.parse(sessionStorage.getItem(CONTEXT_KEY)||'null');}catch{return null;}
 }
 function setContext(value){
-  if(value)sessionStorage.setItem(CONTEXT_KEY,JSON.stringify(value));else sessionStorage.removeItem(CONTEXT_KEY);
+  try{ if(value)sessionStorage.setItem(CONTEXT_KEY,JSON.stringify(value));else sessionStorage.removeItem(CONTEXT_KEY); }catch{}
 }
 function setFocus(lesson){
-  if(lesson?.pacingFocus)sessionStorage.setItem(PACING_FOCUS_KEY,lesson.pacingFocus);else sessionStorage.removeItem(PACING_FOCUS_KEY);
-  if(lesson?.adultModule)sessionStorage.setItem(ADULT_FOCUS_KEY,lesson.adultModule);else sessionStorage.removeItem(ADULT_FOCUS_KEY);
+  try{
+    if(lesson?.pacingFocus)sessionStorage.setItem(PACING_FOCUS_KEY,lesson.pacingFocus);else sessionStorage.removeItem(PACING_FOCUS_KEY);
+    if(lesson?.adultModule)sessionStorage.setItem(ADULT_FOCUS_KEY,lesson.adultModule);else sessionStorage.removeItem(ADULT_FOCUS_KEY);
+  }catch{}
 }
-function clearFocus(){sessionStorage.removeItem(PACING_FOCUS_KEY);sessionStorage.removeItem(ADULT_FOCUS_KEY);}
+function clearFocus(){try{sessionStorage.removeItem(PACING_FOCUS_KEY);sessionStorage.removeItem(ADULT_FOCUS_KEY);}catch{}}
 
 function kindTag(lesson){
   if(lesson.kind==='practice') return 'Practice';

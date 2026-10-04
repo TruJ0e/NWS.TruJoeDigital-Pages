@@ -13,10 +13,15 @@ import {
 const RESUME_KEY='nws-v23-resume-recovery-followup';
 const SYNC_KEY='nws-v23-followup-synced';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// sessionStorage can throw (SecurityError) when cookies/storage are blocked —
+// treat it as unavailable and keep the screen working in-memory.
+function sessionGet(key){try{return sessionStorage.getItem(key);}catch{return null;}}
+function sessionSet(key,value){try{sessionStorage.setItem(key,value);}catch{}}
+function sessionDel(key){try{sessionStorage.removeItem(key);}catch{}}
 
 function reloadProgress(state){
   saveState(state);
-  sessionStorage.setItem(RESUME_KEY,'1');
+  sessionSet(RESUME_KEY,'1');
   location.reload();
 }
 
@@ -50,14 +55,13 @@ export function renderRecoveryFollowup(){
   if(!host)return;
   const state=loadState();
   const queued=syncSuccessfulRecoveryFollowups(state);
-  if(queued>0&&!sessionStorage.getItem(SYNC_KEY)){
+  if(queued>0&&!sessionGet(SYNC_KEY)){
     saveState(state);
-    sessionStorage.setItem(SYNC_KEY,'1');
-    sessionStorage.setItem(RESUME_KEY,'1');
+    sessionSet(SYNC_KEY,'1');sessionSet(RESUME_KEY,'1');
     location.reload();
     return;
   }
-  sessionStorage.removeItem(SYNC_KEY);
+  sessionDel(SYNC_KEY);
   const due=dueRecoveryFollowups(state).sort((a,b)=>new Date(a.dueAt)-new Date(b.dueAt));
   const scheduled=scheduledRecoveryFollowups(state);
   const status=recoveryFollowupStatus(state);
@@ -104,8 +108,8 @@ export function renderRecoveryFollowup(){
 
 function initialize(){
   document.querySelector('[data-screen="progress"]')?.addEventListener('click',()=>queueMicrotask(renderRecoveryFollowup));
-  if(sessionStorage.getItem(RESUME_KEY)==='1'){
-    sessionStorage.removeItem(RESUME_KEY);
+  if(sessionGet(RESUME_KEY)==='1'){
+    sessionDel(RESUME_KEY);
     queueMicrotask(()=>{
       window.app?.show?.('progress');
       queueMicrotask(()=>{

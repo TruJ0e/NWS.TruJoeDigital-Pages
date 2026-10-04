@@ -23,15 +23,7 @@
 .course-logistics span{color:#d3e6d8;font-size:.8rem}
 .course-cta-row{margin-top:18px}
 .course-cta-row .sub{color:#d3e6d8}
-.course-modules{display:grid;gap:16px;margin-top:8px}
 .course-module{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
-.course-module-head{display:flex;gap:14px;align-items:center;padding:18px 20px 8px}
-.course-module-num{flex:0 0 auto;width:44px;height:44px;border-radius:50%;background:var(--brand-soft);color:var(--brand-deep);font-family:var(--font-display);font-weight:700;font-size:1.3rem;display:flex;align-items:center;justify-content:center}
-.course-module-kicker{display:block;font-size:.72rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--brand);margin-bottom:4px}
-.course-module-head h3{margin:0;font-size:1.15rem;color:var(--ink)}
-.course-module-head .sub{margin:2px 0 0}
-.course-module-head .tag{margin-left:auto;flex:0 0 auto}
-.course-module-meta{display:flex;gap:8px;align-items:center;margin:0;padding:0 20px 12px;color:var(--muted);font-size:.82rem;font-weight:600}
 .course-lesson-list{list-style:none;margin:0;padding:0 12px 14px;display:grid;gap:8px}
 .course-lesson{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;display:flex;gap:12px;align-items:center;cursor:pointer;transition:border-color .12s,box-shadow .12s,transform .12s}
 .course-lesson:hover{border-color:var(--brand);box-shadow:var(--shadow-sm);transform:translateY(-1px)}
@@ -46,7 +38,6 @@
 .course-lesson-meta b{display:block;font-size:.98rem}
 .course-lesson-meta small{color:var(--muted);font-size:.82rem;display:block;margin-top:2px}
 .course-lesson-action{color:var(--brand);font-weight:700;font-size:.9rem;white-space:nowrap}
-.course-tools-head{margin:22px 0 6px}
 .course-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-top:8px}
 .course-action-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:8px}
 .course-action-card h3{margin:0;font-size:1.05rem}
@@ -106,16 +97,6 @@
 .linklike:hover{color:var(--brand-deep)}
 .card .course-cta-row{margin-top:16px}
 .card .course-cta-row .sub{color:var(--muted)}
-/* ---------- Resume banner (Pass 3): lives inside the dark course hero ---------- */
-.course-resume{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:space-between;margin-top:16px;padding:12px 16px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.35);border-radius:var(--radius-sm)}
-.course-resume .row{margin:0}
-.course-resume .btn{background:#fff;border-color:#fff;color:var(--brand-deep)}
-.course-resume .btn:hover{background:#eef5ef}
-.course-resume .btn.secondary{background:transparent;border-color:rgba(255,255,255,.65);color:#fff}
-.course-resume .btn.secondary:hover{background:rgba(255,255,255,.14)}
-@media(max-width:620px){
-  .course-resume{padding:12px}
-}
 /* ---------- Course shell: small-screen overrides ---------- */
 @media(max-width:640px){
   .course-trail{padding:8px 10px;gap:8px;border-radius:14px}
@@ -256,7 +237,6 @@ body.module-view .layout .nav{display:none}
 .sort-feedback.good{border-color:var(--good);background:var(--good-soft)}
 .sort-feedback.miss{border-color:var(--warn);background:var(--warn-soft)}
 .sort-game [data-nextitem]{margin-top:12px}
-.sort-done{text-align:center;font-size:1.05rem;padding:18px 0}
 
 /* ---------- Course structure v3: end-of-lesson review ---------- */
 .lp-review h2{margin-bottom:8px}
@@ -270,7 +250,6 @@ body.module-view .layout .nav{display:none}
 .lp-ri-why{margin:0;font-size:.92rem;color:var(--muted);line-height:1.5}
 .good-tag{background:var(--good-soft);color:var(--brand-deep);border:1px solid var(--good)}
 .miss-tag{background:var(--warn-soft);color:var(--ink);border:1px solid var(--warn)}
-.stretch-tag{background:var(--panel-2);color:var(--brand-deep);border:1px solid var(--brand)}
 
 /* ---------- Variant engine: guided cues, misconception notes, practice progress ---------- */
 .lp-guide{background:var(--panel-2);border:1px dashed var(--line);border-radius:var(--radius-sm);padding:10px 14px;margin-top:12px;font-size:.94rem}

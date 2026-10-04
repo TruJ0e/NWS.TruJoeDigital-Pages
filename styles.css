@@ -82,7 +82,6 @@ main{min-width:0}
 .grid{display:grid;gap:14px}
 .g2{grid-template-columns:repeat(2,1fr)}
 .g3{grid-template-columns:repeat(3,1fr)}
-.g4{grid-template-columns:repeat(4,1fr)}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
 .between{justify-content:space-between}
 .stack{display:flex;flex-direction:column;gap:8px}
@@ -106,7 +105,6 @@ input[type=number],input[type=text],input[type=date],select,textarea{font-family
 input:focus,select:focus,textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(22,101,52,.16);outline:none}
 input[type=number]{font-variant-numeric:tabular-nums}
 input[type=checkbox],input[type=radio]{width:1.15rem;height:1.15rem;accent-color:var(--brand)}
-.checkbox-row{display:flex;gap:10px;align-items:flex-start;font-weight:500;margin:8px 0}
 
 /* ---------- Tags, hints, callouts ---------- */
 .tag{display:inline-block;font-size:.74rem;font-weight:700;padding:4px 11px;border-radius:999px;background:var(--brand-soft);color:var(--brand-deep);text-transform:uppercase;letter-spacing:.04em;border:1px solid transparent}
@@ -142,14 +140,10 @@ tr:last-child td{border-bottom:0}
 .trail-progress{font-size:.8rem;font-weight:700;color:var(--muted)}
 .trail-nav{display:flex;gap:8px;margin-left:auto}
 .trail-nav .btn{padding:9px 14px;font-size:.87rem}
-.trail-nav .trail-link{color:var(--brand);font-weight:700;font-size:.87rem;text-decoration:none;padding:9px 4px}
-.trail-nav .trail-link:hover{text-decoration:underline}
 
 .your-turn{border:2px solid var(--brand);background:linear-gradient(180deg,#f2f9f4 0%,#fff 90%);border-radius:var(--radius);padding:20px;margin:18px 0;box-shadow:var(--shadow-sm)}
-.your-turn-head{display:flex;align-items:center;gap:12px;margin-bottom:6px;flex-wrap:wrap}
 .your-turn-tag{background:var(--brand);color:#fff;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:999px}
 .your-turn h3{margin:0;font-size:1.2rem}
-.your-turn .result-line{background:#fff;border:1px dashed var(--brand);border-radius:var(--radius-sm);padding:12px 14px;margin:12px 0;font-weight:600}
 .your-turn-checklist{margin-top:14px;border-top:1px dashed var(--line);padding-top:10px}
 .your-turn-checklist summary{cursor:pointer;font-weight:700;color:var(--brand-deep);font-size:.95rem}
 .your-turn-checklist ol{padding-left:24px;display:grid;gap:10px;margin:12px 0}
@@ -217,10 +211,8 @@ body[data-theme="dark"] .hero{border-top-color:var(--brand)}
 body[data-theme="dark"] header{background:linear-gradient(135deg,#14532d,#0b3a20)}
 body[data-theme="dark"] .course-hero{background:linear-gradient(135deg,#14532d,#081f12)}
 body[data-theme="dark"] .your-turn{background:linear-gradient(180deg,#14251a,#182119)}
-body[data-theme="dark"] .your-turn .result-line{background:#101711}
 body[data-theme="dark"] .choice,body[data-theme="dark"] .adult-life-choice,body[data-theme="dark"] .adult-life-transfer-choice{background:#101711}
 body[data-theme="dark"] .nav button.active{background:var(--brand);color:#0b1f13}
-body[data-theme="dark"] .course-module-number{background:var(--brand);color:#0b1f13}
 body[data-theme="dark"] .tag{background:var(--brand-soft);color:var(--brand-deep)}
 body[data-theme="dark"] .tag.need{background:#16294d;color:#a9c6f7;border-color:#274067}
 body[data-theme="dark"] .tag.want{background:#33270f;color:#f6cf8f;border-color:#5a4517}
@@ -249,16 +241,14 @@ body[data-theme="dark"] .tag.info{background:#22303c;color:#a9c2d6;border-color:
   .hero{padding:18px}
   .hero h2{font-size:1.35rem}
   .card{padding:16px}
-  .g2,.g3,.g4{grid-template-columns:1fr}
+  .g2,.g3{grid-template-columns:1fr}
   table{display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
   .trail-flow{flex-direction:column;align-items:stretch}
   .trail-nav{margin-left:0;justify-content:space-between}
   .trail-nav .btn{flex:1}
-  .trail-nav .trail-link{align-self:center}
   .btn{padding:12px 16px}
   .stats{grid-template-columns:repeat(2,1fr)}
   /* 375px pass: anchors-as-taps aren't covered by the global button min-height. */
-  .trail-nav .trail-link{min-height:44px;display:inline-flex;align-items:center}
   .instructor-tools summary{padding:12px 10px}
   .your-turn-checklist summary{padding:11px 2px}
   /* pacing preset buttons used a mobile-stack class that was never defined. */

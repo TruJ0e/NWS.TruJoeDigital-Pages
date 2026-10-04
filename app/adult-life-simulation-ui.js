@@ -110,7 +110,7 @@ function simShapeValid(sim){
 
 function reloadIntoSimulation(state){
   saveState(state);
-  sessionStorage.setItem(RESUME_KEY,'1');
+  try{sessionStorage.setItem(RESUME_KEY,'1');}catch{}
   location.reload();
 }
 
@@ -297,8 +297,9 @@ export function renderAdultLifeSimulation(){
 function initialize(){
   renderAdultLifeSimulation();
   document.querySelector('[data-screen="life-sim"]')?.addEventListener('click',()=>queueMicrotask(renderAdultLifeSimulation));
-  if(sessionStorage.getItem(RESUME_KEY)==='1'){
-    sessionStorage.removeItem(RESUME_KEY);
+  let resume=false;
+  try{resume=sessionStorage.getItem(RESUME_KEY)==='1';if(resume)sessionStorage.removeItem(RESUME_KEY);}catch{}
+  if(resume){
     queueMicrotask(()=>{
       window.app?.show?.('life-sim');
       queueMicrotask(()=>{

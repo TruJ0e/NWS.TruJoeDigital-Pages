@@ -42,7 +42,7 @@ function getProgress() {
 }
 
 function saveProgress(p) {
-  localStorage.setItem(PROGRESS_KEY, JSON.stringify(p));
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch {}
 }
 
 function visibleSections() {

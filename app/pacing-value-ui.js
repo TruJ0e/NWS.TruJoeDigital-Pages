@@ -13,7 +13,7 @@ const defaults={answers:{},hints:{},paceResult:null,valueResult:null,gasResult:n
 function readUi(){
   try{return {...defaults,...JSON.parse(localStorage.getItem(UI_KEY)||'{}')};}catch{return {...defaults};}
 }
-function writeUi(value){localStorage.setItem(UI_KEY,JSON.stringify(value));}
+function writeUi(value){try{localStorage.setItem(UI_KEY,JSON.stringify(value));}catch{}}
 function field(label,id,value,step='1'){
   const n=Number(value);
   const shown=Number.isFinite(n)?(Number.isInteger(n)?n:Math.round(n*100)/100):value;
@@ -66,7 +66,7 @@ function showHint(id){
 }
 
 function calcPace(){
-  const result=calculateMoneyPacing({available:+$('pvAvailable').value,periods:+$('pvPeriods').value,periodsElapsed:+$('pvElapsed').value,flexibleSpent:+$('pvSpent').value,reservedNeeds:+$('pvNeeds').value,protectedSavings:+$('pvSavings').value});
+  const result=calculateMoneyPacing({available:+($('pvAvailable')?.value),periods:+($('pvPeriods')?.value),periodsElapsed:+($('pvElapsed')?.value),flexibleSpent:+($('pvSpent')?.value),reservedNeeds:+($('pvNeeds')?.value),protectedSavings:+($('pvSavings')?.value)});
   const ui=readUi(); ui.paceResult=result; writeUi(ui); render();
 }
 function applyPacePreset(kind){
@@ -77,23 +77,23 @@ function applyPacePreset(kind){
   calcPace();
 }
 function setCourseFocus(focus){
-  if(focus)sessionStorage.setItem(FOCUS_KEY,focus);else sessionStorage.removeItem(FOCUS_KEY);
+  try{ if(focus)sessionStorage.setItem(FOCUS_KEY,focus);else sessionStorage.removeItem(FOCUS_KEY); }catch{}
   render();
   queueMicrotask(()=>{const target=document.querySelector(`[data-pacing-focus="${focus||'pacing'}"]`);target?.scrollIntoView?.({block:'start'});target?.focus?.({preventScroll:true});});
 }
 function calcIrregular(){
-  const result=calculateIrregularPlan({cash:+$('pvIrregularCash').value,requiredBeforeNextIncome:+$('pvIrregularNeeds').value,buffer:+$('pvIrregularBuffer').value});
+  const result=calculateIrregularPlan({cash:+($('pvIrregularCash')?.value),requiredBeforeNextIncome:+($('pvIrregularNeeds')?.value),buffer:+($('pvIrregularBuffer')?.value)});
   const ui=readUi(); ui.irregularResult=result; writeUi(ui); render();
 }
 function calcValue(){
   const result=compareUnitValue(
-    {price:+$('pvLeftPrice').value,units:+$('pvLeftUnits').value,usableUnits:+$('pvLeftUsable').value},
-    {price:+$('pvRightPrice').value,units:+$('pvRightUnits').value,usableUnits:+$('pvRightUsable').value}
+    {price:+($('pvLeftPrice')?.value),units:+($('pvLeftUnits')?.value),usableUnits:+($('pvLeftUsable')?.value)},
+    {price:+($('pvRightPrice')?.value),units:+($('pvRightUnits')?.value),usableUnits:+($('pvRightUsable')?.value)}
   );
   const ui=readUi(); ui.valueResult=result; writeUi(ui); render();
 }
 function calcGas(){
-  const result=gasTripValue({nearPrice:+$('pvNearGas').value,farPrice:+$('pvFarGas').value,gallons:+$('pvGallons').value,extraMiles:+$('pvExtraMiles').value,mpg:+$('pvMpg').value});
+  const result=gasTripValue({nearPrice:+($('pvNearGas')?.value),farPrice:+($('pvFarGas')?.value),gallons:+($('pvGallons')?.value),extraMiles:+($('pvExtraMiles')?.value),mpg:+($('pvMpg')?.value)});
   const ui=readUi(); ui.gasResult=result; writeUi(ui); render();
 }
 

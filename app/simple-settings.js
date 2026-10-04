@@ -40,11 +40,11 @@ export function getSettings() {
 }
 
 export function saveSettings(s) {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); } catch {}
 }
 
 export function resetStudentProgress() {
-  localStorage.removeItem(PROGRESS_KEY);
+  try { localStorage.removeItem(PROGRESS_KEY); } catch {}
 }
 
 // --- Grown-ups gate ---------------------------------------------------------

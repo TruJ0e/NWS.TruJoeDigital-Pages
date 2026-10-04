@@ -30,7 +30,8 @@ export function loadScenarioLibrary(storage=globalThis.localStorage){
 
 export function saveScenarioLibrary(library,storage=globalThis.localStorage){
   const safe={version:1,definitions:safeDefinitions(library.definitions||[]).slice(-MAX_DEFINITIONS),runRecords:(library.runRecords||[]).slice(-MAX_RUN_RECORDS)};
-  if(storage) storage.setItem(SCENARIO_LIBRARY_KEY,JSON.stringify(safe));
+  if(!storage) return safe;
+  try{ storage.setItem(SCENARIO_LIBRARY_KEY,JSON.stringify(safe)); }catch{/* storage full/blocked: library stays in memory */}
   return safe;
 }
 

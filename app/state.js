@@ -39,10 +39,17 @@ export function loadState(storage=globalThis.localStorage){
   if(!storage) return cloneState(DEFAULTS);
   let parsed=null;
   try{ parsed=JSON.parse(storage.getItem(STORAGE_KEY)||storage.getItem(LEGACY_STORAGE_KEY)||'null'); }catch{}
-  return parsed ? normalizeState(parsed) : cloneState(DEFAULTS);
+  // Schema-version guard: only plain objects with a matching schema version are
+  // trusted. Anything else (corrupt JSON, a foreign value under the same key,
+  // or a schema we don't recognize) falls back to defaults rather than letting
+  // normalizeState spread garbage into the live state.
+  if(!parsed||typeof parsed!=='object'||Array.isArray(parsed)) return cloneState(DEFAULTS);
+  if(typeof parsed.version==='number'&&parsed.version!==DEFAULTS.version) return normalizeState({...parsed,version:DEFAULTS.version});
+  return normalizeState(parsed);
 }
 
 export function saveState(state,storage=globalThis.localStorage){
-  if(storage) storage.setItem(STORAGE_KEY,JSON.stringify(state));
+  if(!storage) return state;
+  try{ storage.setItem(STORAGE_KEY,JSON.stringify(state)); }catch{/* storage full/blocked: keep in-memory state, stay alive */}
   return state;
 }
