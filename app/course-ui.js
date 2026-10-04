@@ -199,8 +199,20 @@ function renderCourse(){
 `<div class="hero course-hero"><span class="tag">NWS Course</span><h2>Learn to run your money like an adult.</h2><p class="sub">Built for college students. Plain-language lessons and hands-on practice for the money decisions that actually show up: paychecks, rent, groceries, subscriptions, and the surprises in between.</p><ul class="course-logistics" aria-label="Course logistics"><li><b>Self-paced</b><span>go in any order</span></li><li><b>Free</b><span>no account, no cost</span></li><li><b>6 modules · ${total} lessons</b><span>lessons, practice &amp; tools</span></li><li><b>${esc(courseDurationLabel())}</b><span>total, at your pace</span></li></ul><div class="row course-cta-row"><button class="btn" type="button" onclick="course.openLesson('${esc(ctaId)}',${ctaStep})">${esc(ctaLabel)}</button><span class="sub">${ctaNote}</span></div></div>`
 +`<section class="card course-progress" aria-label="Course progress"><div class="course-progress-head"><h3>Your progress</h3><span class="tag">${visitedCount} of ${total} visited · ${completedCount} completed</span></div><div class="progressbar" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${visitedCount}" aria-label="Course lessons visited"><i style="width:${pct}%"></i></div><p class="sub">Visited means you opened it — they are not a mastery score. Completed means you finished every screen and its practice — that is the real progress.</p></section>`
 +`<div class="section-title"><div><h2>Modules</h2><p>Each module is its own page of short lessons — one idea per screen.</p></div></div><div class="module-quicklist">${MODULES.map(moduleQuickCard).join('')}</div>`
-+`<section class="card course-simple-card" aria-label="Simple mode"><span class="tag">Easier mode</span><h3>Want the calm version? Try Simple mode.</h3><p>Same money skills, one step at a time, in plain language.</p><a class="btn" href="./simple.html">Open Simple mode →</a></section>`;
++`<section class="card course-simple-card" aria-label="Simple mode"><span class="tag">Easier mode</span><h3>Want the calm version? Try Simple mode.</h3><p>Same money skills, one step at a time, in plain language.</p><a class="btn" href="./simple.html">Open Simple mode →</a></section>`
++`<section class="card course-faq" aria-label="Frequently asked questions"><h3>Questions, answered</h3>${FAQ_ITEMS.map(([q,a])=>`<details class="faq-item"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section>`;
 }
+
+// Visible FAQ — mirrors the FAQPage JSON-LD in index.html <head> so search
+// engines see the same questions learners do.
+const FAQ_ITEMS=[
+  ['Is NWS Money Masterclass really free?','Yes. Every lesson, quiz, and simulation is free with no account and no payment.'],
+  ['Do I need to create an account to use NWS?','No. Progress is saved in your own browser. Nothing is uploaded.'],
+  ['What ages is NWS Money Masterclass for?','Built for teens and young adults (roughly 14–24), and useful for any money beginner.'],
+  ['What does NWS teach?','Budgeting, banking, credit and debt, scam safety, renting, utilities, food and transportation budgeting, health insurance basics, and tax paperwork — learned by doing, not lecturing.'],
+  ['Does NWS work offline?','Yes. It is a progressive web app — install it and use it without an internet connection.'],
+  ['Who made NWS Money Masterclass?','TruJoe Digital, Clarksville, Arkansas.']
+];
 
 // Module quicklist card (course home): one tap target per module. Opens the
 // standalone module page; lessons live there, not on this page.

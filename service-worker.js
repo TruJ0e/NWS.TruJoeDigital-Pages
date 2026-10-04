@@ -1,5 +1,5 @@
-// Cache lineage: nws-static-v2.7-20260919 (Money Pacing v1) -> nws-static-v3.0-20260923 (pro-course redesign) -> nws-static-v3.1-20260924 (course structure v3: module pages, lesson player) -> nws-static-v3.2-20260924 (dark-green module/lesson cards) -> nws-static-v3.3-20260924 (scenario practice rework, minimal module cards, outline closed on load, deeper question banks) -> nws-static-v3.4-20260926 (resume banner restores the stored lesson step) -> nws-static-v3.5-20260926 (resume position persistent in localStorage, survives any navigation path) -> nws-static-v3.6-20260926 (banner also resumes completed lessons at the end-of-lesson review) -> nws-static-v3.7-20260927 (variant engine: seeded question variants, misconception-driven feedback, skill evidence) -> nws-static-v3.8-20260927 (content depth: 7 lessons converted to generator variants, 3 new lessons: sales-tax, credit-cards, savings-apy). -> nws-static-v3.9-20260927 (content depth: 7 more lessons converted, Simple Mode variants, per-skill gating, v2.9 checks). -> nws-static-v3.10-20260927 (fix release: single resume surface, visited/completed semantics, 27 lessons terminology, Screen N of M, blocked-Next hints, 1-indexed URLs; SW cache bump so the fixes actually ship past the old cache). -> nws-static-v3.11-20260928 (professional rework: skill dots on module cards, tool steps on new modules, informational review with no hard gating, explicit tier labels, time estimates; SW cache bump so the new UI ships past the old cache) -> nws-static-v3.12-20260930 (course upgrades: instructor nav fix, adult-life practice depth (6 questions/topic + worked examples), module-structured practice hub, launchable Reviews, My Sim Bank simulation rebuild, TRSS-style TTS reader; SW cache bump so the upgrades ship past the old cache). -> nws-static-v3.13-20261001 (final touches: $ signs on life-simulation amounts and phone cost, distinct Adult-life practice titles, float-safe number fields in Pacing & Value, shorter Monthly stat label; SW cache bump so the fixes ship past the old cache). -> nws-static-v3.14-20261001 (final touches part 2: restored check-pinned UI markers the 09-30 upgrade dropped — evidence 1/7/21 guardrail, evidence-system note, three-state transfer gating, life-sim decision framing; SW cache bump so the fixes ship past the old cache).
-const CACHE_NAME = 'nws-static-v3.17-20261002';
+// Cache lineage: nws-static-v2.7-20260919 -> nws-static-v3.8-20260927 -> ... -> nws-static-v3.17-20261002 -> nws-static-v3.18-20261004 (cache audit: added missing runtime assets to CORE_ASSETS — app/variants.js, app/ad-rotation.js, simple-mode files, adult-life-variants-4/5 + gen files, simple.html/css; SW cache bump so the new assets ship past the old cache).
+const CACHE_NAME = 'nws-static-v3.18-20261004';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -15,6 +15,11 @@ const CORE_ASSETS = [
   './app/main-v11.js',
   './app/main-v11-fixes.js',
   './app/course-ui.js',
+  './app/variants.js',
+  './app/ad-rotation.js',
+  './app/simple-ui.js',
+  './app/simple-tools.js',
+  './app/simple-settings.js',
   './content/lessons.js',
   './app/pwa.js',
   './app/pacing-value.js',
@@ -53,10 +58,19 @@ const CORE_ASSETS = [
   './content/adult-life-variants-1.js',
   './content/adult-life-variants-2.js',
   './content/adult-life-variants-3.js',
+  './content/adult-life-variants-4.js',
+  './content/adult-life-variants-5.js',
+  './content/adult-life-variants-gen.js',
+  './content/adult-life-variants-gen2.js',
+  './content/adult-life-variants-gen3.js',
+  './content/adult-life-variants-gen4.js',
+  './content/simple-lessons.js',
   './content/recovery-followup.js',
   './content/benefits.js',
   './content/evaluation.js',
-  './content/scenario-schema.js'
+  './content/scenario-schema.js',
+  './simple.html',
+  './simple.css'
 ];
 
 self.addEventListener('install', event => {

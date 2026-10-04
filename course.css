@@ -320,3 +320,13 @@ body.module-view .layout .nav{display:none}
 
 .practice-module-head{display:flex;gap:14px;align-items:center}.pm-img{width:64px;height:64px;object-fit:cover;border-radius:12px;flex-shrink:0}
 @media(max-width:640px){.pm-img{width:48px;height:48px}}
+/* Course home FAQ — visible counterpart to the FAQPage JSON-LD */
+.course-faq{margin-top:22px}
+.course-faq h3{margin:4px 0 10px;font-size:1.15rem}
+.faq-item{border-top:1px solid var(--line);padding:10px 2px}
+.faq-item:first-of-type{border-top:none}
+.faq-item summary{cursor:pointer;font-weight:650;list-style:none;display:flex;gap:8px;align-items:baseline}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::before{content:"+";font-weight:800;color:var(--accent);flex-shrink:0}
+.faq-item[open] summary::before{content:"–"}
+.faq-item p{margin:8px 0 2px;line-height:1.55}
