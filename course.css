@@ -173,7 +173,7 @@
 .module-lesson-list .course-kind{background:rgba(255,255,255,.16);color:#fff}
 .module-lesson-list .course-est{color:rgba(255,255,255,.9);font-weight:600}
 .module-lesson-list .course-check{background:#fff;color:var(--brand)}
-.module-lesson-list .course-lesson-action{color:#fff;font-weight:800}
+.module-lesson-list .course-lesson-action{color:#fff;font-weight:800;white-space:nowrap;flex-shrink:0;margin-left:auto}
 .module-lesson-list .course-lesson.visited{background:#12562c;border-left:4px solid #fff}
 .module-lesson-list .course-lesson.visited .course-step-num{background:#fff;color:var(--brand)}
 /* Phones: horizontal scroll rows so cards sit side by side with full text inside. */
