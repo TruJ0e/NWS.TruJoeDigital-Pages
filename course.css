@@ -340,3 +340,19 @@ body.module-view .layout .nav{display:none}
 .faq-item summary{padding:12px 2px}
 /* Long unbroken strings (URLs, compound terms) must not force horizontal scroll at 375px. */
 .lp-card,.sort-card,.event-question{overflow-wrap:break-word}
+
+/* ---------- Dark theme: course surfaces stay readable (WCAG AA) ---------- */
+/* Light theme pairs white text with deep brand green; dark theme flips --brand to
+   light mint (#4ade80), so hard-coded white-on-brand pairs in this file fall to
+   ~1.7–2.4:1 in dark mode. Pin these surfaces back to the deep-green family. */
+body[data-theme="dark"] .module-quick-card,
+body[data-theme="dark"] .module-lesson-list .course-lesson{background:#14532d;border-color:#14532d}
+body[data-theme="dark"] .module-quick-card:hover,
+body[data-theme="dark"] .module-lesson-list .course-lesson:hover{background:#0e3d21;border-color:#0e3d21}
+body[data-theme="dark"] .module-quick-card .course-step-num,
+body[data-theme="dark"] .module-lesson-list .course-step-num,
+body[data-theme="dark"] .module-lesson-list .course-lesson.visited .course-step-num,
+body[data-theme="dark"] .module-lesson-list .course-check{color:#0b3d21}
+body[data-theme="dark"] .course-lesson.visited .course-step-num,
+body[data-theme="dark"] .course-lesson.visited .course-check{background:#22c55e;color:#0b1f13}
+body[data-theme="dark"] .topnav-link.active{color:#0b1f13}

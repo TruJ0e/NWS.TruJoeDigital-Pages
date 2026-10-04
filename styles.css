@@ -10,10 +10,11 @@
   --font-sans:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   --font-display:'Fraunces',Georgia,'Times New Roman',serif;
   --bg:#f2f5f1; --panel:#ffffff; --panel-2:#f8faf8;
-  --ink:#1e2a24; --muted:#5f6f65; --faint:#8b998e; --line:#dde6dd;
+  --ink:#1e2a24; --muted:#5f6f65; --faint:#68776c; --line:#dde6dd;
   --brand:#166534; --brand-deep:#0d3d21; --brand-soft:#e6f3ea;
   --accent:#b45309; --accent-deep:#7c3a06; --accent-soft:#fdf1de;
-  --good:#15803d; --good-soft:#e5f5ea;
+  --good:#147539; --good-soft:#e5f5ea;
+  --mint:#cfe9d6;
   --warn:#92400e; --warn-soft:#fdf1de;
   --bad:#b91c1c; --bad-soft:#fdeaea;
   --shadow:0 10px 28px rgba(20,60,35,.08),0 2px 6px rgba(20,60,35,.06);

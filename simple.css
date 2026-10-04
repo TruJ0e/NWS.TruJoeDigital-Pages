@@ -346,7 +346,7 @@ button, .btn {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
   .btn:active { transform: none; }
 }
 
