@@ -3,7 +3,7 @@ import { dueDelayedChecks, retrievalStatus } from './retrieval.js';
 import { dueRecoveryFollowups } from './recovery-followup.js';
 import { SKILLS } from '../content/curriculum.js';
 import { ttsControlsHTML, bindTTSControls, speakText, stopTTS, ttsSupported } from './tts.js';
-import { resolveTry, orderedChoices, recordSkillAttempt, skillStats, skillLabel, misconceptionLine, topMisconception, parseAttempt, skillDotStatus } from './variants.js';
+import { resolveTry, orderedChoices, recordSkillAttempt, skillStats, skillLabel, misconceptionLine, topMisconception, parseAttempt, skillDotStatus, beginLessonVisit } from './variants.js';
 
 const COURSE_STATE_KEY='nwsCourseShell.v1';
 const CONTEXT_KEY='nwsCourseShell.context';
@@ -321,7 +321,7 @@ function renderPractice(){
     const tools=MODULE_PRACTICE_TOOLS[m.id]||[];
     const rows=practices.map(l=>`<button type="button" class="card course-action-card" onclick="course.openLesson('${esc(l.id)}')"><span class="tag">Guided practice</span><h3>${esc(l.title)}</h3><p>${esc(l.summary||'')} · ${l.est} min</p><b>Start practice →</b></button>`).join('')
       +tools.map(([screen,title,text])=>`<button type="button" class="card course-action-card" onclick="course.openTool('${esc(screen)}','practice-hub')"><span class="tag">Hands-on tool</span><h3>${esc(title)}</h3><p>${esc(text)}</p><b>Open practice →</b></button>`).join('');
-    return `<div class="section-title"><div><h2>Module ${m.number}: ${esc(m.title)}</h2><p>${esc(m.summary)}</p></div></div><div class="course-card-grid">${rows}</div>`;
+    return `<div class="section-title practice-module-head"><img class="pm-img" src="${m.img||''}" alt="" aria-hidden="true" loading="lazy"/><div><h2>Module ${m.number}: ${esc(m.title)}</h2><p>${esc(m.summary)}</p></div></div><div class="course-card-grid">${rows}</div>`;
   }).join('');
 }
 
@@ -484,6 +484,7 @@ function updateTrail(){
 // auto-appended "end and review" summary after the last step.
 function _openLesson(id,stepIdx=0){
   const lesson=LESSONS.get(id); if(!lesson)return;
+  if(stepIdx===0) beginLessonVisit(id); // fresh variants on each revisit
   const content=lessonContent(id);
   if(!content){location.hash='#/modules/'+lesson.moduleId;return;}
   markVisited(id);

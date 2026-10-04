@@ -317,3 +317,6 @@ body.module-view .layout .nav{display:none}
 .pdot.done{background:var(--accent,#1a7f4b);border-color:var(--accent,#1a7f4b)}
 .pdot.now{background:transparent;border:2px solid var(--accent,#1a7f4b);width:10px;height:10px}
 .money-delta{font-size:1.05rem}
+
+.practice-module-head{display:flex;gap:14px;align-items:center}.pm-img{width:64px;height:64px;object-fit:cover;border-radius:12px;flex-shrink:0}
+@media(max-width:640px){.pm-img{width:48px;height:48px}}

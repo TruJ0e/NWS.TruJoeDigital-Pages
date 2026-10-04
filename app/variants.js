@@ -212,8 +212,22 @@ export function parseAttempt(attempt){
   return {n:(Number.isInteger(attempt)&&attempt>=0?attempt:0), targetMis:null};
 }
 const variantCache=new Map();
+const VISIT_KEY='nwsVariantVisits.v1';
+function readVisits(){ try{ return JSON.parse(localStorage.getItem(VISIT_KEY)||'{}'); }catch{ return {}; } }
+function writeVisits(v){ try{ localStorage.setItem(VISIT_KEY, JSON.stringify(v)); }catch{} }
+// Call when a learner STARTS a lesson (not on retry). Returns the visit number.
+export function beginLessonVisit(lessonId){
+  const visits=readVisits();
+  visits[lessonId]=(visits[lessonId]||0)+1;
+  writeVisits(visits);
+  variantCache.clear(); // fresh variants for the new visit
+  return visits[lessonId];
+}
+function lessonVisit(lessonId){
+  return readVisits()[lessonId]||1;
+}
 function buildVariant(lessonId, stepIdx, step, n, targetMis, sub){
-  const seedParts=[learnerSeed(), lessonId, stepIdx, 'attempt-'+n];
+  const seedParts=[learnerSeed(), lessonId, 'visit-'+lessonVisit(lessonId), stepIdx, 'attempt-'+n];
   if(targetMis) seedParts.push('mis-'+targetMis);
   if(sub) seedParts.push('sub-'+sub);
   const v=variantContext(rngFor(...seedParts));
