@@ -330,3 +330,13 @@ body.module-view .layout .nav{display:none}
 .faq-item summary::before{content:"+";font-weight:800;color:var(--accent);flex-shrink:0}
 .faq-item[open] summary::before{content:"–"}
 .faq-item p{margin:8px 0 2px;line-height:1.55}
+
+/* ---------- Iteration 2/10 — 375px mobile pass: tap targets & overflow guards ---------- */
+/* .topnav-link anchors are not buttons, so the global 44px min-height misses them. */
+.topnav-link{min-height:44px;display:inline-flex;align-items:center}
+/* .linklike renders as an inline text button (~23px tall): "Next:" link and "Need a hint?" */
+.linklike{min-height:44px;display:inline-flex;align-items:center;padding:6px 2px}
+/* FAQ disclosure summary sat just under 44px at phone type sizes. */
+.faq-item summary{padding:12px 2px}
+/* Long unbroken strings (URLs, compound terms) must not force horizontal scroll at 375px. */
+.lp-card,.sort-card,.event-question{overflow-wrap:break-word}

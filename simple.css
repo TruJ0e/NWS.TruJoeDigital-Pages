@@ -320,6 +320,7 @@ button, .btn {
 
 .seg {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 .seg button {
