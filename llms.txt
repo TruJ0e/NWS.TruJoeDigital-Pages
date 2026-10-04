@@ -3,6 +3,9 @@
 > Free, interactive financial-literacy course for teens and young adults.
 > Learn money skills by doing: budgeting, banking, credit, scams, housing,
 > insurance, and adult-life basics. No account. No cost. Works offline.
+> Built by TruJoe Digital, Clarksville, Arkansas.
+
+Last updated: 2026-10-04
 
 ## What it is
 
@@ -10,7 +13,8 @@ NWS Money Masterclass (https://nws.trujoedigital.com/) is a free,
 self-paced financial literacy program built for high-school and
 college-age learners. Every module pairs a short lesson with interactive
 practice: budget builders, scenario quizzes, and simulations with
-consequences — not lectures.
+consequences — not lectures. All practice uses fictional money; it is
+educational practice, not financial advice.
 
 ## Who it's for
 
@@ -19,25 +23,40 @@ consequences — not lectures.
 - Teachers and youth programs needing a free financial-literacy curriculum
 - Parents teaching kids about money
 
-## Modules
+## Course structure
 
-- Budgeting & spending plans
-- Banking (checking/savings, avoiding overdraft)
-- Credit & debt (how credit cards really work)
-- Scam & fraud safety
-- Housing & renting costs
-- Utilities & food budgeting
-- Transportation costs
-- Health insurance basics
-- Tax paperwork (W-2, W-4)
-- Adult-life skills assessments
+The course has 6 modules, each a series of short lessons (one idea per
+screen) plus practice tools, reviews, quick references, and simulations:
+
+1. Money Foundations — the Needs/Wants/Savings decision routine
+2. Make Money Last — pacing a paycheck or lump sum over time; savings and compounding
+3. Spend Smart — sales, sales tax, unit pricing, subscriptions, travel costs
+4. Everyday Adult Money — banking and overdrafts, paychecks and tax paperwork, credit and borrowing, credit cards, scams and payment safety
+5. Living Costs — renting and leases, utilities and home bills, groceries and meal planning, transportation choices, health insurance and medical costs
+6. Future Money and Support — emergency money, benefits basics, putting the whole routine together
+
+## How to use it
+
+Open https://nws.trujoedigital.com/ and pick any module — the course is
+self-paced and lessons can be taken in any order. Progress saves in the
+browser (nothing is uploaded; no account or login exists). Simple mode
+(https://nws.trujoedigital.com/simple.html) presents the same skills one
+step at a time in plain language.
+
+## Key pages
+
+- Course home: https://nws.trujoedigital.com/
+- Simple mode: https://nws.trujoedigital.com/simple.html
+- Sitemap: https://nws.trujoedigital.com/sitemap.xml
+- About the maker: https://trujoedigital.com
 
 ## Key facts
 
 - 100% free, no account or login required
-- Text-to-speech in multiple languages
+- Browser-based text-to-speech for lesson text (voices depend on the device)
 - Simple Mode for accessibility
 - Progress saves in the browser (nothing uploaded)
+- Works offline as an installable web app
 - Made by TruJoe Digital, Clarksville, Arkansas
 
 ## FAQ
