@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Live the Week v1.8 — overhead 3/4</title>
+<title>Live the Week v1.9 — overhead 3/4</title>
 <style>
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body { margin:0; padding:0; background:#141b16; height:100%; overflow:hidden;
@@ -64,6 +64,38 @@
   #fade { position:absolute; inset:0; background:#000; opacity:0; pointer-events:none; transition:opacity .25s; z-index:8;}
   #spots{position:absolute;inset:0;pointer-events:none;z-index:7}
   .spot.npcspot{background:transparent;border:none;box-shadow:none;}
+
+  /* ===== Tablet/Desktop: wider game, themed background ===== */
+  @media (min-width:768px){
+    html,body { background:#0e140f; }
+    body {
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(63,122,77,.15) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 50% 100%, rgba(63,122,77,.10) 0%, transparent 60%),
+        #0e140f;
+    }
+    body::before {
+      content:'\1F33F NWS \u2022 Live the Week';
+      position:fixed; left:24px; top:20px; font-size:15px; font-weight:700; color:#3a5a40;
+      letter-spacing:1px; z-index:0; pointer-events:none;
+    }
+    body::after {
+      content:'A TruJoe Digital financial literacy game';
+      position:fixed; left:24px; bottom:20px; font-size:12px; color:#2a3d30;
+      z-index:0; pointer-events:none;
+    }
+    #hud { max-width:520px; font-size:14px; border-radius:0 0 12px 12px; }
+    #stage { max-width:520px; }
+    #objective { max-width:520px; margin:0 auto; width:100%; border-radius:0 0 8px 8px; }
+    #phone { width:min(480px,92vw); }
+    #startbox { max-width:440px; }
+    #dlgbox { max-width:400px; }
+  }
+  @media (min-width:1200px){
+    #hud { max-width:560px; }
+    #stage { max-width:560px; }
+    #objective { max-width:560px; }
+  }
  .spot{position:absolute;pointer-events:auto;background:rgba(20,28,22,.82);color:#f2e8c9;border:1.5px solid #7fd6a4;border-radius:12px;font-size:12px;font-weight:700;padding:8px 10px;transform:translate(-50%,-50%);box-shadow:0 2px 8px rgba(0,0,0,.4)}
 </style>
 </head>
