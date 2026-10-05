@@ -59,6 +59,7 @@
   #startbox h1 { color:#bfe3c6; }
   .agepick,.jobpick { display:flex; gap:8px; justify-content:center; margin:12px 0; flex-wrap:wrap; }
   .agepick button,.jobpick button { padding:10px 14px; border-radius:10px; border:2px solid #3a5a40; background:#24402e; color:#fff; font-size:14px; }
+  .jobpick button { padding:8px 10px; font-size:13px; flex:1; min-width:0; }
   .agepick button.on,.jobpick button.on { border-color:#bfe3c6; background:#3f7a4d; }
   #fade { position:absolute; inset:0; background:#000; opacity:0; pointer-events:none; transition:opacity .25s; z-index:8;}
   #spots{position:absolute;inset:0;pointer-events:none;z-index:7}
@@ -69,7 +70,7 @@
 <body>
 <div id="hud">
   <span>📅 <b id="h_day">Mon</b> <span id="h_time">8:00a</span></span>
-  <span>💵 <b id="h_money">$60</b></span>
+  <span>💵 <b id="h_money">$70</b></span>
   <span>⚡ <b id="h_energy">100</b></span>
   <span style="font-size:10px;color:#6a8a72">v1.8</span>
   <button id="waitbtn" class="ghost" style="padding:4px 10px;font-size:12px">⏳ +30m</button>
@@ -135,7 +136,10 @@ const FEED = [
   {who:'@maya', p:'brunch was $28 but the pics were worth it 📸'},
   {who:'@coach', p:'free workout in the park saturday, bring water'},
   {who:'@jules', p:'POV: your savings account watching you open the delivery app 👀'},
-  {who:'@dev', p:'sold my old console for half what I paid. depreciation is real 😭'}
+  {who:'@dev', p:'sold my old console for half what I paid. depreciation is real 😭'},
+  {who:'@priya', p:'meal prepped for the whole week. $32. feeling unstoppable'},
+  {who:'@jules', p:'my 24-hour rule just saved me $80'},
+  {who:'@maya', p:'thrifted this jacket for $12. vintage > new'}
 ];
 const ROOM_ITEMS = [
   {id:'poster', t:'Band poster', c:5, room:'house'}, {id:'plant', t:'Potted plant', c:8, room:'house'},
@@ -150,7 +154,7 @@ const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 /* ================= STATE ================= */
 const S = {
   dir:0,
-  map:'town', day:0, min:8*60, money:60, energy:100, age:'16-17',
+  map:'town', day:0, min:8*60, money:70, energy:100, age:'16-17',
   job:null, accrued:0, hrsWorked:0, scrolls:0, adsBought:0, resisted:0,
   mess:20, lates:0, rain:false, umbrella:false, lunchToday:false,
   spent:{}, room:[], hold24:null, groceriesBought:false,
@@ -205,6 +209,7 @@ function buildMallIn(){
   g[15][4]=7; g[15][6]=7; g[16][4]=7; g[16][6]=7;               // tables (tile 7)
   for(let x=1;x<=9;x++) g[13][x]=6;                             // separator strip
   g[15][5]=3;                                                   // plant
+  g[4][1]=3; g[11][1]=3; g[4][9]=3; g[11][9]=3;   // edge planters
   m.npcs=[
     {n:'Threads clerk',x:2*TILE,y:4.6*TILE,c:'#8a4a7a',spr:'wander1',say:'Hoodie $55, on sale $45. Tag says it all.'},
     {n:'Tech clerk',x:8*TILE,y:4.6*TILE,c:'#4a7a8a',spr:'wander2',say:'Headphones $75, sale $60. Best in the mall. Probably.'},
@@ -488,6 +493,7 @@ function drawMall(mm){
   for(const [spr,x,y] of (mm.goods||[])) blit(spr,x*TILE+4,y*TILE+2,24,24);
   // plants in atrium
   blit('plant',5*TILE,9*TILE,28,36); blit('plant',5*TILE,11*TILE,28,36);
+  for(const [px,py] of [[1,4],[1,11],[9,4],[9,11]]) blit('plant',px*TILE+4,py*TILE+2,24,30);
   // food court tables + plant (tile 7/3 in collision map; drawn here so they're visible)
   for(const [tx,ty] of [[4,15],[6,15],[4,16],[6,16]]) blit('f_table',tx*TILE,ty*TILE-6,TILE,TILE+6);
   blit('plant',5*TILE+4,15*TILE+2,24,30);
@@ -640,11 +646,13 @@ function talkClerk(){
     ['\u{1F36B} Snack $6',()=>buySnack(),'']];
   if(S.rain&&!S.umbrella) btns.push(['\u2602\uFE0F Umbrella $12',()=>buyUmbrella(),'']);
   btns.push(['Just looking',()=>{ S.resisted++; },'ghost']);
-  dlg('\u{1F3EA} Clerk','Aisle 3 has the good stuff. What do you need?',btns);
+  const greets=['Aisle 3 has the good stuff. What do you need?','Back again? The fridge stuff is the real deal.','Pro tip: groceries beat snacks.'];
+  dlg('\u{1F3EA} Clerk',greets[Math.floor(Math.random()*greets.length)],btns);
 }
 function talkBarista(){
   S.npcHop=Date.now();
-  dlg('\u2615 Barista','The usual? The smell is free, the latte is $5.',[
+  const bgreets=['The usual? The smell is free, the latte is $5.','Slow down, sip something.','Regulars who plan spend less.'];
+  dlg('\u2615 Barista',bgreets[Math.floor(Math.random()*bgreets.length)],[ 
     ['\u2615 Latte $5',()=>buyLatte(),'act'],
     ['\u{1F4AC} Chat',()=>chatBarista(),''],
     ['Just the smell',()=>{ S.resisted++; toast('Free aroma. Full wallet.'); },'ghost']]);
@@ -653,7 +661,7 @@ function talkCoworker(){
   S.npcHop=Date.now();
   const tips=['Clock in by 9 or the boss notices. Trust me.',
     'I bring lunch every day. Saves me like $40 a week.',
-    'Overtime is a myth here. Don\u2019t ask.'];
+    'Overtime is a myth here. Don\u2019t ask.','Payday Friday. Don\u2019t spend it Thursday.'];
   dlg('\u{1F9D1}\u200D\u{1F4BC} Coworker',tips[Math.floor(Math.random()*tips.length)],[['Back to it',()=>{},'ghost']]);
 }
 function drawFP(){
@@ -903,7 +911,9 @@ function endDay(){
   if(S.mess>=80&&!S.messWarned){ S.messWarned=true; pushMsg('mom','Your room is a disaster zone. Clean it TODAY. \u2014 Mom'); }
   if(S.day===2) pushMsg('friend','Party Saturday night! $15 cover. You in? Tap to reply.');
   if(S.day===4) pushMsg('mom',"Rent's due Sunday. $230. Don't spend it all, please.");
+  if(S.day===6) pushMsg('mom','Proud of you for making it through the week. ❤️');
   if(S.day===5&&S.hold24) pushMsg('store','Your 24-hour sneaker hold expires tonight. Still want them? $45.');
+  if(S.day===5) pushMsg('coach','Free workout in the park today! Find the bench. 💪');
   toast('\u{1F319} '+DAYS[S.day]+' \u2014 a new day.'+(S.mess>=60?' Your room is a mess (\u22128\u26A1).':''));
   hud(); if($('phone').classList.contains('open')) renderPhone();
 }
@@ -934,9 +944,12 @@ function inPark(){ const b=curMap().bld&&curMap().bld.park; if(!b) return false;
 function onArrive(){
   if(S.pendingAction){ const fn=S.pendingAction; S.pendingAction=null; fn(); return; }
   if(S.map==='town'){
-    if(inPark()) dlg('🌳 Park bench','Free. Rest here an hour? (+20 energy, costs 60 min)',
-      [['Rest 1h',()=>{ advance(60); S.energy=Math.min(100,S.energy+20); toast('Rested. Free beats the phone.'); },'act'],
-       ['Keep going',()=>{},'ghost']]);
+    if(inPark()){
+      const pb=[['Rest 1h',()=>{ advance(60); S.energy=Math.min(100,S.energy+20); toast('Rested. Free beats the phone.'); },'act']];
+      if(S.day===5) pb.unshift(['💪 Workout',()=>{ advance(60); S.energy=Math.min(100,S.energy+30); toast('Free workout! +30 energy.'); },'act']);
+      pb.push(['Keep going',()=>{},'ghost']);
+      dlg('🌳 Park bench','Free. Rest here an hour? (+20 energy, costs 60 min)',pb);
+    }
   }
 }
 function sneakerPrompt(){
@@ -1043,7 +1056,7 @@ function renderPhone(){
   }
   if(curTab==='msgs'){
     $('msgdot').textContent='';
-    h=MSGS.length?MSGS.map(m=>'<div class="card"><h4>'+(({boss:'🧑‍💼 Boss',friend:'🎉 Friend',mom:'🏠 Mom',store:'👟 Store',weather:'🌧 Weather'})[m.from]||m.from)+' <small style="color:#9fc3a4">'+m.day+' '+m.time+'</small></h4><p style="font-size:13px">'+m.text+'</p>'
+    h=MSGS.length?MSGS.map(m=>'<div class="card"><h4>'+(({boss:'🧑‍💼 Boss',friend:'🎉 Friend',mom:'🏠 Mom',store:'👟 Store',weather:'🌧 Weather',coach:'💪 Coach'})[m.from]||m.from)+' <small style="color:#9fc3a4">'+m.day+' '+m.time+'</small></h4><p style="font-size:13px">'+m.text+'</p>'
       +(m.from==='friend'&&!m.answered?'<button class="act" onclick="partyYes()">Go ($15)</button> <button class="ghost" onclick="partyNo()">Skip</button>':'')
       +(m.from==='store'&&S.hold24?'<button class="act" onclick="claimHold()">Claim $45</button> <button class="ghost" onclick="dropHold()">Let it go</button>':'')
       +'</div>').join(''):'<p style="color:#9fc3a4">No messages. Peaceful. Suspiciously peaceful.</p>';
