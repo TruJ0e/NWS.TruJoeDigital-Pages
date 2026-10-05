@@ -710,11 +710,11 @@ function drawBody(){
         ctx.fillStyle='#ffe27a'; ctx.font='bold 15px sans-serif'; ctx.textAlign='center';
         ctx.strokeStyle='rgba(0,0,0,.6)'; ctx.lineWidth=3;
         ctx.strokeText('▼ ENTER',dx,dy-10+bob); ctx.fillText('▼ ENTER',dx,dy-10+bob); ctx.lineWidth=1; } } }
+  if(S.map==='mallIn'){ drawMall(curMap()); }
   // npcs
   (m.npcs||[]).forEach(n=>{ drawPerson(n.x,n.y+16,n.spr||'clerk',0);
     ctx.fillStyle='#fff'; ctx.font='9px sans-serif'; ctx.textAlign='center';
     ctx.fillText(n.n,n.x,n.y-26); });
-  if(S.map==='mallIn'){ drawMall(curMap()); }
   // wanderers in town
   wanderers.forEach(w=>{ if(w.map===S.map) drawPerson(w.x,w.y+16,(w.path&&w.path.length)?w.spr+'_w':w.spr,0); });
   // player
