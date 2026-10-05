@@ -29,6 +29,7 @@
   #tabs { display:flex; background:#1a241c; }
   #tabs button { flex:1; padding:10px 2px; background:none; border:none; color:#9fc3a4; font-size:12px; }
   #tabs button.on { color:#fff; background:#24402e; font-weight:700; }
+  #msgdot { color:#ff6a5a; font-size:10px; }
   #pscreen { flex:1; overflow-y:auto; padding:10px; font-size:14px; }
   .card { background:#1c2b21; border:1px solid #3a5a40; border-radius:10px; padding:10px; margin-bottom:8px; }
   .card h4 { margin:0 0 6px; color:#bfe3c6; font-size:14px; }
@@ -284,7 +285,7 @@ function shopDlg(key){
 }
 function buyItem(it){
   const c=it.sale;
-  if(S.money<c){ toast('Not enough cash for that.'); return; }
+  if(S.money<c){ toast('Not enough cash.'); return; }
   S.money-=c; S.spent['mall: '+it.t]=(S.spent['mall: '+it.t]||0)+c;
   if(it.e){ S.energy=Math.min(100,S.energy+it.e); S.lunchToday=true; }
   else S.energy=Math.max(0,S.energy-3); // shopping is tiring
@@ -487,6 +488,13 @@ function drawMall(mm){
   for(const [spr,x,y] of (mm.goods||[])) blit(spr,x*TILE+4,y*TILE+2,24,24);
   // plants in atrium
   blit('plant',5*TILE,9*TILE,28,36); blit('plant',5*TILE,11*TILE,28,36);
+  // food court tables + plant (tile 7/3 in collision map; drawn here so they're visible)
+  for(const [tx,ty] of [[4,15],[6,15],[4,16],[6,16]]) blit('f_table',tx*TILE,ty*TILE-6,TILE,TILE+6);
+  blit('plant',5*TILE+4,15*TILE+2,24,30);
+  // exit door at bottom (5,19) — visible so players know how to leave
+  ctx.fillStyle='#3a5a40'; ctx.fillRect(5*TILE,19*TILE,TILE,8);
+  ctx.fillStyle='#ffe27a'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('EXIT',5*TILE+16,19*TILE+22);
 }
 function drawBuilding34(b,id){
   if(id==='park'){
