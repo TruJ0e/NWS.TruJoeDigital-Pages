@@ -926,9 +926,9 @@ function wanderTick(dt){
 function fmt(min){ let h=Math.floor(min/60), m=Math.floor(min%60); const ap=h>=12?'p':'a'; h=h%12||12; return h+':'+String(m).padStart(2,'0')+ap; }
 function dailyObjective(){
   if(S.weekOver) return '';
-  if(S.day<5) return S.lastWorkDay===S.day ? '\u2705 Shift done \u2014 free time!' : '\U0001F4BC Today: Work your shift at WORK';
-  if(S.day===5) return '\U0001F389 Saturday: Mall, park workout, party tonight!';
-  return '\U0001F4B8 Sunday: Pay bills, rest up.';
+  if(S.day<5) return S.lastWorkDay===S.day ? '\u2705 Shift done \u2014 free time!' : '\u{1F4BC} Today: Work your shift at WORK';
+  if(S.day===5) return '\u{1F389} Saturday: Mall, park workout, party tonight!';
+  return '\u{1F4B8} Sunday: Pay bills, rest up.';
 }
 function hud(){ $('h_day').textContent=DAYS[S.day]; $('h_time').textContent=fmt(S.min);
   const ob=$('objective'); if(ob) ob.textContent=dailyObjective();
