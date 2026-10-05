@@ -671,7 +671,7 @@ function chatBarista(){
   const tips=['Slow mornings make better coffee. And better budgets.',
     'Regulars who plan their week spend less. Just saying.',
     'That 24-hour rule? Works for lattes too.'];
-  dlg('Barista',tips[Math.floor(Math.random()*tips.length)],['Nice']);
+  dlg('Barista',tips[Math.floor(Math.random()*tips.length)],[['Nice',()=>{},'ghost']]);
   S.energy=Math.min(100,S.energy+3);
 }
 /* ================= RENDER ================= */
@@ -746,13 +746,9 @@ cv.addEventListener('pointerdown',e=>{
   if(S.weekOver||S.fp) return;
   const r=cv.getBoundingClientRect();
   const wx=(e.clientX-r.left)/r.width*cv.width, wy=(e.clientY-r.top)/r.height*cv.height;
-  // npc tap?
   const m=curMap();
-  for(const n of (m.npcs||[])){
-    if(Math.hypot(wx-n.x,wy-(n.y+16))<36){ npcTalk(n); return; }
-  }
   const tx=Math.floor(wx/TILE), ty=Math.floor(wy/TILE);
-  // mall: tap a storefront -> walk to it, dialog opens on arrival
+  // mall: storefront taps take priority over nearby clerk NPCs
   if(S.map==='mallIn'){
     for(const sf of (m.storefronts||[])){
       if(tx>=sf.x&&tx<sf.x+sf.w&&ty>=sf.y&&ty<sf.y+sf.h){
@@ -775,6 +771,10 @@ cv.addEventListener('pointerdown',e=>{
         return;
       }
     }
+  }
+  // npc tap? (after mall storefronts so clerks don't swallow shop taps)
+  for(const n of (m.npcs||[])){
+    if(Math.hypot(wx-n.x,wy-(n.y+16))<36){ npcTalk(n); return; }
   }
   // tap a building -> walk to its entrance
   const hit=buildingAt(tx,ty);
@@ -1033,7 +1033,7 @@ function renderPhone(){
   }
   if(curTab==='msgs'){
     $('msgdot').textContent='';
-    h=MSGS.length?MSGS.map(m=>'<div class="card"><h4>'+({boss:'🧑‍💼 Boss',friend:'🎉 Friend',mom:'🏠 Mom',store:'👟 Store'})[m.from]+' <small style="color:#9fc3a4">'+m.day+' '+m.time+'</small></h4><p style="font-size:13px">'+m.p+'</p>'
+    h=MSGS.length?MSGS.map(m=>'<div class="card"><h4>'+(({boss:'🧑‍💼 Boss',friend:'🎉 Friend',mom:'🏠 Mom',store:'👟 Store',weather:'🌧 Weather'})[m.from]||m.from)+' <small style="color:#9fc3a4">'+m.day+' '+m.time+'</small></h4><p style="font-size:13px">'+m.text+'</p>'
       +(m.from==='friend'&&!m.answered?'<button class="act" onclick="partyYes()">Go ($15)</button> <button class="ghost" onclick="partyNo()">Skip</button>':'')
       +(m.from==='store'&&S.hold24?'<button class="act" onclick="claimHold()">Claim $45</button> <button class="ghost" onclick="dropHold()">Let it go</button>':'')
       +'</div>').join(''):'<p style="color:#9fc3a4">No messages. Peaceful. Suspiciously peaceful.</p>';
