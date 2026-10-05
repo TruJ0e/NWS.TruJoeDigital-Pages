@@ -206,8 +206,8 @@ function buildMallIn(){
   for(let x=1;x<=9;x++) g[13][x]=6;                             // separator strip
   g[15][5]=3;                                                   // plant
   m.npcs=[
-    {n:'Threads clerk',x:2*TILE,y:2*TILE,c:'#8a4a7a',spr:'wander1',say:'Hoodie $55, on sale $45. Tag says it all.'},
-    {n:'Tech clerk',x:8*TILE,y:2*TILE,c:'#4a7a8a',spr:'wander2',say:'Headphones $75, sale $60. Best in the mall. Probably.'},
+    {n:'Threads clerk',x:2*TILE,y:4.6*TILE,c:'#8a4a7a',spr:'wander1',say:'Hoodie $55, on sale $45. Tag says it all.'},
+    {n:'Tech clerk',x:8*TILE,y:4.6*TILE,c:'#4a7a8a',spr:'wander2',say:'Headphones $75, sale $60. Best in the mall. Probably.'},
     {n:'Gadget guy',x:8*TILE,y:7*TILE,c:'#6a8a3a',spr:'barista',say:'Same headphones, $70. Sale $55. Just saying.'},
     {n:'Cashier',x:5*TILE,y:13*TILE,c:'#b86a3a',spr:'clerk',say:'Burger $12. Bubble tea $7. The smell is free.'}];
   m.storefronts=[
@@ -491,10 +491,12 @@ function drawMall(mm){
   // food court tables + plant (tile 7/3 in collision map; drawn here so they're visible)
   for(const [tx,ty] of [[4,15],[6,15],[4,16],[6,16]]) blit('f_table',tx*TILE,ty*TILE-6,TILE,TILE+6);
   blit('plant',5*TILE+4,15*TILE+2,24,30);
-  // exit door at bottom (5,19) — visible so players know how to leave
-  ctx.fillStyle='#3a5a40'; ctx.fillRect(5*TILE,19*TILE,TILE,8);
-  ctx.fillStyle='#ffe27a'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center';
-  ctx.fillText('EXIT',5*TILE+16,19*TILE+22);
+  // exit door at bottom (5,19) — prominent so players know how to leave
+  ctx.fillStyle='#2a3a2e'; ctx.fillRect(5*TILE-4,18*TILE+8,TILE+8,2*TILE-8);
+  ctx.fillStyle='#4a7a52'; ctx.fillRect(5*TILE,18*TILE+12,TILE,2*TILE-12);
+  ctx.fillStyle='#ffe27a'; ctx.fillRect(5*TILE+4,18*TILE+16,TILE-8,10);
+  ctx.fillStyle='#1c2b21'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('EXIT',5*TILE+16,18*TILE+24);
 }
 function drawBuilding34(b,id){
   if(id==='park'){
@@ -1102,7 +1104,7 @@ document.querySelectorAll('.agepick button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.agepick button').forEach(x=>x.classList.remove('on'));
   b.classList.add('on'); S.age=b.dataset.a; renderJobPick(); });
 $('gobtn').onclick=()=>{ $('start').style.display='none';
-  MAPS.town.bld.work.label=('WORK — '+S.job.t).toUpperCase().slice(0,18);
+  MAPS.town.bld.work.label=S.job.t.toUpperCase().slice(0,16);
   pushMsg('boss','Welcome! Walk to WORK and tap the door for a shift (8h at 18+). Payday Friday.');
   pushMsg('mom','Bills Sunday: $230. The Shop tab has room decor — needs vs wants, kiddo.');
   hud(); };
