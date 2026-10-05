@@ -75,6 +75,7 @@
   <span style="font-size:10px;color:#6a8a72">v1.8</span>
   <button id="waitbtn" class="ghost" style="padding:4px 10px;font-size:12px">⏳ +30m</button>
 </div>
+<div id="objective" style="text-align:center;font-size:12px;color:#9fc3a4;padding:4px;background:rgba(20,30,22,.9);border-bottom:1px solid #3a5a40"></div>
 <div id="stage">
   <canvas id="game" width="352" height="640"></canvas>
   <div id="locname">Maple Street</div>
@@ -155,7 +156,7 @@ const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const S = {
   dir:0,
   map:'town', day:0, min:8*60, money:70, energy:100, age:'16-17',
-  job:null, accrued:0, hrsWorked:0, scrolls:0, adsBought:0, resisted:0,
+  job:null, accrued:0, hrsWorked:0, lastWorkDay:-1, scrolls:0, adsBought:0, resisted:0,
   mess:20, lates:0, rain:false, umbrella:false, lunchToday:false,
   spent:{}, room:[], hold24:null, groceriesBought:false,
   px:0, py:0, path:[], moving:false, hasBike:false, weekOver:false, sneakerSeen:false
@@ -884,7 +885,14 @@ function wanderTick(dt){
 }
 /* ================= TIME / HUD ================= */
 function fmt(min){ let h=Math.floor(min/60), m=Math.floor(min%60); const ap=h>=12?'p':'a'; h=h%12||12; return h+':'+String(m).padStart(2,'0')+ap; }
+function dailyObjective(){
+  if(S.weekOver) return '';
+  if(S.day<5) return S.lastWorkDay===S.day ? '\u2705 Shift done \u2014 free time!' : '\U0001F4BC Today: Work your shift at WORK';
+  if(S.day===5) return '\U0001F389 Saturday: Mall, park workout, party tonight!';
+  return '\U0001F4B8 Sunday: Pay bills, rest up.';
+}
 function hud(){ $('h_day').textContent=DAYS[S.day]; $('h_time').textContent=fmt(S.min);
+  const ob=$('objective'); if(ob) ob.textContent=dailyObjective();
   $('p_time').textContent=DAYS[S.day]+' '+fmt(S.min);
   $('h_money').textContent='$'+Math.round(S.money); $('h_energy').textContent=Math.round(S.energy); }
 function advance(min){
@@ -968,7 +976,7 @@ function workPrompt(){
     if(S.lates===3) pushMsg('boss','Third late. One more and we need to talk. \u2014 Management');
     else if(S.lates>3) pushMsg('boss','Late again. This is going in your file. \u2014 Management'); }
   dlg('\u{1F550} Time card','Clock in for an '+HRS+'-hour shift as '+S.job.t+'? Pays $'+pay.toFixed(2)+' Friday (take-home). Costs '+HRS+'h and '+cost+' energy.'+lateNote,
-    [['Clock in',()=>{ advance(HRS*60); S.energy-=cost; S.accrued+=pay; S.hrsWorked+=HRS;
+    [['Clock in',()=>{ advance(HRS*60); S.energy-=cost; S.accrued+=pay; S.hrsWorked+=HRS; S.lastWorkDay=S.day;
        floatText('shift +$'+pay.toFixed(0),S.px+16,S.py,'#9fe6a8'); hud(); toast('\u2705 Clocked out \u2014 shift complete.'); },'act'],
      ['Not now',()=>{},'ghost']]);
 }
