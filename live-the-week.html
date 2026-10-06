@@ -813,9 +813,14 @@ function bfs(tx,ty){
       if(walkable(nx,ny)&&!(kk in prev)){ prev[kk]=key(x,y); q.push([nx,ny]); } } }
   return null;
 }
+// Virtual joystick: touch-hold and drag for direct control
+S.joy={active:false,sx:0,sy:0,dx:0,dy:0,id:null};
 cv.addEventListener('pointerdown',e=>{
   if(S.weekOver||S.fp) return;
   const r=cv.getBoundingClientRect();
+  // Start potential joystick
+  S.joy.sx=e.clientX; S.joy.sy=e.clientY; S.joy.id=e.pointerId;
+  // Don't activate yet - wait for drag
   const wx=(e.clientX-r.left)/r.width*cv.width, wy=(e.clientY-r.top)/r.height*cv.height;
   const m=curMap();
   const tx=Math.floor(wx/TILE), ty=Math.floor(wy/TILE);
@@ -858,6 +863,23 @@ cv.addEventListener('pointerdown',e=>{
   }
   const p=bfs(tx,ty); if(p&&p.length){ S.path=p.map(([x,y])=>({x:x*TILE,y:y*TILE})); S.moving=true; }
 });
+// Joystick: drag to move directly
+cv.addEventListener('pointermove',e=>{
+  if(!S.joy||S.joy.id!==e.pointerId||S.fp) return;
+  const dx=e.clientX-S.joy.sx, dy=e.clientY-S.joy.sy;
+  if(Math.hypot(dx,dy)>12&&!S.joy.active){
+    S.joy.active=true; S.path=[]; S.moving=false; // joystick takes over
+  }
+  if(S.joy.active){
+    const max=48, d=Math.hypot(dx,dy)||1, cl=Math.min(d,max);
+    S.joy.dx=dx/d*cl/max; S.joy.dy=dy/d*cl/max;
+  }
+});
+const endJoy=e=>{
+  if(S.joy&&S.joy.id===e.pointerId){ S.joy.active=false; S.joy.dx=0; S.joy.dy=0; S.joy.id=null; if(!S.path.length) S.moving=false; }
+};
+cv.addEventListener('pointerup',endJoy);
+cv.addEventListener('pointercancel',endJoy);
 function buildingAt(tx,ty){
   const m=curMap(); if(!m.bld) return null;
   for(const k in m.bld){ const b=m.bld[k];
@@ -872,6 +894,23 @@ function buildingAt(tx,ty){
 let lastT=0;
 function step(now){
   const dt=Math.min(0.05,(now-lastT)/1000||0); lastT=now;
+  // Virtual joystick direct control
+  if(S.joy&&S.joy.active){
+    const jx=S.joy.dx, jy=S.joy.dy, mag=Math.hypot(jx,jy);
+    if(mag>0.15){
+      const sp=(S.hasBike?SPEED_B:SPEED_W)*(0.55+0.45*S.energy/100)*(S.rain&&!S.umbrella?0.8:1);
+      const nx=S.px+jx/mag*sp*dt, ny=S.py+jy/mag*sp*dt;
+      // Smooth collision: try X then Y separately for wall sliding
+      const tx=Math.floor((nx+16)/TILE), ty=Math.floor((S.py+16)/TILE);
+      if(walkable(tx,ty)) S.px=nx;
+      const tx2=Math.floor((S.px+16)/TILE), ty2=Math.floor((ny+16)/TILE);
+      if(walkable(tx2,ty2)) S.py=ny;
+      S.dir=Math.abs(jx)>Math.abs(jy)?(jx>0?3:2):(jy>0?0:1);
+      S.moving=true; S.path=[]; // joystick overrides pathfinding
+      advance(S.hasBike?1:2); if(S.map!=='mallIn') S.energy=Math.max(0,S.energy-(S.hasBike?0.15:0.35));
+      checkTile(); checkZones();
+    } else { S.moving=false; }
+  }
   if(S.moving&&S.path.length){
     const t=S.path[0], sp=(S.hasBike?SPEED_B:SPEED_W)*(0.55+0.45*S.energy/100)*(S.rain&&!S.umbrella?0.8:1);
     const dx=t.x-S.px, dy=t.y-S.py, d=Math.hypot(dx,dy);
