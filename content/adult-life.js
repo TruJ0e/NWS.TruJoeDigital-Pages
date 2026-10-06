@@ -43,7 +43,7 @@ export const ADULT_LIFE_MODULES = [
       'There is not one universal credit score. Different models, products, and data can produce different scores.',
       'On-time payment history, how close balances are to credit limits, credit-history length, and recent applications can affect scores.',
       'Carrying a credit-card balance is not required to build credit; paying in full can avoid finance charges while still establishing payment history.',
-      'A percentage such as “30% utilization” is guidance, not a magic threshold shared by every scoring model.'
+      'Credit utilization is a continuum, not a universal 30% pass/fail rule. Lower reported revolving balances generally reduce utilization, while exact scoring effects vary by model and issuer.'
     ],
     practice:{
       prompt:'A $300 purchase will not fit your current plan. A credit card would let you buy it today. What is the financially accurate way to classify the card?',

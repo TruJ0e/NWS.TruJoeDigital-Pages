@@ -23,7 +23,7 @@ export const MODULES=[
     summary:'Learn what money is for before deciding what to do with it.',outcomes:['Sort any expense into Need, Want, or Savings — and handle the “it depends” cases.','Run the full NWS decision routine: sort, check, then decide.','Say a clear, respectful no to pressure spending without guilt.'],
     lessons:[
       {id:'nws-routine',est:8,title:'Needs, Wants, Savings',summary:'Use NWS as a decision tool, not a moral label.',screen:'home',kind:'tool',toolKind:'Dashboard'},
-      {id:'available-money',est:8,title:'What money is actually available?',summary:'Separate the visible balance from money that already has a job.',screen:'money',kind:'tool',toolKind:'Dashboard'},
+      {id:'available-money',est:8,title:'Committed vs. uncommitted money',summary:'Separate the bank balance from money your own known obligations already claim.',screen:'money',kind:'tool',toolKind:'Dashboard'},
       {id:'depends-decisions',est:12,title:'Needs, Wants, and “it depends”',summary:'Practice contextual choices instead of memorizing rigid categories.',screen:'spend',kind:'practice'}
     ]
   },
@@ -36,17 +36,17 @@ export const MODULES=[
       {id:'savings-purpose',est:6,title:'Savings is money for later',summary:'Savings can become a future Need, emergency resource, or planned goal.',screen:'pacing-value',pacingFocus:'savings-purpose',kind:'lesson'},
       {id:'savings-apy',est:8,title:'Compounding: growth on growth',summary:'Watch growth earn growth, tell APY from APR, and use the rule of 72.',screen:'save',kind:'lesson'},
       {id:'irregular-income',est:8,title:'Irregular income',summary:'Plan without pretending money that has not arrived is guaranteed.',screen:'pacing-value',pacingFocus:'irregular',kind:'lesson'},
-      {id:'semester-plan',est:10,title:'Plan a longer time period',summary:'Break a semester lump sum or paycheck cycle into smaller usable periods.',screen:'plan',kind:'tool',toolKind:'Calculator'}
+      {id:'semester-plan',est:6,title:'Apply pacing to a longer period',summary:'Use the same pacing skill on a semester lump sum without treating the lump sum as free spending money.',screen:'plan',kind:'tool',toolKind:'Calculator'}
     ]
   },
   {
     id:'value',img:'images/modules/module-value.png',number:3,title:'Spend Smart',
     summary:'A lower price is useful only when it fits the plan and creates real value.',outcomes:['Judge sales, subscriptions, and bulk deals by usable value, not sticker price.','Compare options by unit cost and practical cost, not the loudest discount.','Spot the true cost of a subscription before it becomes a leak.'],
     lessons:[
-      {id:'sales-decisions',est:12,title:'Sales and discounts',summary:'A discount is not savings when it causes an unnecessary purchase.',screen:'spend',kind:'practice'},
+      {id:'sales-decisions',est:12,title:'Sales and discounts',summary:'A discount only helps after the purchase passes the plan, timing, and usable-value checks.',screen:'spend',kind:'practice'},
       {id:'sales-tax',est:8,title:'Sales tax at the register',summary:'The tag is not the total: tax the discounted price, then compare out-the-door totals.',screen:'spend',kind:'practice'},
       {id:'usable-value',est:8,title:'Quantity, unit price, and waste',summary:'Compare the amount you will actually use, not just package size.',screen:'pacing-value',pacingFocus:'value',kind:'lesson'},
-      {id:'gas-value',est:7,title:'Gas price vs. travel cost',summary:'Count the cost of getting the deal before calling it a savings.',screen:'pacing-value',pacingFocus:'gas',kind:'lesson'},
+      {id:'gas-value',est:7,title:'Gas price vs. detour cost',summary:'Count the extra fuel — and remember time and vehicle wear — before calling a cheaper pump a savings.',screen:'pacing-value',pacingFocus:'gas',kind:'lesson'},
       {id:'subscriptions-lesson',est:10,title:'Subscriptions and recurring costs',summary:'Turn small repeating charges into monthly and yearly decisions.',screen:'subscriptions',kind:'tool',toolKind:'Calculator'}
     ]
   },
@@ -69,7 +69,7 @@ export const MODULES=[
       {id:'utilities',est:7,title:'Utilities and home bills',summary:'Plan variable recurring costs, due dates, and setup responsibilities.',screen:'adult-life',adultModule:'utilities',kind:'lesson'},
       {id:'groceries',est:8,title:'Groceries and meal planning',summary:'Plan from what will actually be eaten, prepared, stored, and used.',screen:'adult-life',adultModule:'groceries',kind:'lesson'},
       {id:'transportation',est:8,title:'Transportation choices',summary:'Compare the whole transportation cost, not one payment or one trip.',screen:'adult-life',adultModule:'transportation',kind:'lesson'},
-      {id:'health-insurance',est:9,title:'Health insurance and medical costs',summary:'Compare premiums with the other major cost-sharing terms.',screen:'adult-life',adultModule:'health-insurance',kind:'lesson'}
+      {id:'health-insurance',est:9,title:'Health insurance and medical costs',summary:'Compare premiums, deductible, copays/coinsurance, out-of-pocket limits, coverage, and network rules together.',screen:'adult-life',adultModule:'health-insurance',kind:'lesson'}
     ]
   },
   {
@@ -196,7 +196,7 @@ function renderCourse(){
   }
   const pct=Math.round(visitedCount/total*100);
   host.innerHTML=
-`<div class="hero course-hero"><span class="tag">NWS Course</span><h2>Learn to run your money like an adult.</h2><p class="sub">Built for college students. Plain-language lessons and hands-on practice for the money decisions that actually show up: paychecks, rent, groceries, subscriptions, and the surprises in between.</p><ul class="course-logistics" aria-label="Course logistics"><li><b>Self-paced</b><span>go in any order</span></li><li><b>Free</b><span>no account, no cost</span></li><li><b>6 modules · ${total} lessons</b><span>lessons, practice &amp; tools</span></li><li><b>${esc(courseDurationLabel())}</b><span>total, at your pace</span></li></ul><div class="row course-cta-row"><button class="btn" type="button" onclick="course.openLesson('${esc(ctaId)}',${ctaStep})">${esc(ctaLabel)}</button><span class="sub">${ctaNote}</span></div></div>`
+`<div class="hero course-hero"><span class="tag">Practical money foundations</span><h2>Build a money system you can actually use.</h2><p class="sub">Built for teens, college students, and money beginners. Plain-language lessons and hands-on practice for paychecks, rent, groceries, credit, subscriptions, benefits, and the surprises in between.</p><ul class="course-logistics" aria-label="Course logistics"><li><b>Self-paced</b><span>go in any order</span></li><li><b>Free</b><span>no account, no cost</span></li><li><b>6 modules · ${total} lessons</b><span>lessons, practice &amp; tools</span></li><li><b>${esc(courseDurationLabel())}</b><span>total, at your pace</span></li></ul><div class="row course-cta-row"><button class="btn" type="button" onclick="course.openLesson('${esc(ctaId)}',${ctaStep})">${esc(ctaLabel)}</button><span class="sub">${ctaNote}</span></div></div>`
 +`<section class="card course-progress" aria-label="Course progress"><div class="course-progress-head"><h3>Your progress</h3><span class="tag">${visitedCount} of ${total} visited · ${completedCount} completed</span></div><div class="progressbar" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${visitedCount}" aria-label="Course lessons visited"><i style="width:${pct}%"></i></div><p class="sub">Visited means you opened it — they are not a mastery score. Completed means you finished every screen and its practice — that is the real progress.</p></section>`
 +`<div class="section-title"><div><h2>Modules</h2><p>Each module is its own page of short lessons — one idea per screen.</p></div></div><div class="module-quicklist">${MODULES.map(moduleQuickCard).join('')}</div>`
 +`<section class="card course-simple-card" aria-label="Simple mode"><span class="tag">Easier mode</span><h3>Want the calm version? Try Simple mode.</h3><p>Same money skills, one step at a time, in plain language.</p><a class="btn" href="./simple.html">Open Simple mode →</a></section>`

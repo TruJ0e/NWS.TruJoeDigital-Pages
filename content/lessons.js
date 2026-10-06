@@ -162,11 +162,11 @@ export const LESSON_CONTENT={
     why:`Wants are decided last, from what is left \u2014 never first, from what is visible. ${F} flexible is the whole answer; the ${P} paycheck is not the spending number.`};
   }},
 ]},
-'available-money':{intro:'The number on the screen is not the number you can spend.',steps:[
- {t:'teach',h:'The number on the screen lies a little',
-  body:'<p>Your app shows a <b>balance</b>. But some of that money already has a job:</p><ul><li><b>Scheduled payments</b> - autopay that has not hit yet.</li><li><b>Pending charges</b> - swiped but not posted.</li><li><b>Promises</b> - money you already decided to save.</li></ul><p><b>Available money = balance \u2212 money that already has a job.</b> Spend from the available number, never the visible one.</p>'},
+'available-money':{intro:'Some of your balance is already committed. Separate it before deciding what is free to use.',steps:[
+ {t:'teach',h:'Balance and uncommitted money are different',
+  body:'<p>Your app shows a <b>balance</b>. But some of that money already has a job:</p><ul><li><b>Scheduled payments</b> - autopay that has not hit yet.</li><li><b>Pending charges</b> - swiped but not posted.</li><li><b>Promises</b> - money you already decided to save.</li></ul><p><b>NWS uncommitted money = balance \u2212 money that already has a job.</b> This is a planning number, not the bank\u2019s formal available balance. Check both: what the bank says is available and what your own known obligations already claim.</p>'},
  {t:'example',h:'Maya checks before she spends',story:'<p>Friday night. Maya\u2019s app shows <b>$320</b>. A friend invites her to dinner - about $40. She checks first:</p>',
-  points:['Balance on screen: $320','Electric autopay hits tomorrow: \u2212$90','Promised to emergency savings: \u2212$40','Actually available: <b>$190</b>','Dinner fits. She goes - and the electric bill is safe.']},
+  points:['Balance on screen: $320','Electric autopay hits tomorrow: \u2212$90','Promised to emergency savings: \u2212$40','Uncommitted after known jobs: <b>$190</b>','Dinner fits. She goes - and the electric bill is safe.']},
  {t:'try',skill:'available-money',tier:'guided',
  gen:(v)=>{
   const person=v.person();
@@ -177,14 +177,14 @@ export const LESSON_CONTENT={
   const when=v.pick(['tomorrow','in two days','on Friday']);
   const bill=v.pick(['electric','phone','internet']);
   return {
-   q:`${person}\u2019s app shows a balance of ${B}. A ${A} ${bill} autopay hits ${when}. Nothing else is pending. What is actually available to spend?`,
+   q:`${person}\u2019s app shows a balance of ${B}. A ${A} ${bill} autopay hits ${when}. Nothing else is pending. How much is uncommitted after protecting the known autopay?`,
    choices:[
     {label:`${AV}`,ok:true},
     {label:`${B} \u2014 the balance is the spending number`,ok:false,mis:'available-means-balance'},
     {label:`${v.money((bC+aC)/100)} \u2014 the payment has not hit yet, so add it back`,ok:false,mis:'not-due-means-safe'},
     {label:`${A} \u2014 the autopay amount is the answer`,ok:false,mis:'obligation-is-available'}],
    cue:'Start by subtracting the money that already has a job.',
-   hint:'Available = balance \u2212 money with a job.',
+   hint:'Uncommitted = balance \u2212 money with a known job.',
    good:`Right: ${B} \u2212 ${A} = ${AV}.`,
    bad:`Subtract the scheduled payment first: ${B} \u2212 ${A} = ${AV}.`,
    why:`The ${A} is already spoken for. Available = ${B} \u2212 ${A} = ${AV}.`};
@@ -198,7 +198,7 @@ export const LESSON_CONTENT={
   const B=v.money(bal), A=v.money(auto), H=v.money(hold), S=v.money(sav), AV=v.money(availC/100);
   const spoken=v.money((aC+hC+sC)/100);
   return {
-   q:`${person}\u2019s app shows ${B}. Coming up: a ${A} rent autopay, a ${H} pending gas hold, and ${S} promised to savings. What is actually available?`,
+   q:`${person}\u2019s app shows ${B}. Coming up: a ${A} rent autopay, a ${H} pending gas hold, and ${S} promised to savings. How much is uncommitted after those known jobs?`,
    choices:[
     {label:`${AV}`,ok:true},
     {label:`${B} \u2014 the app balance is the real number`,ok:false,mis:'available-means-balance'},
@@ -221,7 +221,7 @@ export const LESSON_CONTENT={
   const when=v.pick(['tomorrow','in a few days']);
   const afford=priceC<=availC;
   return {
-   q:`${person} wants a ${P} ${item} today. The app shows ${B}, but a ${A} autopay hits ${when}. Does the available-money rule say buy it?`,
+   q:`${person} wants a ${P} ${item} today. The app shows ${B}, but a ${A} autopay hits ${when}. Does the uncommitted-money check say buy it?`,
    choices: afford?[
     {label:`Yes \u2014 ${AV} is actually available, and that covers ${P}.`,ok:true},
     {label:`No \u2014 never spend anything before a scheduled payment clears.`,ok:false,mis:'absolute-rules'},
@@ -233,7 +233,7 @@ export const LESSON_CONTENT={
     {label:`Yes \u2014 ${when} is not today; spend now and worry later.`,ok:false,mis:'timing-dodge'},
     {label:`No \u2014 ${person} should never buy ${item}s on this budget.`,ok:false,mis:'absolute-rules'}
    ],
-   hint:'Compare the price to the available number, not the balance.',
+   hint:'Compare the price to the uncommitted planning number, not the headline balance.',
    good: afford?`Right: ${AV} available covers the ${P} ${item}, with the ${A} autopay untouched.`:`Right: ${P} is more than the ${AV} available. The autopay eats first.`,
    bad: afford?`Check against available, not the screen: ${B} \u2212 ${A} = ${AV}, which covers ${P}.`:`Available is ${B} \u2212 ${A} = ${AV} \u2014 short of ${P}.`,
    why: afford?`The rule is a comparison, not a ban: ${AV} available covers the ${P} ${item} with the ${A} autopay protected.`:`Wanting it today does not change the math: ${AV} is the real number, and ${P} does not fit inside it.`};
@@ -260,7 +260,7 @@ export const LESSON_CONTENT={
  }},
  {t:'tool',screen:'home',h:'See it on a dashboard',body:'<p>The home dashboard separates <b>Available now</b>, <b>Known Needs</b>, and <b>Flexible after known costs</b> - the same check you just did, live.</p>',cta:'Open the dashboard'}
 ]},
-'depends-decisions':{intro:'Context changes the category. "It depends" is a real answer.',steps:[
+'depends-decisions':{intro:'Context changes the category. “It depends” means the decision is missing information — not that any label can be justified.',steps:[
  {t:'teach',h:'"It depends" is a real answer',
   body:'<p>The same item can be a Need for one person and a Want for another. The category is not in the <i>thing</i> - it is in the <b>context</b>.</p><p>When you are unsure, ask: <b>"What is it for, right now?"</b></p><ul><li>Winter coat, October, you own none \u2192 Need.</li><li>Winter coat, you already own a warm one \u2192 Want.</li><li>Laptop, required for classes \u2192 Need.</li><li>Laptop, mostly for games \u2192 Want.</li></ul>'},
  {t:'sort',h:'Sort it: context matters',body:'<p>Each item comes with its context. Some are clear. Two of them genuinely depend - use the <b>It depends</b> bucket.</p>',
@@ -273,7 +273,7 @@ export const LESSON_CONTENT={
    {label:'Car - no bus route to your job',a:'need',why:'Without it there is no income. Need.'},
    {label:'Car - just for weekend fun',a:'want',why:'Fun is a Want - a great one, but a Want.'},
    {label:'Ordering takeout (no other info)',a:'depends',why:'Depends: no food at home leans Need; a craving leans Want. You need more info.'},
-   {label:'A $60 video game (no other info)',a:'depends',why:'Depends: a gift for a friend? a reward you planned? Without context you cannot sort it.'}]},
+   {label:'A rideshare across town (no other info)',a:'depends',why:'Depends: getting to a required shift with no alternative may be a Need; choosing it over a workable bus for convenience may be a Want.'}]},
 {t:'try',skill:'needs',tier:'guided',
   gen:(v)=>{
    const person=v.person();
@@ -316,7 +316,7 @@ export const LESSON_CONTENT={
     ['Ordering takeout \u2014 no other info','depends','No food at home leans Need; a craving leans Want. Without context, it depends.'],
     ['Car repairs \u2014 no bus route to her job','need','Without it there is no income \u2014 a Need.'],
     ['A car upgrade \u2014 just for weekend fun','want','Fun is a Want \u2014 a great one, but a Want.'],
-    ['A $60 video game \u2014 no other info','depends','A planned reward? A gift for a friend? Without context you cannot sort it \u2014 it depends.']
+    ['A rideshare across town \u2014 no other info','depends','A required shift with no alternative may make it a Need; a convenience ride when a workable alternative exists may make it a Want. More context is needed.']
    ];
    const it=v.pick(items);
    const label=it[0], ans=it[1], whyLine=it[2];
@@ -506,9 +506,9 @@ Object.assign(LESSON_CONTENT,{
 ]},
 'safe-to-spend':{intro:'Balance is what exists. Safe to spend is what is left after money with a job.',steps:[
  {t:'teach',h:'Two different numbers',
-  body:'<p><b>Balance</b> = everything in the account.<br><b>Safe to spend</b> = balance \u2212 future needs \u2212 protected savings.</p><p>Confusing the two is the #1 way people "mysteriously" run out of money. The balance includes money that already has a job.</p>',diagram:'<svg class="nws-diagram" viewBox="0 0 480 258" role="img" aria-labelledby="dgc-t"> <title id="dgc-t">A 400-dollar balance splits into 200 dollars safe to spend, 120 dollars future needs, and 80 dollars protected savings</title> <text x="10" y="30" font-size="19" font-weight="700" fill="var(--ink)">Balance: $400 &#8212; everything in the account</text> <rect x="10" y="46" width="460" height="58" fill="var(--panel-2)" stroke="var(--line)"/> <rect x="11" y="47" width="230" height="56" fill="var(--good)"/> <rect x="241" y="47" width="138" height="56" fill="var(--brand)"/> <rect x="379" y="47" width="90" height="56" fill="var(--mint)"/> <text x="126" y="82" text-anchor="middle" font-size="20" font-weight="700" fill="var(--panel)">$200</text> <text x="310" y="82" text-anchor="middle" font-size="20" font-weight="700" fill="var(--panel)">$120</text> <text x="424" y="82" text-anchor="middle" font-size="20" font-weight="700" fill="var(--ink)">$80</text> <text x="126" y="132" text-anchor="middle" font-size="18" font-weight="700" fill="var(--ink)">Safe to spend</text> <text x="126" y="156" text-anchor="middle" font-size="18" fill="var(--ink)">no job yet</text> <text x="310" y="132" text-anchor="middle" font-size="18" font-weight="700" fill="var(--ink)">Future needs</text> <text x="310" y="156" text-anchor="middle" font-size="18" fill="var(--ink)">comes out later</text> <text x="424" y="132" text-anchor="middle" font-size="18" font-weight="700" fill="var(--ink)">Savings</text> <text x="424" y="156" text-anchor="middle" font-size="18" fill="var(--ink)">set aside</text> <text x="240" y="206" text-anchor="middle" font-size="18" fill="var(--ink)">Balance $400 = $200 safe + $120 needs + $80 savings</text> <text x="240" y="234" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-deep)">The $400 balance lies &#8212; only $200 is spendable</text> </svg>'},
+  body:'<p><b>Balance</b> = everything in the account.<br><b>Safe to spend for a planning period</b> = money you can use flexibly after future Needs and protected Savings are accounted for.</p><p>Module 1\u2019s <b>uncommitted-now</b> check handles scheduled, pending, and already-promised dollars in the current moment. This lesson goes one step wider: it asks what can stay flexible across the whole planning period after future responsibilities are protected.</p>',diagram:'<svg class="nws-diagram" viewBox="0 0 480 258" role="img" aria-labelledby="dgc-t"> <title id="dgc-t">A 400-dollar balance splits into 200 dollars safe to spend, 120 dollars future needs, and 80 dollars protected savings</title> <text x="10" y="30" font-size="19" font-weight="700" fill="var(--ink)">Balance: $400 &#8212; everything in the account</text> <rect x="10" y="46" width="460" height="58" fill="var(--panel-2)" stroke="var(--line)"/> <rect x="11" y="47" width="230" height="56" fill="var(--good)"/> <rect x="241" y="47" width="138" height="56" fill="var(--brand)"/> <rect x="379" y="47" width="90" height="56" fill="var(--mint)"/> <text x="126" y="82" text-anchor="middle" font-size="20" font-weight="700" fill="var(--panel)">$200</text> <text x="310" y="82" text-anchor="middle" font-size="20" font-weight="700" fill="var(--panel)">$120</text> <text x="424" y="82" text-anchor="middle" font-size="20" font-weight="700" fill="var(--ink)">$80</text> <text x="126" y="132" text-anchor="middle" font-size="18" font-weight="700" fill="var(--ink)">Safe to spend</text> <text x="126" y="156" text-anchor="middle" font-size="18" fill="var(--ink)">no job yet</text> <text x="310" y="132" text-anchor="middle" font-size="18" font-weight="700" fill="var(--ink)">Future needs</text> <text x="310" y="156" text-anchor="middle" font-size="18" fill="var(--ink)">comes out later</text> <text x="424" y="132" text-anchor="middle" font-size="18" font-weight="700" fill="var(--ink)">Savings</text> <text x="424" y="156" text-anchor="middle" font-size="18" fill="var(--ink)">set aside</text> <text x="240" y="206" text-anchor="middle" font-size="18" fill="var(--ink)">Balance $400 = $200 safe + $120 needs + $80 savings</text> <text x="240" y="234" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-deep)">The $400 balance is not the spending number &#8212; $200 is safe to spend</text> </svg>'},
  {t:'example',h:'Maya\u2019s two numbers',story:'<p>Maya\u2019s balance: <b>$400</b>.</p>',
-  points:['Future transport this month: \u2212$120','Protected savings: \u2212$80','Safe to spend: <b>$200</b>','Over 4 weeks: $50/week safe. The $400 balance would have lied to her.']},
+  points:['Future transport this month: \u2212$120','Protected savings: \u2212$80','Safe to spend: <b>$200</b>','Over 4 weeks: $50/week safe. The headline balance did not show the future jobs already assigned to the money.']},
  {t:'try',skill:'safe-to-spend',tier:'guided',
  gen:(v)=>{
   const person=v.person();
@@ -729,7 +729,7 @@ Object.assign(LESSON_CONTENT,{
  {t:'teach',h:'Growth that earns its own growth',
   body:'<p>$100 saved at 5% becomes <b>$105</b> after a year. Leave it a second year: 5% of the <i>new</i> $105 is $5.25, so <b>$110.25</b>.</p><p>Year 2 did not grow the original $100. It grew $105 \u2014 last year\u2019s growth included. The growth earns growth.</p>',diagram:'<svg class="nws-diagram" viewBox="0 0 480 318" role="img" aria-labelledby="dge-t"> <title id="dge-t">Two growth lines over five years on 100 dollars: adding 5 dollars a year stays straight and ends at 125 dollars; 5 percent compounding curves up and ends at 127 dollars 63 cents</title> <line x1="58" y1="18" x2="96" y2="18" stroke="var(--brand)" stroke-width="4"/> <text x="104" y="24" font-size="18" fill="var(--ink)">compounding: 5% of the new total</text> <line x1="58" y1="46" x2="96" y2="46" stroke="var(--muted)" stroke-width="3" stroke-dasharray="9 7"/> <text x="104" y="52" font-size="18" fill="var(--ink)">just adding $5 a year</text> <line x1="58" y1="262" x2="418" y2="262" stroke="var(--line)"/><line x1="58" y1="195.3" x2="418" y2="195.3" stroke="var(--line)"/><line x1="58" y1="128.7" x2="418" y2="128.7" stroke="var(--line)"/><line x1="58" y1="62" x2="418" y2="62" stroke="var(--line)"/><text x="50" y="268" text-anchor="end" font-size="18" fill="var(--muted)">$100</text><text x="50" y="201.3" text-anchor="end" font-size="18" fill="var(--muted)">$110</text><text x="50" y="134.7" text-anchor="end" font-size="18" fill="var(--muted)">$120</text><text x="50" y="68" text-anchor="end" font-size="18" fill="var(--muted)">$130</text><path d="M58,262 L130,228.7 L202,195.3 L274,162 L346,128.7 L418,95.3" fill="none" stroke="var(--muted)" stroke-width="3" stroke-dasharray="9 7"/><path d="M58,262 L130,228.7 L202,193.7 L274,156.9 L346,118.3 L418,77.9" fill="none" stroke="var(--brand)" stroke-width="4"/><circle cx="418" cy="95.3" r="5" fill="var(--muted)"/> <circle cx="418" cy="77.9" r="5" fill="var(--brand)"/> <text x="58" y="288" text-anchor="middle" font-size="18" fill="var(--muted)">0</text><text x="130" y="288" text-anchor="middle" font-size="18" fill="var(--muted)">1</text><text x="202" y="288" text-anchor="middle" font-size="18" fill="var(--muted)">2</text><text x="274" y="288" text-anchor="middle" font-size="18" fill="var(--muted)">3</text><text x="346" y="288" text-anchor="middle" font-size="18" fill="var(--muted)">4</text><text x="418" y="288" text-anchor="middle" font-size="18" fill="var(--muted)">5</text><text x="238" y="312" text-anchor="middle" font-size="18" fill="var(--ink)">The gap between the lines = growth earning growth</text> </svg>'},
  {t:'teach',h:'Compounding, APY, and the rule of 72',
-  body:'<ul><li><b>Compounding</b> = growth earning growth: every period applies to the new total.</li><li><b>APY</b> includes compounding; <b>APR</b> does not. Same digits, different meaning \u2014 compare APY to APY.</li><li><b>Rule of 72:</b> 72 \u00f7 rate \u2248 years to double. At 8%, money doubles in about 9 years.</li></ul>'},
+  body:'<ul><li><b>Compounding</b> = growth earning growth: every period applies to the new total.</li><li><b>APY</b> is the annual yield measure commonly used for deposit accounts and reflects compounding. <b>APR</b> is an annual borrowing-rate measure and is not the same thing as APY. Compare like with like.</li><li><b>Rule of 72:</b> 72 \u00f7 rate \u2248 years to double. At 8%, money doubles in about 9 years.</li></ul>'},
  {t:'example',h:'Maya saves $200 at 5% APY',story:'<p>Maya parks <b>$200</b> in a 5% APY account for 2 years and does not touch it.</p>',
   points:['Year 1: $200 + 5% = <b>$210.00</b>','Year 2: 5% of the new $210 = $10.50 \u2192 <b>$220.50</b>','Adding without compounding would give $220. The extra $0.50 is growth earning growth.','Fifty cents is small. Over decades, it is the whole game.']},
  {t:'try',skill:'compounding',tier:'guided',
@@ -808,7 +808,7 @@ Object.assign(LESSON_CONTENT,{
 ]},
 'irregular-income':{intro:'Do not budget money that has not arrived yet.',steps:[
  {t:'teach',h:'Irregular income needs a stricter rule',
-  body:'<p>When shifts vary, the paycheck is a <i>guess</i> until it lands. The rule:</p><ol><li><b>Protect required costs first</b> - what MUST be paid before the next known income.</li><li><b>Hold a buffer</b> - a cushion for the gap.</li><li><b>Only then</b> treat the rest as flexible.</li></ol><p>Never spend "expected" shifts. Budget the cash in hand.</p>'},
+  body:'<p>When shifts vary, the paycheck can change. The rule:</p><ol><li><b>Protect required costs first</b> - what MUST be paid before the next reliable income.</li><li><b>Hold a buffer</b> - a cushion for the gap.</li><li><b>Only then</b> treat the rest as flexible.</li></ol><p>Do not treat unconfirmed shifts or tips as guaranteed. For forward planning, a confirmed paycheck with a reliable date can be included in the period when it will arrive; today\u2019s spending still depends on money actually available now.</p>'},
  {t:'example',h:'Maya\u2019s slow weeks',story:'<p>Two slow weeks ahead. Maya has $300 cash, $170 in required costs, and no guaranteed shifts.</p>',
   points:['Cash in hand: $300','Required costs: \u2212$170','Buffer for the gap: \u2212$50','Flexible: <b>$80</b>. Small - and honest.']},
 {t:'try',skill:'irregular-income',tier:'guided',
@@ -861,7 +861,7 @@ Object.assign(LESSON_CONTENT,{
     hint:'Which month has to cover the bill when work dries up?',
     good: affords?`Right: ${LO} \u2212 ${REQ} leaves room for ${SUB}. The low month carries it.`:`Right: in a ${LO} month, ${REQ} of required costs leaves no room for ${SUB}.`,
     bad: affords?`Test the subscription against the worst normal month: ${LO} \u2212 ${REQ} required still covers ${SUB}. It survives the dry spell.`:`Test against the worst normal month, not the average: ${LO} \u2212 ${REQ} required = ${LEFT} left, short of ${SUB}.`,
-    why: affords?`Recurring costs must survive the worst normal month, not the best one \u2014 and ${SUB}/month is really ${ANN}/year. Here the ${LO} month carries it, so it is a clean yes.`:`Averages lie when income swings: the ${LO} month is the one that must pay the bill. And ${SUB}/month is ${ANN}/year \u2014 small monthly numbers hide big yearly ones.`};
+    why: affords?`Recurring costs must survive the worst normal month, not the best one \u2014 and ${SUB}/month is really ${ANN}/year. Here the ${LO} month carries it, so it is a clean yes.`:`Averages can hide the low-income month when income swings: the ${LO} month is the one that must pay the bill. And ${SUB}/month is ${ANN}/year \u2014 small monthly numbers hide big yearly ones.`};
   }},
  {t:'try',skill:'irregular-income',tier:'independent',
   gen:(v)=>{
@@ -925,7 +925,7 @@ Object.assign(LESSON_CONTENT,{
   }},
  {t:'tool',screen:'pacing-value',focus:'irregular',h:'Try the irregular-income calculator',body:'<p>Plug in cash on hand, required costs, and a buffer - see what is honestly flexible.</p>',cta:'Open the calculator'}
 ]},
-'semester-plan':{intro:'Lump sums lie. Break them into periods.',steps:[
+'semester-plan':{intro:'A lump sum hides the time horizon. Break it into periods.',steps:[
  {t:'teach',h:'Big money, long time',
   body:'<p>A semester refund, a tax refund, a bonus - lump sums <i>feel</i> huge on day one. The fix is the same pace math, stretched out:</p><p><b>(Lump sum \u2212 needs \u2212 savings) \u00f7 number of periods = pace per period.</b></p><p>A $3,200 semester refund is not $3,200 of spending money. It is 16 weeks of paced money.</p>'},
  {t:'example',h:'Maya\u2019s semester refund',story:'<p>$3,200 refund lands in August. Semester is 16 weeks.</p>',
@@ -1040,8 +1040,8 @@ Object.assign(LESSON_CONTENT,{
 /* ================= MODULE 3: Spend Smart ================= */
 Object.assign(LESSON_CONTENT,{
 'sales-decisions':{intro:'A discount is not savings if it causes a purchase you would not make.',steps:[
- {t:'teach',h:'The "was I going to buy it anyway" test',
-  body:'<p>Sales are designed to make spending feel like saving. Cut through it with one question:</p><p><b>"Was I already going to buy this?"</b></p><ul><li><b>Yes</b> \u2192 the discount is real savings. Take it.</li><li><b>No</b> \u2192 you did not save anything. You spent money you were not going to spend.</li></ul><p>"50% off" on something you did not want is not a deal. It is 50% off <i>still spending</i>.</p>'},
+ {t:'teach',h:'Use three gates before a sale wins',
+  body:'<p>Sales are designed to make spending feel like saving. Run three gates:</p><ol><li><b>Was I already going to buy this?</b></li><li><b>Does it still fit the plan right now?</b></li><li><b>Is this actually the best usable value?</b></li></ol><p>If any answer is no, the sale does not automatically make the purchase smart. A discount changes the price \u2014 not the priority.</p>'},
  {t:'example',h:'Maya faces two sales',story:'<p>Sale 1: Maya needs shampoo ($8). It is buy-one-get-one 50% off. She buys two for $12 - she will use both.</p><p>Sale 2: $40 shoes, 50% off ($20). She did not need shoes.</p>',
   points:['Sale 1: needed it anyway \u2192 real savings of $4.','Sale 2: did not need them \u2192 she "saved" $20 by spending $20.','Same 50% off. Opposite results. The test tells them apart.']},
  {t:'try',skill:'budget-tradeoff',tier:'guided',
@@ -1157,7 +1157,7 @@ Object.assign(LESSON_CONTENT,{
     {label:`Buy two at ${storeB} before the sale ends \u2014 double the discount`,ok:false,mis:'discount-doubles'}],
    hint:'Compare the full totals, not the sticker prices.',
    good: switchWins?`Right: ${v.money(totalB)} all-in beats ${v.money(priceA)}. Planned purchase + real discount = savings of ${v.money(diff)}.`:`Right: shipping turned the "deal" into ${v.money(totalB)} \u2014 over budget.`,
-   bad: switchWins?`Add the shipping: ${v.money(priceB)} + ${v.money(ship)} = ${v.money(totalB)}, which is ${v.money(diff)} under the ${v.money(priceA)} plan. The test passes AND the math works.`:`Add the shipping: ${v.money(priceB)} + ${v.money(ship)} = ${v.money(totalB)} vs the ${v.money(priceA)} plan. The sticker lied; the total tells the truth.`,
+   bad: switchWins?`Add the shipping: ${v.money(priceB)} + ${v.money(ship)} = ${v.money(totalB)}, which is ${v.money(diff)} under the ${v.money(priceA)} plan. The test passes AND the math works.`:`Add the shipping: ${v.money(priceB)} + ${v.money(ship)} = ${v.money(totalB)} vs the ${v.money(priceA)} plan. The sticker price omitted a real cost; the all-in total is the comparison that matters.`,
    why: switchWins?`Two checks, both pass: (1) ${person} was buying ${item} anyway, (2) the all-in total ${v.money(totalB)} is under budget. Urgency did not decide \u2014 math did.`:`The flash price ignored the shipping. All-in, ${storeB} costs ${v.money(totalB)} vs ${v.money(priceA)} planned \u2014 "today only" was selling the feeling, not a saving.`};
  }},
 ]},
@@ -1267,7 +1267,7 @@ Object.assign(LESSON_CONTENT,{
 ]},
 'usable-value':{intro:'Compare what you will USE, not what is in the package.',steps:[
  {t:'teach',h:'Unit price is only half the story',
-  body:'<p><b>Unit price = price \u00f7 quantity.</b> But the quantity that matters is what you will <i>actually use</i>:</p><p><b>True unit price = price \u00f7 units you will use.</b></p><p>A giant pack is only cheaper if the extra does not go in the trash. Waste is the most expensive ingredient.</p>'},
+  body:'<p><b>Unit price = price \u00f7 quantity.</b> But the quantity that matters is what you will <i>actually use</i>:</p><p><b>Effective cost per used unit = price \u00f7 units you will actually use.</b></p><p>A giant pack is only cheaper if the extra does not go in the trash. Waste is the most expensive ingredient.</p>'},
  {t:'example',h:'Maya buys pasta twice',story:'<p>Same two pastas on the shelf: 12-pack for <b>$9.00</b> ($0.75 each) vs 6-pack for <b>$5.40</b> ($0.90 each). The tag says the 12-pack is cheaper. Maya checks anyway.</p>',
   points:['<b>Trip 1:</b> she will use all 12 before they expire. $9.00 \u00f7 12 = <b>$0.75</b> per pack vs $5.40 \u00f7 6 = <b>$0.90</b>. The 12-pack wins \u2014 nothing is wasted.','<b>Trip 2:</b> she will use only 6 of the 12 before the rest expire. $9.00 \u00f7 6 used = <b>$1.50</b> per pack vs $0.90. The 6-pack wins. Same shelf tags \u2014 opposite winner.','The flip is the lesson: waste rewrites the price. Always divide by what you will <i>use</i>, never by what you buy.'],
   diagram:'<svg class=\"nws-diagram\" viewBox=\"0 0 480 300\" role=\"img\" aria-labelledby=\"dgw-t\"> <title id=\"dgw-t\">Same shelf tags, opposite winner: using all 12 makes the 12-pack win at 75 cents a pack; using only 6 of the 12 makes the 6-pack win</title> <rect x=\"8\" y=\"8\" width=\"228\" height=\"232\" rx=\"12\" fill=\"var(--brand-soft)\" stroke=\"var(--line)\"/> <text x=\"122\" y=\"40\" text-anchor=\"middle\" font-size=\"19\" font-weight=\"700\" fill=\"var(--ink)\">uses all 12</text> <text x=\"122\" y=\"80\" text-anchor=\"middle\" font-size=\"18\" fill=\"var(--ink)\">12-pack: $9.00 &#247; 12 =</text> <text x=\"122\" y=\"106\" text-anchor=\"middle\" font-size=\"21\" font-weight=\"700\" fill=\"var(--brand-deep)\">$0.75 each</text> <text x=\"122\" y=\"142\" text-anchor=\"middle\" font-size=\"18\" fill=\"var(--muted)\">6-pack: $5.40 &#247; 6 = $0.90 each</text> <rect x=\"52\" y=\"164\" width=\"140\" height=\"40\" rx=\"20\" fill=\"var(--good)\"/> <text x=\"122\" y=\"191\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"var(--panel)\">12-pack wins</text> <rect x=\"244\" y=\"8\" width=\"228\" height=\"232\" rx=\"12\" fill=\"var(--accent-soft)\" stroke=\"var(--line)\"/> <text x=\"358\" y=\"40\" text-anchor=\"middle\" font-size=\"19\" font-weight=\"700\" fill=\"var(--ink)\">uses 6 of 12</text> <text x=\"358\" y=\"80\" text-anchor=\"middle\" font-size=\"18\" fill=\"var(--ink)\">12-pack: $9.00 &#247; 6 =</text> <text x=\"358\" y=\"106\" text-anchor=\"middle\" font-size=\"21\" font-weight=\"700\" fill=\"var(--accent-deep)\">$1.50 each</text> <text x=\"358\" y=\"142\" text-anchor=\"middle\" font-size=\"18\" fill=\"var(--muted)\">6-pack: $5.40 &#247; 6 = $0.90 each</text> <rect x=\"288\" y=\"164\" width=\"140\" height=\"40\" rx=\"20\" fill=\"var(--good)\"/> <text x=\"358\" y=\"191\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"var(--panel)\">6-pack wins</text> <text x=\"240\" y=\"272\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"var(--ink)\">Waste flips the answer &#8212; divide by what you will USE</text> </svg>'},
@@ -1287,7 +1287,7 @@ Object.assign(LESSON_CONTENT,{
      {label:`The ${smallQ}-pack \u2014 smaller is safer`,ok:false,mis:'smaller-is-safer'},
      {label:`They tie \u2014 both are ${name}`,ok:false,mis:'same-category-same-value'}],
     cue:`Divide each price by the number ${person} will USE, then compare the two.`,
-    hint:'True unit price = price \u00f7 units you will use.',
+    hint:'Effective cost per used unit = price \u00f7 units you will use.',
     good:`Right: ${ub} < ${us} per ${unit} used.`,
     bad:`${bigP} \u00f7 ${bigQ} = ${ub} each vs ${smallP} \u00f7 ${smallQ} = ${us} each. The big pack is cheaper per use.`,
     why:`When everything gets used, the lower unit price wins: ${ub} vs ${us} per ${unit}.`};
@@ -1332,7 +1332,7 @@ Object.assign(LESSON_CONTENT,{
      {label:`They tie \u2014 both give ${person} the ${smallQ} ${unit}s needed`,ok:false,mis:'exact-quantity-tie'}],
     hint:`Recompute with ${smallQ} used, not ${bigQ} bought.`,
     good:`Right: ${bigP} \u00f7 ${smallQ} used = ${trueBig} each vs ${us}. The small pack wins.`,
-    bad:`True unit price uses what you USE: ${bigP} \u00f7 ${smallQ} = ${trueBig} each. The small pack at ${us} wins.`,
+    bad:`Effective cost per used unit uses what you USE: ${bigP} \u00f7 ${smallQ} = ${trueBig} each. The small pack at ${us} wins.`,
     why:`Waste flips the answer. ${trueBig} per ${unit} used is far above the small pack\u2019s ${us}. Always divide by what you will use.`};
   }},
  {t:'try',skill:'unit-price-usable',tier:'independent',
@@ -1353,7 +1353,7 @@ Object.assign(LESSON_CONTENT,{
     hint:`Divide price by ${unit}s you will use.`,
     good:`Right: ${bigP} \u00f7 ${bigQ} = ${ub} vs ${smallP} \u00f7 ${smallQ} = ${us}.`,
     bad:`${ub}/${unit} is less than ${us}/${unit}. When all of it gets used, unit price decides.`,
-    why:`\u201cLower total\u201d and \u201cbigger is better\u201d are both shortcuts that skip the division. True unit price \u2014 price \u00f7 ${unit}s you will use \u2014 is the whole answer.`};
+    why:`\u201cLower total\u201d and \u201cbigger is better\u201d are both shortcuts that skip the division. Effective cost per used unit \u2014 price \u00f7 ${unit}s you will use \u2014 is the whole answer.`};
   }},
  {t:'try',skill:'unit-price-usable',tier:'stretch',
   gen:(v)=>{
@@ -1375,14 +1375,14 @@ Object.assign(LESSON_CONTENT,{
      {label:`Neither \u2014 ${name} are a Want, so value does not matter`,ok:false,mis:'want-value-irrelevant'}],
     hint:`Divide by ${unit}s eaten, not ${unit}s bought. Count only what is promised.`,
     good:`Right: ${bigP} \u00f7 ${eatQ} = ${trueBig} per ${unit} actually eaten.`,
-    bad:`True unit price uses what gets used: ${bigP} \u00f7 ${eatQ} = ${trueBig} each. The small pack at ${us} wins.`,
+    bad:`Effective cost per used unit uses what gets used: ${bigP} \u00f7 ${eatQ} = ${trueBig} each. The small pack at ${us} wins.`,
     why:`The sticker\u2019s ${ub} assumes all ${bigQ} get eaten. Waste rewrites the price: ${trueBig} per ${unit} eaten beats nothing \u2014 and \u201cmight take a few\u201d changes the question instead of answering it.`};
   }},
  {t:'tool',screen:'pacing-value',focus:'value',h:'Try the value calculator',body:'<p>Compare packs with unit price - and factor in what you will actually use.</p>',cta:'Open the value calculator'}
 ]},
 'gas-value':{intro:'Count the cost of getting the deal.',steps:[
  {t:'teach',h:'The pump price is not the full price',
-  body:'<p>Driving for cheaper gas has a cost: the trip itself.</p><p><b>Real savings = pump savings \u2212 extra trip cost.</b></p><p>Extra trip cost = (extra miles \u00f7 mpg) \u00d7 gas price. If the station is <i>on your route anyway</i>, the extra cost is $0 - then the cheaper pump always wins.</p>'},
+  body:'<p>Driving for cheaper gas has a cost: the detour itself.</p><p><b>Simplified fuel savings = pump savings \u2212 extra fuel cost.</b></p><p>Extra fuel cost = (extra miles \u00f7 mpg) \u00d7 gas price. This classroom comparison counts fuel only; a real detour can also add time and vehicle wear. If the station is <i>on your route anyway</i>, the extra fuel cost is effectively $0.</p>'},
  {t:'example',h:'Maya does the math',story:'<p>Station A: $3.00/gal, next door. Station B: $2.85/gal, 8 extra miles round trip. 12 gallons, 25 mpg.</p>',
   points:['Pump savings: 12 \u00d7 $0.15 = $1.80','Trip cost: (8 \u00f7 25) \u00d7 $3.00 \u2248 $0.96','Real savings: $1.80 \u2212 $0.96 = <b>$0.84</b>','Worth it? Barely. A smaller gap would flip it.']},
  {t:'try',skill:'trip-cost',tier:'guided',
@@ -1613,7 +1613,7 @@ Object.assign(LESSON_CONTENT,{
  {t:'teach',h:'The balance that would not shrink',
   body:'<p>Maya puts <b>$240</b> on her card and pays <b>$25</b>. Next month she expects to owe $215.</p><p>She owes <b>$219.80</b>. The extra $4.80 is <b>interest</b> \u2014 the price of borrowing \u2014 charged every month on whatever is left.</p><p>Pay $25, owe $219.80. The debt shrinks slower than the payments.</p>'},
  {t:'teach',h:'APR, minimums, and fees',
-  body:'<p>The vocabulary, now that you have felt the bite:</p><ul><li><b>APR</b> = the <b>yearly</b> rate. Monthly rate = APR \u00f7 12. A 24% APR charges about 2% a month.</li><li><b>Minimum payment</b> = the smallest the card allows \u2014 not a plan. The rest keeps charging interest every month.</li><li><b>Fees:</b> late fee (dodge it: pay on time), annual fee (dodge it: pick a no-annual-fee card), cash-advance fee (dodge it: never take cash advances).</li></ul><p class="sub">Learning tool, not financial advice. Every example here uses fictional money. Real cards have terms that change — the cardholder agreement is the source of truth.</p>'},
+  body:'<p>The vocabulary, now that you have felt the bite:</p><ul><li><b>APR</b> = the yearly borrowing rate. APR \u00f7 12 is a useful classroom approximation for a monthly rate, but real cards often calculate interest from a daily periodic rate and average daily balance.</li><li><b>Minimum payment</b> = the smallest required payment, not a payoff strategy. Paying only the minimum can keep interest accumulating.</li><li><b>Fees:</b> late, annual, balance-transfer, and cash-advance fees depend on the card. Read the cardholder agreement before assuming a fee is zero, unavoidable, or worth paying.</li></ul><p class="sub">Learning tool, not financial advice. Every example here uses fictional money. Real cards have terms that change — the cardholder agreement is the source of truth.</p>'},
  {t:'example',h:'Maya pays $25 a month',story:'<p>Maya owes <b>$240</b> at 24% APR \u2014 about 2% a month. She pays <b>$25/month</b>.</p>',
   points:['Month 1: $240 + $4.80 interest \u2212 $25 = <b>$219.80</b>','Every month, the 2% applies to what is LEFT \u2014 not the original $240','It takes about <b>11 payments</b> to clear it','Total extra lost to interest: about <b>$30</b>. Paying in full would have cost $0.']},
  {t:'try',skill:'apr-to-monthly',tier:'guided',
@@ -1790,7 +1790,7 @@ import { BENEFIT_TOPICS } from './benefits.js';
 Object.assign(LESSON_CONTENT,{
 'future-needs':{intro:'Emergencies are predictable in general and surprising in particular. Plan for the category.',steps:[
  {t:'teach',h:'You cannot predict it. You can still plan for it.',
-  body:'<p>Nobody knows <i>when</i> the car will break down, the phone will die, or the medical bill will arrive. But every adult knows they <i>will</i> arrive.</p><p>Emergency money is not pessimism. It is <b>pre-deciding</b>: "when a surprise comes, it comes out of this bucket - not a credit card, not panic."</p><p>A starter emergency fund for a student: <b>$500\u2013$1,000</b>, or about one month of needs. Build it $10\u2013$20 at a time.</p>'},
+  body:'<p>Nobody knows <i>when</i> the car will break down, the phone will die, or the medical bill will arrive. But every adult knows they <i>will</i> arrive.</p><p>Emergency money is not pessimism. It is <b>pre-deciding</b>: "when a surprise comes, it comes out of this bucket - not a credit card, not panic."</p><p>A useful first buffer is one you can actually reach. Some learners start with a few hundred dollars; others target part or all of a month of essential costs. Pick a realistic first target, build it consistently, then increase it as your situation allows.</p>'},
  {t:'example',h:'Maya builds a buffer',story:'<p>Maya moves $10/week into emergency savings. Nothing dramatic.</p>',diagram:'<svg class="nws-diagram" viewBox="0 0 480 282" role="img" aria-labelledby="dgf-t"> <title id="dgf-t">Ten dollars a week grows the emergency buffer to about 260 dollars at six months and about 520 dollars at a year</title> <rect x="35" y="207" width="110" height="8" fill="var(--muted)"/> <rect x="185" y="125" width="110" height="90" fill="var(--brand)"/> <rect x="335" y="35" width="110" height="180" fill="var(--brand)"/> <text x="90" y="195" text-anchor="middle" font-size="20" font-weight="700" fill="var(--ink)">$0</text> <text x="240" y="113" text-anchor="middle" font-size="20" font-weight="700" fill="var(--ink)">~$260</text> <text x="390" y="23" text-anchor="middle" font-size="20" font-weight="700" fill="var(--ink)">~$520</text> <line x1="10" y1="215" x2="470" y2="215" stroke="var(--ink)" stroke-width="2"/> <text x="90" y="243" text-anchor="middle" font-size="18" fill="var(--ink)">Week 0</text> <text x="240" y="243" text-anchor="middle" font-size="18" fill="var(--ink)">6 months</text> <text x="390" y="243" text-anchor="middle" font-size="18" fill="var(--ink)">12 months</text> <text x="240" y="272" text-anchor="middle" font-size="18" fill="var(--ink)">Nothing dramatic &#8212; $10/week becomes ~$520 in a year</text> </svg>',
   points:['After 6 months: ~$260.','After a year: ~$520.','Then her car needs a $300 repair.','It comes from the buffer. No credit card. No crisis. The plan worked.']},
 {t:'try',skill:'emergency-buffer',tier:'guided',
@@ -1984,9 +1984,9 @@ Object.assign(LESSON_CONTENT,{
 ]},
 'decision-routine':{intro:'Put the whole routine together on one real scenario.',steps:[
  {t:'teach',h:'The full NWS decision routine',
-  body:'<p>Everything in this course compresses into one routine. Run it whenever money arrives or a big decision looms:</p><ol><li><b>Available?</b> Balance \u2212 scheduled, pending, and promised money.</li><li><b>How long?</b> How much time must it cover?</li><li><b>Needs first.</b> Protect every required cost.</li><li><b>Savings next.</b> Move future money aside before spending.</li><li><b>Pace it.</b> Safe money \u00f7 time = your speed limit.</li><li><b>Spend smart.</b> Was I going to buy it anyway? What will I actually use?</li><li><b>Overspent?</b> Recalculate from what remains - never from the original plan.</li></ol>'},
+  body:'<p>Everything in this course compresses into one routine. Use it as a flexible checklist — not a moral rulebook — whenever money arrives or a big decision looms:</p><ol><li><b>Uncommitted now?</b> Balance \u2212 scheduled, pending, and promised money.</li><li><b>How long?</b> How much time must it cover?</li><li><b>Needs first.</b> Protect every required cost.</li><li><b>Savings next.</b> Move future money aside before spending.</li><li><b>Pace it.</b> Safe money \u00f7 time = your speed limit.</li><li><b>Spend smart.</b> Was it planned? Does it fit now? Is the usable value real?</li><li><b>Overspent?</b> Recalculate from what remains - never from the original plan.</li></ol>'},
  {t:'example',h:'Maya runs the whole routine',story:'<p>Maya gets $600 for the month.</p>',
-  points:['<b>Available?</b> $600, nothing pending \u2192 $600.','<b>How long?</b> 30 days.','<b>Needs:</b> $350 rent share + food \u2192 protect it.','<b>Savings:</b> $60 to the emergency buffer.','<b>Pace:</b> ($600 \u2212 $350 \u2212 $60) \u00f7 30 = <b>$6.33/day</b>.','<b>Spend smart:</b> the "deal" she sees gets the "was I going to buy it anyway" test.','<b>Overspent mid-month?</b> New pace from what remains.']},
+  points:['<b>Uncommitted now?</b> $600, nothing pending \u2192 $600.','<b>How long?</b> 30 days.','<b>Needs:</b> $350 rent share + food \u2192 protect it.','<b>Savings:</b> $60 to the emergency buffer.','<b>Pace:</b> ($600 \u2212 $350 \u2212 $60) \u00f7 30 = <b>$6.33/day</b>.','<b>Spend smart:</b> the deal must pass all three gates — planned, fits now, usable value.','<b>Overspent mid-month?</b> New pace from what remains.']},
 {t:'try',skill:'decision-routine',tier:'guided',
  gen:(v)=>{
   const person=v.person();
@@ -1998,17 +1998,17 @@ Object.assign(LESSON_CONTENT,{
   const avail=+((balance-committed)).toFixed(2);
   const availNoPP=+((balance-scheduled)).toFixed(2);
   return {
-   q:`${person}\u2019s account shows ${v.money(balance)}. But ${v.money(scheduled)} in rent auto-pays tomorrow, ${v.money(pending)} is pending on a card, and ${v.money(promised)} was promised to a sibling. How much is actually available?`,
+   q:`${person}\u2019s account shows ${v.money(balance)}. But ${v.money(scheduled)} in rent auto-pays tomorrow, ${v.money(pending)} is pending on a card, and ${v.money(promised)} was promised to a sibling. How much remains uncommitted after those known commitments?`,
    choices:[
     {label:`${v.money(avail)} \u2014 balance minus every dollar that already has a job`,ok:true},
     {label:`${v.money(balance)} \u2014 the balance is what is available`,ok:false,mis:'balance-not-available'},
     {label:`${v.money(availNoPP)} \u2014 only the rent counts; pending and promised are not real yet`,ok:false,mis:'available-means-balance'},
     {label:`$0 \u2014 with that many commitments nothing is safe to touch`,ok:false,mis:'nothing-safe'}],
    cue:`List every dollar that already has a job, add them up, subtract from the balance.`,
-   hint:'Available = balance \u2212 scheduled \u2212 pending \u2212 promised.',
-   good:`Right: ${v.money(balance)} \u2212 ${v.money(committed)} committed = ${v.money(avail)} available.`,
+   hint:'Uncommitted now = balance \u2212 scheduled \u2212 pending \u2212 promised.',
+   good:`Right: ${v.money(balance)} \u2212 ${v.money(committed)} committed = ${v.money(avail)} uncommitted.`,
    bad:`Add the commitments: ${v.money(scheduled)} + ${v.money(pending)} + ${v.money(promised)} = ${v.money(committed)}. ${v.money(balance)} \u2212 ${v.money(committed)} = ${v.money(avail)}.`,
-   why:`Step 1 of the routine: the balance lies by omission. Available money is what is left after every scheduled, pending, and promised dollar is honored.`};
+   why:`Step 1 of the routine: identify the money not already claimed by scheduled, pending, and promised obligations. That is the uncommitted planning number for the current moment.`};
  }},
 {t:'try',skill:'decision-routine',tier:'independent',
  gen:(v)=>{
@@ -2022,13 +2022,13 @@ Object.assign(LESSON_CONTENT,{
   const paceNoSave=v.money(Math.round((avail-needs)/days*100)/100);
   const paceNoNeeds=v.money(Math.round((avail-savings)/days*100)/100);
   return {
-   q:`${person} has ${v.money(avail)} available for ${days} days. Needs take ${v.money(needs)}; ${v.money(savings)} moves to the emergency buffer first. What is the daily pace for everything else?`,
+   q:`${person} has ${v.money(avail)} uncommitted for the ${days}-day planning period. Needs take ${v.money(needs)}; ${v.money(savings)} moves to the emergency buffer first. What is the daily pace for everything else?`,
    choices:[
     {label:`${pace}/day \u2014 ${v.money(safe)} safe \u00f7 ${days} days`,ok:true},
     {label:`${paceNoSave}/day \u2014 savings can come from whatever is left`,ok:false,mis:'savings-from-leftovers'},
     {label:`${paceNoNeeds}/day \u2014 needs are flexible if the pace is tight`,ok:false,mis:'needs-are-flexible'},
     {label:`${v.money(safe)}/day \u2014 the whole safe amount, every day`,ok:false,mis:'daily-equals-total'}],
-   hint:'Pace = (available \u2212 needs \u2212 savings) \u00f7 days.',
+   hint:'Pace = (uncommitted period money \u2212 needs \u2212 savings) \u00f7 days.',
    good:`Right: ${v.money(safe)} safe money \u00f7 ${days} days = ${pace}/day. That is the speed limit.`,
    bad:`Protect first, then divide: ${v.money(avail)} \u2212 ${v.money(needs)} \u2212 ${v.money(savings)} = ${v.money(safe)}; ${v.money(safe)} \u00f7 ${days} = ${pace}/day.`,
    why:`The pace is only honest if needs and savings are protected BEFORE the division. Skip a subtraction and the \u201cspeed limit\u201d is a fantasy that collapses mid-month.`};
@@ -2036,37 +2036,30 @@ Object.assign(LESSON_CONTENT,{
 {t:'try',skill:'decision-routine',tier:'independent',
  gen:(v)=>{
   const person=v.person();
-  const pair=v.pick([['Headphones','are'],['A jacket','is'],['Sneakers','are'],['A desk lamp','is']]);
-  const item=pair[0], verb=pair[1];
-  const was=v.pick([true,false]);
-  const planned=was?'already planned to buy':'was not planning to buy';
-  const price=v.cents(35,90);
-  const wasPrice=v.money(+((price+v.cents(10,30))).toFixed(2));
-  const goodMsg=was
-   ? `Right: planned + on sale = the deal working for the plan.`
-   : `Right: unplanned + on sale = the deal working against the plan.`;
-  const badMsg=was
-   ? `It was on the list before the sale existed. Buying planned items on sale is the routine working.`
-   : `The test is not the price \u2014 it is whether the item was already going to be bought. It was not.`;
-  const whyMsg=was
-   ? `Spend smart asks two questions: \u201cwas I going to buy it anyway?\u201d (yes) and \u201cwhat will I actually use?\u201d The sale only matters because the first answer was already yes.`
-   : `A discount on something you were not buying is spending, not saving. The routine\u2019s spend-smart step exists to catch exactly this.`;
+  const item=v.pick(['headphones','a jacket','sneakers','a desk lamp']);
+  const planned=v.pick([true,false]);
+  const fits=v.pick([true,false]);
+  const price=v.money(v.cents(35,90));
+  const before=v.money(v.cents(70,130));
+  const right=planned&&fits;
   return {
-   q:`${item} ${person} ${planned} ${verb} on sale: ${v.money(price)}, down from ${wasPrice}. The pace is tight this month. What does the routine say?`,
-   choices: was?[
-    {label:`Buy \u2014 it was already on the list; the sale is a real saving`,ok:true},
-    {label:`Skip \u2014 any spending at all breaks the pace`,ok:false,mis:'skip-spending-breaks-pace'},
-    {label:`Buy two \u2014 the discount doubles`,ok:false,mis:'discount-doubles'},
-    {label:`Wait for an even bigger sale`,ok:false,mis:'sale-timing'}]
-   :[
-    {label:`Skip \u2014 a discount on something unplanned is spending, not saving`,ok:true,mis:'sale-not-needed'},
-    {label:`Buy \u2014 ${v.money(price)} is objectively a good price`,ok:false,mis:'sale-not-needed'},
-    {label:`Buy \u2014 the pace can absorb one deal`,ok:false,mis:'pace-absorbs'},
-    {label:`Buy now, return later if the pace breaks`,ok:false,mis:'return-as-plan'}],
-   hint:'The spend-smart test: was I going to buy it anyway?',
-   good:goodMsg,
-   bad:badMsg,
-   why:whyMsg};
+   q:`${person} sees ${item} marked down from ${before} to ${price}. ${planned?'It was already on the purchase list.':'It was not on the purchase list before the sale.'} After Needs and Savings are protected, ${fits?'the sale price fits inside the flexible amount for this period.':'the sale price does not fit inside the flexible amount for this period.'} What does the routine say?`,
+   choices:right?[
+    {label:'Buy it — it was planned, it still fits, and the lower price improves the value.',ok:true},
+    {label:'Skip it — any sale is automatically manipulation, even when a planned purchase fits.',ok:false,mis:'absolute-rules'},
+    {label:'Buy two — the discount makes a second one count as savings.',ok:false,mis:'discount-doubles'},
+    {label:'Wait until the price rises again so the decision feels less impulsive.',ok:false,mis:'sale-timing'}
+   ]:[
+    {label:planned?'Wait — it was planned, but it does not fit the current period without breaking the plan.':'Skip it — a discount did not turn an unplanned purchase into a priority.',ok:true},
+    {label:`Buy it — ${price} is a good price, so the discount is enough reason by itself.`,ok:false,mis:'sale-not-needed'},
+    {label:fits?'Buy it — if flexible money can cover something, planning ahead no longer matters.':'Put it on credit so the current flexible amount stays untouched.',ok:false,mis:fits?'sale-not-needed':'credit-as-income'},
+    {label:'Buy it now and decide what to cut later.',ok:false,mis:'plan-later'}
+   ],
+   hint:'Run all three gates: planned? fits now? usable value?',
+   good:right?'Right: all three gates pass — planned, affordable inside the current plan, and lower-priced.':(planned?'Right: being planned is not enough when the purchase no longer fits the current period.':'Right: a sale changes price, not priority.'),
+   bad:'A sale is never the only test. Check whether it was planned, whether it fits now, and whether the value is real.',
+   why:right?'The discount helps because the purchase was already intended and still fits after protected money stays protected.':(planned?'The plan changed the answer: a planned Want can still wait when current flexible money cannot support it.':'Unplanned spending does not become savings because the sticker price fell.')
+  };
  }},
 {t:'try',skill:'decision-routine',tier:'stretch',
  gen:(v)=>{
@@ -2090,10 +2083,11 @@ Object.assign(LESSON_CONTENT,{
     {label:`${paceNoSched}/day \u2014 scheduled and pending come out of next month\u2019s money`,ok:false,mis:'balance-not-available'},
     {label:`${paceNoSave}/day \u2014 savings can wait until month-end`,ok:false,mis:'savings-from-leftovers'},
     {label:`${paceWeekly}/day \u2014 pace is a weekly number`,ok:false,mis:'period-math'}],
-   hint:'Available, then needs, then savings, then \u00f7 days. Every step in order.',
+   hint:'Uncommitted now, then future needs, then savings, then \u00f7 days. Every step in order.',
    good:`Right: ${v.money(avail)} available \u2212 ${v.money(needs)} needs \u2212 ${v.money(savings)} savings = ${v.money(safe)} \u00f7 ${days} = ${pace}/day.`,
    bad:`Step by step: available = ${v.money(balance)} \u2212 ${v.money(scheduled)} \u2212 ${v.money(pending)} = ${v.money(avail)}; safe = ${v.money(avail)} \u2212 ${v.money(needs)} \u2212 ${v.money(savings)} = ${v.money(safe)}; pace = ${v.money(safe)} \u00f7 ${days} = ${pace}/day.`,
-   why:`The order IS the routine \u2014 skip a subtraction and the pace is a fantasy. ${pace}/day is the true speed limit.`};
+   why:`The order matters because each step protects a different claim on the same money. ${pace}/day is the planning pace created by these assumptions; when the facts change, recalculate.`};
  }},
+ {t:'tool',screen:'life-sim',h:'Capstone: run the whole system without answer choices',body:'<p>Now leave the lesson and use the Independent Life Simulation. Protect obligations, respond to surprises, and keep the plan alive across multiple decisions. This is the performance task: there is no single highlighted answer waiting for you.</p>',cta:'Start the capstone simulation'}
 ]}
 });

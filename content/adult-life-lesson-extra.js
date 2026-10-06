@@ -12,8 +12,8 @@ export const ADULT_LESSON_EXTRA = {
     "Bank shows: $120. Pending: the $30 grocery authorization.",
     "Available balance = $120 − $30 = $90.",
     "The $100 shoes cost more than the $90 that is actually free.",
-    "If she buys them anyway, the bank may cover the shortfall as an overdraft — plus a fee, often $25–$35.",
-    "Takeaway: spend against available balance, not the headline balance — pending charges are already spoken for."
+    "If she buys them anyway, the bank may cover the shortfall as an overdraft — and her account terms may add a fee.",
+    "Takeaway: check the bank's available balance and your own known upcoming obligations before deciding what is safe to spend."
    ]
   },
   trys: [
@@ -49,16 +49,16 @@ export const ADULT_LESSON_EXTRA = {
     q: "Jordan has $35 in checking. His $30 subscription auto-posts in the morning, then he buys a $12 sandwich with his debit card at lunch. His bank covers overdrafts at $25 per transaction. What happens?",
     choices: [
      {
-      label: "The subscription posts (leaving $5), the sandwich posts too, and he owes $50 in overdraft fees on top of repaying the $7 shortfall.",
+      label: "The subscription leaves $5. The $12 sandwich takes the account to −$7; if the bank pays it, one $25 overdraft fee applies under this scenario, so he must repay $32 to get back to $0.",
       ok: true
      },
      {
-      label: "The bank pays the subscription but declines the sandwich, so there is no fee.",
+      label: "Both transactions trigger separate $25 overdraft fees, even though the subscription itself did not overdraw the account.",
       ok: false,
       mis: "declined-means-free"
      },
      {
-      label: "Only one $25 fee applies, because it was all the same day.",
+      label: "No fee applies because the account was positive before lunch.",
       ok: false,
       mis: "one-fee-per-day"
      },
@@ -69,9 +69,9 @@ export const ADULT_LESSON_EXTRA = {
      }
     ],
     hint: "Count each transaction that lands when the money is short.",
-    good: "Right — every transaction that posts short can trigger its own fee. Overdraft is the bank lending you the gap, and the fees stack.",
-    bad: "Check whether each short transaction stands alone — fees can stack per transaction, not per day.",
-    why: "Overdraft means the bank pays anyway and may charge a fee per short transaction, which you must repay."
+    good: "Right — the $30 subscription does not overdraw the account. The $12 sandwich is the transaction that creates the $7 shortfall, so this hypothetical produces one $25 fee, not two.",
+    bad: "Follow the balance in order: $35 − $30 = $5. Only the next $12 transaction takes the account below zero.",
+    why: "An overdraft fee is tied to the account terms and the transaction that overdraws the account. In this scenario, the subscription leaves a positive balance; the sandwich creates the overdraft."
    }
   ]
  },
@@ -149,11 +149,11 @@ export const ADULT_LESSON_EXTRA = {
  credit: {
   example: {
    h: "Maya's first credit card bill",
-   story: "<p>Maya gets a credit card with a $500 limit. In March she charges $120 and pays the full $120 by the due date: no finance charges, and her on-time payment is reported.</p><p>In April she charges $120 again but pays only the $35 minimum, carrying $85 at a 24% APR — that month she owes about $1.70 in interest, and the balance stays with her.</p>",
+   story: "<p>Maya gets a credit card with a $500 limit. In March she charges $120 and pays the full $120 by the due date: no finance charges, and her on-time payment is reported.</p><p>In April she charges $120 again but pays only $35, carrying $85. Using a simplified classroom estimate of 24% APR ÷ 12, one month of interest on $85 is about $1.70. Real card interest commonly uses a daily periodic rate and the account's actual balance history.</p>",
    points: [
     "$120 charged, paid in full by the due date = $0 in finance charges.",
     "Paying only the $35 minimum leaves $85 borrowed at about 24% APR.",
-    "Interest for the month ≈ $85 × 24% ÷ 12 ≈ $1.70.",
+    "Simplified estimate: $85 × 24% ÷ 12 ≈ $1.70 for one month; the real statement can differ because card issuers use the agreement's interest method.",
     "Both months report an on-time payment — only April added interest.",
     "Takeaway: carrying a balance builds interest, not credit. Paying in full avoids finance charges and still builds your history."
    ]
@@ -177,25 +177,25 @@ export const ADULT_LESSON_EXTRA = {
       mis: "balance-size-myth"
      },
      {
-      label: "He should spend $600 instead so there is a real balance worth reporting.",
+      label: "Yes — paying some interest proves he can handle debt, so leaving part of the $60 unpaid should help more than paying in full.",
       ok: false,
       mis: "credit-as-income"
      }
     ],
     hint: "What does a lender actually want to see: money paid on time, or interest paid?",
-    good: "Right — on-time payments and low balances move the score. Carrying a balance is not required and only adds finance charges.",
+    good: "Right — carrying interest-bearing debt is not required to build credit. On-time payment history and lower revolving balances can help without deliberately paying interest.",
     bad: "Ask what the score rewards: does it track the interest he pays, or the fact that he pays on time?",
-    why: "On-time payments build credit — paying in full avoids finance charges without slowing score growth."
+    why: "Paying on time can build positive history without intentionally carrying an interest-bearing balance. Exact score effects vary by scoring model and the information reported."
    },
    {
     q: "Priya's card has a $600 limit. Her statement closes with a $240 balance. She wonders how that looks to credit models. What is her utilization, and what should she know about it?",
     choices: [
      {
-      label: "$240 ÷ $600 = 40%. That is above the 30% guidance, so paying it down before the next statement would lower reported utilization.",
+      label: "$240 ÷ $600 = 40%. Lower reported balances generally mean lower utilization; there is no universal 30% pass/fail cutoff shared by every scoring model.",
       ok: true
      },
      {
-      label: "$240 ÷ $600 = 40%, which is safely under the 30% rule.",
+      label: "$240 ÷ $600 = 40%, and 40% is automatically bad in every credit-scoring model.",
       ok: false,
       mis: "thirty-percent-magic"
      },
@@ -210,10 +210,10 @@ export const ADULT_LESSON_EXTRA = {
       mis: "purchases-dont-count"
      }
     ],
-    hint: "Divide the balance by the limit — then compare the result to 30%.",
-    good: "Right — 40% is above the rough 30% guidance. Paying down before the statement date lowers what gets reported.",
-    bad: "Run the division: balance over limit. Is the result above or below 30%?",
-    why: "Utilization is balance divided by limit; about 30% is guidance, not a magic line — lower reported balances generally look better."
+    hint: "Divide the balance by the limit — then treat utilization as a continuum, not a magic 30% line.",
+    good: "Right — utilization is 40%. Lower reported revolving balances generally reduce utilization, but scoring models do not share one universal 30% cutoff.",
+    bad: "Run the division: $240 ÷ $600 = 40%. Then avoid turning 30% into a universal rule — lower utilization is generally better, but exact scoring effects vary.",
+    why: "Utilization is balance divided by limit. Lower revolving utilization generally helps, while the exact scoring impact and reporting timing vary by model and issuer."
    }
   ]
  },
@@ -243,7 +243,7 @@ export const ADULT_LESSON_EXTRA = {
       mis: "red-flag-means-fees"
      },
      {
-      label: "They are so unfamiliar that any request to use them must be illegal.",
+      label: "They are warning signs only when the caller also sounds suspicious; the payment method itself does not change recovery risk.",
       ok: false,
       mis: "unfamiliar-means-suspicious"
      },
@@ -254,15 +254,15 @@ export const ADULT_LESSON_EXTRA = {
      }
     ],
     hint: "Think about what happens AFTER the payment goes through — can it be undone?",
-    good: "Exactly. Reversibility is the test: gift cards, crypto, and wire transfers are nearly one-way doors, which is why scammers demand them instead of checks or card payments.",
-    bad: "Not quite — the danger is not about fees, familiarity, or which method feels official. Ask yourself: if you were scammed, could you claw that payment back?",
+    good: "Exactly. Recovery is the key issue: gift cards, cryptocurrency, and wire transfers can be difficult or impossible to reverse after the recipient gets the value, which is why scammers favor them.",
+    bad: "Not quite — focus on recovery. If the payment turns out to be fraudulent, how easy is it to stop, reverse, or recover the money through the real provider?",
     why: "Scam-proof your payments by asking one question first: if this goes wrong, can I reverse it?"
    },
    {
     q: "Marcus already sent $200 in gift cards to a scammer before realizing it. What should he do now?",
     choices: [
      {
-      label: "Contact his bank or the gift card company right away to try to stop the payment, then report the fraud.",
+      label: "Contact the gift-card issuer or other payment provider immediately to ask about stopping or recovering the payment, then report the fraud.",
       ok: true
      },
      {
@@ -282,9 +282,9 @@ export const ADULT_LESSON_EXTRA = {
      }
     ],
     hint: "Speed matters here — but through whose channels?",
-    good: "Right. Fast action through YOUR bank or payment provider is the only real shot at stopping it — every hour the scammer spends the money makes recovery harder.",
-    bad: "A good move still exists, and it is urgent: use your own channels — your bank, the card company — not the scammer's, and report the fraud.",
-    why: "If money goes to a scammer, move fast through your own payment provider — some payments can still be stopped, and reporting helps catch them."
+    good: "Right. Fast action through the company that handled the payment is the best recovery step; then report the scam through official channels.",
+    bad: "A recovery step still exists: contact the company that actually handled the payment using a trusted channel, then report the fraud. Do not rely on the scammer's contact information.",
+    why: "If money goes to a scammer, contact the payment provider or gift-card issuer immediately. Recovery is not guaranteed, but speed matters and reporting creates a record."
    }
   ]
  },
@@ -373,10 +373,10 @@ export const ADULT_LESSON_EXTRA = {
   },
   trys: [
    {
-    q: "Priya's electric bill was $75 in October, $168 in January, and $82 in April. How should she budget for it?",
+    q: "Priya's electric bill was $75 in October, $168 in January, and $82 in April. She can get a longer billing history if needed. What is the strongest budgeting approach?",
     choices: [
      {
-      label: "Budget around $170 a month — plan for the high winter months so a cold snap never breaks her.",
+      label: "Use the best available history — ideally a full year — to estimate a normal monthly amount, then keep a separate utility buffer for seasonal spikes.",
       ok: true
      },
      {
@@ -390,15 +390,15 @@ export const ADULT_LESSON_EXTRA = {
       mis: "variable-means-unplannable"
      },
      {
-      label: "$108 — the exact average of the three bills, with no room left over.",
+      label: "Use exactly $108 every month because the three-bill average guarantees the future bill.",
       ok: false,
       mis: "exact-average-no-buffer"
      }
     ],
     hint: "One exact number breaks when the weather does not cooperate — what would a buffer protect?",
-    good: "Exactly. Variable bills need a buffer, not a fixed number: budgeting the high month means January's $168 is already covered, and spring months leave savings behind.",
-    bad: "A single exact number — or no plan at all — fails the first cold month. Ask: what happens to this plan in January?",
-    why: "Utilities vary by season and usage, so budget the high end with a buffer instead of one exact number."
+    good: "Exactly. Variable utilities call for a reasonable estimate plus a buffer. More history improves the estimate; low-cost months can refill the buffer for high-cost months.",
+    bad: "A single exact number from only three bills is fragile. Use more history when available, estimate the normal range, and keep a buffer for the high months.",
+    why: "Utilities vary by season and usage. The goal is not to guess one perfect bill; it is to estimate from history and carry enough buffer that a high month does not break the plan."
    },
    {
     q: "Three roommates split a $180 electric bill three ways. The account is in Jaden's name. One roommate offers to collect everyone's $60 share and pay the whole bill himself. What is the trap?",
@@ -433,12 +433,12 @@ export const ADULT_LESSON_EXTRA = {
  groceries: {
   example: {
    h: "Maya plans before she shops",
-   story: "<p>Maya gets $120 a month for food at her college dorm. Before making a list, she checks her fridge, freezer, and shelf: she still has rice, frozen chicken, canned beans, and a half-used bottle of oil. She plans five easy dinners from what is already there, then lists only what is missing: vegetables, eggs, milk, and tortillas. Total at the store: $64.</p><p>Her roommate shops without a list and spends $110 in one trip — then throws out wilted lettuce and moldy bread she never had a plan for. Maya ends the month $56 under budget with zero waste.</p>",
+   story: "<p>Maya gets $120 a month for food at her college dorm. Before making a list, she checks her fridge, freezer, and shelf: she still has rice, frozen chicken, canned beans, and a half-used bottle of oil. She plans five easy dinners from what is already there, then lists only what is missing: vegetables, eggs, milk, and tortillas. Total at the store: $64.</p><p>Her roommate shops without a list and spends $110 in one trip — then throws out wilted lettuce and moldy bread she never had a plan for. Maya ends the month with $56 still unspent in her food budget and zero waste.</p>",
    points: [
     "Maya checked what she had FIRST — that became her starting point, not her memory.",
     "She planned actual meals around the chicken, rice, and beans, so every item on her list had a job.",
     "The list stopped impulse buys: she bought only the gaps, not duplicates.",
-    "The math: $120 - $64 = $56 saved — not by clipping coupons, by not buying food she would waste.",
+    "The math: $120 - $64 = $56 remaining in the food budget. It becomes savings only if she deliberately moves it to savings.",
     "Takeaway: a list built from your shelves costs less than a list built from memory."
    ]
   },
@@ -532,13 +532,13 @@ export const ADULT_LESSON_EXTRA = {
       mis: "no-payment-means-free"
      },
      {
-      label: "The color — cheap cars in that color lose value faster",
+      label: "Repairs do not belong in the transportation budget because the $2,800 purchase price already covered the car",
       ok: false,
       mis: "cosmetic-value"
      }
     ],
     hint: "Separate what he can predict from what he cannot.",
-    good: "Exactly — the predictable costs ($200/mo) are fine; the unpredictable repair bills are the trap. A cheap car with no repair buffer is the expensive car.",
+    good: "Exactly — the $200/month insurance-and-gas cost is known; the irregular repair cost is the trap. A low purchase price can still produce a high total transportation cost.",
     bad: "Think again — which cost in this story can show up without warning and wreck the budget?",
     why: "Transportation cost has two halves: predictable recurring costs and irregular repair/emergency costs — a cheap car looks cheap only until the first surprise repair."
    },
@@ -575,13 +575,13 @@ export const ADULT_LESSON_EXTRA = {
  "health-insurance": {
   example: {
    h: "Maya compares total cost, not the sticker price",
-   story: "<p>Maya has two marketplace plans. Plan A costs $95/mo with a $7,500 deductible. Plan B costs $310/mo with a $1,200 deductible. Her friend says \"Plan A is obviously cheaper.\" Maya instead estimates a year where she needs surgery costing $8,000.</p><p>Plan A: premiums $95 x 12 = $1,140, plus she pays the first $7,500 of the bill = $8,640. Plan B: premiums $310 x 12 = $3,720, plus she pays the first $1,200 = $4,920. The \"cheap\" plan costs her $3,720 MORE in a surgery year.</p>",
+   story: "<p>Maya compares two hypothetical in-network plans for a year when she expects one covered surgery with an $8,000 allowed cost. Plan A costs $95/month, has a $7,500 deductible, 20% coinsurance after the deductible, and an $8,700 out-of-pocket maximum. Plan B costs $310/month, has a $1,200 deductible, 20% coinsurance after the deductible, and a $4,500 out-of-pocket maximum.</p><p>This is a simplified teaching example: assume the entire $8,000 is covered, in network, and subject to the stated deductible and coinsurance. Premiums do not count toward the out-of-pocket maximum.</p>",
    points: [
-    "The monthly premium is only one piece — the deductible decides how much of a big bill lands on her.",
-    "Plan A year with surgery: $1,140 premiums + $7,500 deductible = $8,640 out of her pocket.",
-    "Plan B year with surgery: $3,720 premiums + $1,200 deductible = $4,920 out of her pocket.",
-    "Same surgery, $3,720 difference — the low-premium plan was the expensive plan.",
-    "Takeaway: estimate TOTAL yearly cost (premiums + what you pay for care) for the year you might actually have — not just the monthly price."
+    "Plan A premiums: $95 × 12 = $1,140. Care cost sharing: $7,500 deductible + 20% of the remaining $500 ($100) = $7,600. Estimated yearly total = $8,740.",
+    "Plan B premiums: $310 × 12 = $3,720. Care cost sharing: $1,200 deductible + 20% of the remaining $6,800 ($1,360) = $2,560. Estimated yearly total = $6,280.",
+    "Neither example reaches its out-of-pocket maximum on this one claim, so the cap does not change these totals.",
+    "For this specific scenario, Plan B costs about $2,460 less for the year even though its monthly premium is higher.",
+    "Takeaway: compare premiums + expected cost sharing + network/coverage rules. A deductible by itself is never the full yearly cost."
    ]
   },
   trys: [
@@ -589,32 +589,32 @@ export const ADULT_LESSON_EXTRA = {
     q: "Jamal picks the plan with the lowest monthly premium: $0/mo, $8,000 deductible, $9,000 out-of-pocket max. He says \"my insurance costs me nothing.\" What is he getting wrong?",
     choices: [
      {
-      label: "He still pays up to $8,000 of covered care himself before the plan pays much — the premium is not the total cost",
+      label: "A $0 premium does not mean $0 medical cost — the deductible, copays/coinsurance, coverage rules, and out-of-pocket maximum still matter when he uses care.",
       ok: true
      },
      {
-      label: "The plan is free, so any bill he gets is a scam",
+      label: "The $0 premium is enough to compare plans; the deductible only matters after the insurer has already paid most of the bill.",
       ok: false,
       mis: "premium-is-total"
      },
      {
-      label: "He should never go to the doctor so the deductible never matters",
+      label: "The $8,000 deductible is automatically the most he can spend for the whole year, including premiums and any out-of-network care.",
       ok: false,
       mis: "avoid-care"
      },
      {
-      label: "Out-of-pocket max means the plan pays everything from day one",
+      label: "The $9,000 out-of-pocket maximum means every medical charge counts toward the cap, even services the plan does not cover.",
       ok: false,
       mis: "oop-max-instant"
      }
     ],
-    hint: "What does he pay on a $5,000 ER bill under this plan?",
-    good: "Exactly — a $0 premium plan can still bill him $5,000 for that ER visit because of the deductible. The premium is just the entry fee.",
-    bad: "Not quite. Work the $5,000 ER bill: with an $8,000 deductible, how much does the plan pay?",
-    why: "The premium buys coverage — it does not buy care. Deductible, copay, and coinsurance decide what you actually pay when you use the plan."
+    hint: "Separate the price of keeping coverage from the cost sharing that can apply when care is used.",
+    good: "Exactly — $0 premium only describes the recurring premium. Covered care can still create deductible, copay, or coinsurance costs, subject to the plan's rules and out-of-pocket limit.",
+    bad: "Not quite. A premium, deductible, cost sharing, network rules, and the out-of-pocket maximum answer different questions. You need more than the premium to estimate yearly cost.",
+    why: "The premium is one part of total cost. Deductible, copays/coinsurance, covered-service rules, network status, and the out-of-pocket maximum can all affect what the member pays."
    },
    {
-    q: "Elena has in-network surgery bills totaling $40,000. Her plan has a $1,500 deductible, 20% coinsurance, and a $6,000 out-of-pocket maximum. About how much does she pay?",
+    q: "Elena has $40,000 in covered, in-network allowed costs. Her plan has a $1,500 deductible, 20% coinsurance after the deductible, and a $6,000 out-of-pocket maximum. Assume all of this cost sharing counts toward that maximum. About how much does she pay for covered care?",
     choices: [
      {
       label: "$6,000 — the out-of-pocket max caps her cost sharing for the year",
@@ -631,15 +631,15 @@ export const ADULT_LESSON_EXTRA = {
       mis: "deductible-ends-cost"
      },
      {
-      label: "$0 — the hospital eats the cost",
+      label: "$8,000 — the out-of-pocket maximum is a target amount she must pay before the insurer contributes",
       ok: false,
       mis: "bill-vanishes"
      }
     ],
     hint: "Do the deductible + coinsurance math first, then check the cap.",
-    good: "Right — $1,500 deductible + 20% of $38,500 = $9,200, but the $6,000 out-of-pocket max cuts her off there. That is what the cap is for.",
+    good: "Right — $1,500 deductible + 20% of the remaining $38,500 would be $9,200, but the $6,000 out-of-pocket maximum caps covered in-network cost sharing at $6,000 for this simplified scenario. Premiums are separate.",
     bad: "Re-do the math: deductible + coinsurance first, then ask whether the plan puts a ceiling on that number.",
-    why: "The out-of-pocket maximum is a yearly ceiling on in-network cost sharing — once your deductible, copays, and coinsurance hit it, the plan pays 100% of covered care for the rest of the year."
+    why: "The out-of-pocket maximum is a yearly ceiling on covered in-network cost sharing. After that limit, the plan pays 100% of covered in-network benefits for the rest of the plan year; premiums and non-covered or out-of-network costs may sit outside that limit."
    }
   ]
  }
