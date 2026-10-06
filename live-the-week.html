@@ -528,9 +528,7 @@ function drawMall(mm){
   }
   // Products in windows (small) - positioned over the image storefronts
   for(const [spr,x,y] of (mm.goods||[])) blit(spr,x*TILE+4,y*TILE+2,24,24);
-  // Plants
-  blit('plant',5*TILE,9*TILE,28,36); blit('plant',5*TILE,11*TILE,28,36);
-  for(const [px,py] of [[2,5],[8,5],[2,10],[8,10]]) blit('plant',px*TILE,py*TILE-4,32,40);
+  // (Truman's mall art already has plants - skip ours)
 }
 
 function drawBuilding34(b,id){
