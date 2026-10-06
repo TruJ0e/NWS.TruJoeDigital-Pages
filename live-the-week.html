@@ -751,7 +751,7 @@ function drawBody(){
   ctx.fillStyle=m.floorC||'#5d8a5f'; ctx.fillRect(0,0,cv.width,cv.height);
   if(m.over){
     if(S.map==='town'&&_townImg.complete&&_townImg.naturalWidth){
-      blitStretch(_townImg,0,0,cv.width,cv.height);
+      blitStretch(_townImg,0,-20,cv.width,cv.height+20);
       // Skip my canvas buildings - Truman's art has them
       // Keep decor for extra polish
       drawTownDecor(m,g);
