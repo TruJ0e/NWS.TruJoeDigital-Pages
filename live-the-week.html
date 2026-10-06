@@ -324,10 +324,13 @@ function shopDlg(key){
 function buyItem(it){
   const c=it.sale;
   if(S.money<c){ toast('Not enough cash.'); return; }
-  S.money-=c; S.spent['mall: '+it.t]=(S.spent['mall: '+it.t]||0)+c;
-  if(it.e){ S.energy=Math.min(100,S.energy+it.e); S.lunchToday=true; }
-  else S.energy=Math.max(0,S.energy-3); // shopping is tiring
-  toast(it.t+' \u2014 yours.'+(it.full>it.sale?' (saved $'+(it.full-it.sale)+')':''));
+  smartSpend(c,'mall',it.t+' ('+it.t+')',()=>{
+    S.money-=c; S.spent['mall: '+it.t]=(S.spent['mall: '+it.t]||0)+c;
+    if(it.e){ S.energy=Math.min(100,S.energy+it.e); S.lunchToday=true; }
+    else S.energy=Math.max(0,S.energy-3); // shopping is tiring
+    toast(it.t+' \u2014 yours.'+(it.full>it.sale?' (saved $'+(it.full-it.sale)+')':''));
+    hud();
+  });
   floatText('-$'+c,S.px+16,S.py,'#ff9a9a'); hud();
 }
 function checkZones(){
@@ -988,6 +991,26 @@ function dlg(h,p,btns){ $('d_h').textContent=h; $('d_p').textContent=p;
 const MSGS=[];
 function pushMsg(from,text){ MSGS.unshift({from,text,day:DAYS[S.day],time:fmt(S.min)});
   $('msgdot').textContent='●'; if($('phone').classList.contains('open')&&curTab==='msgs') renderPhone(); }
+// Financial literacy: track concepts practiced
+function trackSmart(concept){ S.smarts=S.smarts||{}; S.smarts[concept]=(S.smarts[concept]||0)+1; }
+// Categorize purchases for needs vs wants teaching
+const NEED_CATS=['groceries','rent','bills','bus','medicine'];
+function isNeed(cat){ return NEED_CATS.includes(cat); }
+function weeklyPay(){ return S.job.w*SHIFT_HRS[S.age]*TAKE_HOME; }
+function smartSpend(amt,cat,label,fn){
+  // For needs or tiny purchases, just do it
+  if(isNeed(cat)||amt<5){ return fn(); }
+  const pct=Math.round(amt/weeklyPay()*100);
+  const type=isNeed(cat)?'NEED':'WANT';
+  const after=S.money-amt;
+  trackSmart('needsWants');
+  dlg('\u{1F4B0} Smart Spending',
+    label+' costs $'+amt+' ('+pct+'% of your weekly pay).\n\n'+
+    'This is a '+type+'. '+(type==='WANT'?'Wants are OK if your needs are covered first.':'Needs come first - good priority.')+'\n'+
+    'After buying: $'+after.toFixed(2)+' left.',
+    [[ 'Buy it ($'+amt+')', ()=>{ trackSmart('budgeting'); fn(); }, 'act'],
+     ['Skip', ()=>{ trackSmart('saving'); toast('\u{1F4B0} Skipped. That $'+amt+' stays in your pocket.'); }, 'ghost']]);
+}
 function spend(amt,cat){ if(S.money<amt){ toast('Not enough cash.'); return false; }
   S.money-=amt; S.spent[cat]=(S.spent[cat]||0)+amt;
   if(cat==='groceries') S.groceriesBought=true;
@@ -1132,7 +1155,9 @@ function buyLatte(){
     toast('Tasty. $5 gone. +6 energy.'); }
 }
 function buyUmbrella(){
-  if(spend(12,'umbrella')){ S.umbrella=true; toast('\u2602\uFE0F Umbrella bought. Rain: handled.'); renderSpots(); }
+  smartSpend(12,'umbrella','Umbrella',()=>{
+    if(spend(12,'umbrella')){ S.umbrella=true; toast('\u2602\uFE0F Umbrella bought. Rain: handled.'); renderSpots(); }
+  });
 }
 function workSchedule(){
   dlg('\u{1F4CB} Schedule','Expected at work by 9:00a sharp. Clock in after 9:30a = late, −10% pay.\nLates so far: '+S.lates+'. Hours: '+S.hrsWorked+'/'+MAXHRS[S.age]+'.',
