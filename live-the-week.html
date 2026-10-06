@@ -1019,35 +1019,64 @@ const SHIFT_HRS={'14-15':4,'16-17':4,'18+':8}; // 18+ works real 8h shifts
 // Work reviews: answer financial literacy questions to earn your pay
 // Tied to NWS modules: budgeting, needs vs wants, saving, work ethic
 const WORK_REVIEWS=[
+ // === GENERAL WORK ETHIC ===
  {q:'A customer wants to return an item without a receipt. What do you do?',
   a:['Refuse the return','Follow store policy and get a manager if needed','Give them cash anyway'],c:1},
- {q:'Your paycheck is $120. Bills are $80. What should you do first?',
-  a:['Spend $40 on fun','Pay the $80 bills, save the rest','Lend $40 to a friend'],c:1},
  {q:'You see a coworker taking money from the register. What do you do?',
   a:['Ignore it','Tell a manager privately','Confront them loudly'],c:1},
- {q:'What is a "need" vs a "want"?',
-  a:['Needs keep you alive, wants are extras','They are the same','Wants are more important'],c:0},
  {q:'You are scheduled at 9am but wake up at 8:55. What do you do?',
   a:['Call in sick','Rush in and apologize for being late','Text your boss you will be a few minutes late'],c:2},
+ {q:'Your manager asks you to stay 30 minutes late. You:',
+  a:['Refuse immediately','Help if you can, ask about overtime pay','Walk out'],c:1},
+ {q:'A coworker is struggling with a task you know well. You:',
+  a:['Let them fail','Offer to help when you have a moment','Do it for them so they learn nothing'],c:1},
+ {q:'Showing up on time every day shows:',
+  a:['Nothing important','Reliability that earns trust and raises','You have no life'],c:1},
+ // === MONEY BASICS ===
+ {q:'Your paycheck is $120. Bills are $80. What should you do first?',
+  a:['Spend $40 on fun','Pay the $80 bills, save the rest','Lend $40 to a friend'],c:1},
+ {q:'What is a "need" vs a "want"?',
+  a:['Needs keep you alive, wants are extras','They are the same','Wants are more important'],c:0},
  {q:'A "budget" is:',
   a:['A list of things you want','A plan for your money','Only for adults'],c:1},
  {q:'Why save 10% of every paycheck?',
   a:['To look rich','Emergencies and future goals','Banks require it'],c:1},
- {q:'Your manager asks you to stay 30 minutes late. You:',
-  a:['Refuse immediately','Help if you can, ask about overtime pay','Walk out'],c:1},
  {q:'What does "take-home pay" mean?',
   a:['Money you take home in cash','Pay after taxes and deductions','Your full hourly rate x hours'],c:1},
- {q:'A coworker is struggling with a task you know well. You:',
-  a:['Let them fail','Offer to help when you have a moment','Do it for them so they learn nothing'],c:1},
  {q:'If something costs $45 and you have $50, you have:',
   a:['Exactly enough','A $5 buffer for tax or mistakes','Plenty to spare'],c:1},
- {q:'Showing up on time every day shows:',
-  a:['Nothing important','Reliability that earns trust and raises','You have no life'],c:1},
+ {q:'The 50/30/20 rule means:',
+  a:['50% needs, 30% wants, 20% savings','50% savings, 30% needs, 20% wants','Spend 50%, save 30%, give 20%'],c:0},
+ {q:'An "emergency fund" is for:',
+  a:['Concert tickets','Unexpected car repairs or medical bills','Vacation'],c:1},
+ // === FAST FOOD SPECIFIC ===
+ {q:'A customer says their burger is cold. You:',
+  a:['Tell them to deal with it','Apologize and remake it fresh','Blame the kitchen'],c:1,job:'Fast food crew'},
+ {q:'During a lunch rush, the best thing to do is:',
+  a:['Slow down to avoid mistakes','Stay focused, communicate, keep moving','Take a break'],c:1,job:'Fast food crew'},
+ {q:'You notice the fryer oil looks dark and old. You:',
+  a:['Ignore it, not your job','Tell your manager immediately','Keep cooking, it is fine'],c:1,job:'Fast food crew'},
+ // === RETAIL SPECIFIC ===
+ {q:'A customer asks where something is and you do not know. You:',
+  a:['Say "I don\'t know" and walk away','Offer to find out or get someone who knows','Make up an answer'],c:1,job:'Retail associate'},
+ {q:'The store is quiet. You should:',
+  a:['Play on your phone','Restock shelves, clean, face products','Stand at the register doing nothing'],c:1,job:'Retail associate'},
+ {q:'A customer is shoplifting. You:',
+  a:['Chase and tackle them','Do not confront; notify management/loss prevention','Pretend you did not see'],c:1,job:'Retail associate'},
+ // === PARK MAINTENANCE SPECIFIC ===
+ {q:'You find a broken glass bottle on the playground. You:',
+  a:['Leave it, someone else will get it','Clean it up immediately - kids safety first','Kick it under a bush'],c:1,job:'Park maintenance'},
+ {q:'A park visitor asks about a trail closure. You:',
+  a:['Shrug and say no idea','Explain what you know and where to get info','Tell them to leave'],c:1,job:'Park maintenance'},
+ {q:'It is 95 degrees and you are mowing. You should:',
+  a:['Power through without water','Take water breaks in shade - heat stroke is real','Go home early'],c:1,job:'Park maintenance'},
 ];
 let _wrIdx=0, _wrCorrect=0, _wrPay=0, _wrHrs=0, _wrCost=0, _wrLate='';
 function startWorkReview(){
-  // Pick 3 random questions
-  const pool=[...WORK_REVIEWS].sort(()=>Math.random()-0.5).slice(0,3);
+  // Prefer job-specific questions, fill with general ones
+  const jobQs=WORK_REVIEWS.filter(q=>q.job===S.job.t);
+  const genQs=WORK_REVIEWS.filter(q=>!q.job);
+  const pool=[...jobQs,...genQs].sort(()=>Math.random()-0.5).slice(0,3);
   _wrIdx=0; _wrCorrect=0; _wrPool=pool;
   askWorkQ();
 }
