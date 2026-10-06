@@ -106,6 +106,7 @@
   <span>⚡ <b id="h_energy">100</b></span>
   <span style="font-size:10px;color:#6a8a72">v1.9</span>
   <button id="waitbtn" class="ghost" style="padding:4px 10px;font-size:12px">⏳ +30m</button>
+  <button id="setbtn" class="ghost" style="padding:4px 10px;font-size:14px">⚙️</button>
 </div>
 <div id="objective" style="text-align:center;font-size:12px;color:#9fc3a4;padding:4px;background:rgba(20,30,22,.9);border-bottom:1px solid #3a5a40"></div>
 <div id="stage">
@@ -865,7 +866,7 @@ cv.addEventListener('pointerdown',e=>{
 });
 // Joystick: drag to move directly
 cv.addEventListener('pointermove',e=>{
-  if(!S.joy||S.joy.id!==e.pointerId||S.fp) return;
+  if(!S.joy||S.joy.id!==e.pointerId||S.fp||!S.settings.joystick) return;
   const dx=e.clientX-S.joy.sx, dy=e.clientY-S.joy.sy;
   if(Math.hypot(dx,dy)>12&&!S.joy.active){
     S.joy.active=true; S.path=[]; S.moving=false; // joystick takes over
@@ -894,8 +895,8 @@ function buildingAt(tx,ty){
 let lastT=0;
 function step(now){
   const dt=Math.min(0.05,(now-lastT)/1000||0); lastT=now;
-  // Virtual joystick direct control
-  if(S.joy&&S.joy.active){
+  // Virtual joystick direct control (if enabled in settings)
+  if(S.joy&&S.joy.active&&S.settings.joystick){
     const jx=S.joy.dx, jy=S.joy.dy, mag=Math.hypot(jx,jy);
     if(mag>0.15){
       const sp=(S.hasBike?SPEED_B:SPEED_W)*(0.55+0.45*S.energy/100)*(S.rain&&!S.umbrella?0.8:1);
@@ -1166,6 +1167,60 @@ function finishWorkReview(){
   dlg('\u{1F4CB} Shift Complete','You got '+_wrCorrect+'/'+_wrPool.length+' correct.'+note+'\nPay: $'+finalPay.toFixed(2)+' (Friday).'+_wrLate,
     [['Nice',()=>{},'act']]);
 }
+// Settings system
+S.settings=S.settings||{joystick:true,music:true};
+function openSettings(){
+  const joy=S.settings.joystick?'ON':'OFF';
+  const mus=S.settings.music?'ON':'OFF';
+  dlg('\u2699\uFE0F Settings','Customize your experience:',
+    [['\u{1F579}\uFE0F Joystick: '+joy,()=>{ S.settings.joystick=!S.settings.joystick; saveSettings(); openSettings(); },'act'],
+     ['\u{1F3B5} Music: '+mus,()=>{ S.settings.music=!S.settings.music; saveSettings(); toggleMusic(); openSettings(); },'act'],
+     ['Close',()=>{},'ghost']]);
+}
+function saveSettings(){ try{ localStorage.setItem('nws_settings',JSON.stringify(S.settings)); }catch(e){} }
+function loadSettings(){ try{ const s=localStorage.getItem('nws_settings'); if(s) S.settings={...S.settings,...JSON.parse(s)}; }catch(e){} }
+// Calm background music - generative ambient
+let _audioCtx=null, _musicNodes=[], _musicTimer=null;
+function initAudio(){
+  if(_audioCtx) return;
+  try{ _audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return; }
+}
+function playCalmNote(freq, time, dur){
+  if(!_audioCtx||!S.settings.music) return;
+  const o=_audioCtx.createOscillator(), g=_audioCtx.createGain();
+  o.type='sine'; o.frequency.value=freq;
+  g.gain.setValueAtTime(0,time);
+  g.gain.linearRampToValueAtTime(0.08,time+0.5);
+  g.gain.exponentialRampToValueAtTime(0.001,time+dur);
+  o.connect(g); g.connect(_audioCtx.destination);
+  o.start(time); o.stop(time+dur+0.1);
+}
+function startMusic(){
+  initAudio(); if(!_audioCtx||!S.settings.music) return;
+  if(_audioCtx.state==='suspended') _audioCtx.resume();
+  stopMusic();
+  // Gentle C major pentatonic ambient - slow and calm
+  const notes=[261.63, 293.66, 329.63, 392.00, 440.00, 523.25]; // C D E G A C
+  const playPhrase=()=>{
+    if(!S.settings.music) return;
+    const t=_audioCtx.currentTime+0.1;
+    // Soft pad chord
+    [130.81, 164.81, 196.00].forEach((f,i)=>playCalmNote(f,t,8));
+    // Sparse melody notes
+    for(let i=0;i<3;i++){
+      const n=notes[Math.floor(Math.random()*notes.length)];
+      playCalmNote(n, t+2+i*2.5, 3);
+    }
+    _musicTimer=setTimeout(playPhrase, 9000);
+  };
+  playPhrase();
+}
+function stopMusic(){
+  if(_musicTimer){ clearTimeout(_musicTimer); _musicTimer=null; }
+}
+function toggleMusic(){
+  if(S.settings.music) startMusic(); else stopMusic();
+}
 function workPrompt(){
   const HRS=SHIFT_HRS[S.age], left=MAXHRS[S.age]-S.hrsWorked, cost=Math.round(HRS*7.5);
   if(left<HRS){ toast('Hour limit for your age ('+MAXHRS[S.age]+'/wk). Real law!'); return; }
@@ -1325,11 +1380,17 @@ document.querySelectorAll('.agepick button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.agepick button').forEach(x=>x.classList.remove('on'));
   b.classList.add('on'); S.age=b.dataset.a; renderJobPick(); });
 $('gobtn').onclick=()=>{ $('start').style.display='none';
+  initAudio(); if(S.settings.music) startMusic();
   MAPS.town.bld.work.label=S.job.t.toUpperCase().slice(0,16);
   pushMsg('boss','Welcome! Walk to WORK and tap the door for a shift (8h at 18+). Payday Friday.');
   pushMsg('mom','Bills Sunday: $230. The Shop tab has room decor — needs vs wants, kiddo.');
   hud(); };
 $('waitbtn').onclick=()=>{ if(!S.weekOver){ advance(30); } };
+$('setbtn').onclick=()=>{ initAudio(); openSettings(); };
+// Load settings and start music on game start
+loadSettings();
+// Update joystick to respect setting
+const _origJoyMove = S.joy; // keep reference
 buildTown(); buildMallIn(); S.rain=Math.random()<0.25; loadSprites();
 renderJobPick(); hud(); draw(); requestAnimationFrame(step);
 </script>
