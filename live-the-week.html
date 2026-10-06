@@ -426,6 +426,13 @@ function blitCoverImg(im,dx,dy,dw,dh){
   if(ir>r){ sh=im.naturalHeight; sw=sh*r; sx=(im.naturalWidth-sw)/2; sy=0; }
   else { sw=im.naturalWidth; sh=sw/r; sx=0; sy=(im.naturalHeight-sh)/2; }
   ctx.drawImage(im,sx,sy,sw,sh,dx,dy,dw,dh); return true; }
+function blitCoverImg(im,dx,dy,dw,dh){
+  if(!(im&&im.complete&&im.naturalWidth)) return false;
+  const ir=im.naturalWidth/im.naturalHeight, r=dw/dh;
+  let sw,sh,sx,sy;
+  if(ir>r){ sh=im.naturalHeight; sw=sh*r; sx=(im.naturalWidth-sw)/2; sy=0; }
+  else { sw=im.naturalWidth; sh=sw/r; sx=0; sy=(im.naturalHeight-sh)/2; }
+  ctx.drawImage(im,sx,sy,sw,sh,dx,dy,dw,dh); return true; }
 function blitCover(n,dx,dy,dw,dh){ const im=SPR[n];  // fill rect, preserve aspect (crop)
   if(!(im&&im.complete&&im.naturalWidth)) return false;
   const ir=im.naturalWidth/im.naturalHeight, r=dw/dh;
@@ -713,11 +720,26 @@ function talkCoworker(){
     'Overtime is a myth here. Don\u2019t ask.','Payday Friday. Don\u2019t spend it Thursday.'];
   dlg('\u{1F9D1}\u200D\u{1F4BC} Coworker',tips[Math.floor(Math.random()*tips.length)],[['Back to it',()=>{},'ghost']]);
 }
+// Truman's room art: mess level selects the image (0=clean to max=filthy)
+const ROOM_ART={
+  bedroom:{n:8,pre:'assets/rooms/bedroom-'},
+  house:{n:10,pre:'assets/rooms/living-'}
+};
+const _roomImgs={};
+function roomArt(fp){
+  const r=ROOM_ART[fp]; if(!r) return null;
+  const lvl=Math.min(r.n-1,Math.floor(S.mess/100*r.n));
+  const key=fp+'-'+lvl;
+  if(!_roomImgs[key]){ const im=new Image(); im.src=r.pre+lvl+'.jpg'; _roomImgs[key]=im; }
+  return _roomImgs[key];
+}
 function drawFP(){
   const sc=FP[S.fp];
   if(!sc){ S.fp=null; renderSpots(true); return; } // fail safe: never freeze the screen
-  blitCover(sc.art,0,0,cv.width,cv.height);
-  if(S.fp==='house'||S.fp==='bedroom'){ drawRoomStuff(); drawMess(); }
+  const ra=(S.fp==='house'||S.fp==='bedroom')?roomArt(S.fp):null;
+  if(ra&&ra.complete&&ra.naturalWidth){ blitCoverImg(ra,0,0,cv.width,cv.height); }
+  else blitCover(sc.art,0,0,cv.width,cv.height);
+  if(S.fp==='house'||S.fp==='bedroom'){ drawRoomStuff(); /* mess is baked into Truman's art */ }
   const npc=FP_NPC[S.fp];
   if(npc&&!npc.baked){ const hop=S.npcHop&&Date.now()-S.npcHop<600?-Math.sin((Date.now()-S.npcHop)/600*Math.PI)*10:0;
     const bob=Math.sin(Date.now()/450)*2;
