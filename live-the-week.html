@@ -594,18 +594,18 @@ const FP={
    {x:74,y:74,w:28,h:11,t:'\u{1F9F9} Tidy up',vis:()=>S.mess>5,fn:()=>tidyUp()},
    {x:70,y:88,w:28,h:10,t:'\u2190 Outside',fn:()=>exitFP()}]},
  bedroom:{name:'\u{1F3E0} Bedroom',art:'fp_bedroom',spots:[
-   {x:26,y:52,w:28,h:11,t:'\u{1F6CF}\uFE0F Sleep',fn:()=>sleepDlg()},
-   {x:74,y:72,w:28,h:11,t:'\u{1F9F9} Tidy up',vis:()=>S.mess>5,fn:()=>tidyUp()},
-   {x:28,y:88,w:34,h:10,t:'\u{1F6CB} Living room',fn:()=>enterFP('house')},
-   {x:70,y:88,w:28,h:10,t:'\u2190 Outside',fn:()=>exitFP()}]},
+   {x:50,y:48,w:20,h:8,t:'\u{1F6CF}\uFE0F Sleep',fn:()=>sleepDlg()},
+   {x:82,y:65,w:20,h:8,t:'\u{1F9F9} Tidy up',vis:()=>S.mess>5,fn:()=>tidyUp()},
+   {x:30,y:90,w:26,h:8,t:'\u{1F6CB} Living room',fn:()=>enterFP('house')},
+   {x:70,y:90,w:22,h:8,t:'\u2190 Outside',fn:()=>exitFP()}]},
  store:{name:'\u{1F3EA} Corner Store',art:'fp_store',spots:[
-   {x:50,y:93,w:32,h:9,t:'\u2190 Outside',fn:()=>exitFP()}]},
+   {x:50,y:93,w:26,h:8,t:'\u2190 Outside',fn:()=>exitFP()}]},
  coffee:{name:'\u2615 Coffee Shop',art:'fp_coffee',spots:[
-   {x:50,y:93,w:32,h:9,t:'\u2190 Outside',fn:()=>exitFP()}]},
+   {x:50,y:93,w:26,h:8,t:'\u2190 Outside',fn:()=>exitFP()}]},
  work:{name:'\u{1F3E2} Work',art:'fp_work',spots:[
-   {x:14,y:30,w:22,h:13,t:'\u{1F550} Time card',fn:()=>workPrompt()},
-   {x:72,y:70,w:30,h:12,t:'\u{1F4CB} Schedule',fn:()=>workSchedule()},
-   {x:50,y:93,w:32,h:9,t:'\u2190 Outside',fn:()=>exitFP()}]},
+   {x:12,y:28,w:18,h:9,t:'\u{1F550} Time card',fn:()=>workPrompt()},
+   {x:75,y:68,w:20,h:9,t:'\u{1F4CB} Schedule',fn:()=>workSchedule()},
+   {x:50,y:93,w:26,h:8,t:'\u2190 Outside',fn:()=>exitFP()}]},
 };
 function enterFP(id){
   if(!FP[id]){ toast('That room is not ready yet.'); return; }
@@ -749,7 +749,8 @@ function drawBody(){
   ctx.fillStyle=m.floorC||'#5d8a5f'; ctx.fillRect(0,0,cv.width,cv.height);
   if(m.over){
     if(S.map==='town'&&_townImg.complete&&_townImg.naturalWidth){
-      blitStretch(_townImg,0,-20,cv.width,cv.height+20);
+      { const tw=cv.width*0.96, th=cv.height*0.96;
+        blitStretch(_townImg,(cv.width-tw)/2,(cv.height-th)/2-10,tw,th); }
       // Skip my canvas buildings - Truman's art has them
       // Keep decor for extra polish
       drawTownDecor(m,g);
@@ -1015,6 +1016,65 @@ function sneakerPrompt(){
      ['Walk away',()=>{ S.resisted++; },'ghost']]);
 }
 const SHIFT_HRS={'14-15':4,'16-17':4,'18+':8}; // 18+ works real 8h shifts
+// Work reviews: answer financial literacy questions to earn your pay
+// Tied to NWS modules: budgeting, needs vs wants, saving, work ethic
+const WORK_REVIEWS=[
+ {q:'A customer wants to return an item without a receipt. What do you do?',
+  a:['Refuse the return','Follow store policy and get a manager if needed','Give them cash anyway'],c:1},
+ {q:'Your paycheck is $120. Bills are $80. What should you do first?',
+  a:['Spend $40 on fun','Pay the $80 bills, save the rest','Lend $40 to a friend'],c:1},
+ {q:'You see a coworker taking money from the register. What do you do?',
+  a:['Ignore it','Tell a manager privately','Confront them loudly'],c:1},
+ {q:'What is a "need" vs a "want"?',
+  a:['Needs keep you alive, wants are extras','They are the same','Wants are more important'],c:0},
+ {q:'You are scheduled at 9am but wake up at 8:55. What do you do?',
+  a:['Call in sick','Rush in and apologize for being late','Text your boss you will be a few minutes late'],c:2},
+ {q:'A "budget" is:',
+  a:['A list of things you want','A plan for your money','Only for adults'],c:1},
+ {q:'Why save 10% of every paycheck?',
+  a:['To look rich','Emergencies and future goals','Banks require it'],c:1},
+ {q:'Your manager asks you to stay 30 minutes late. You:',
+  a:['Refuse immediately','Help if you can, ask about overtime pay','Walk out'],c:1},
+ {q:'What does "take-home pay" mean?',
+  a:['Money you take home in cash','Pay after taxes and deductions','Your full hourly rate x hours'],c:1},
+ {q:'A coworker is struggling with a task you know well. You:',
+  a:['Let them fail','Offer to help when you have a moment','Do it for them so they learn nothing'],c:1},
+ {q:'If something costs $45 and you have $50, you have:',
+  a:['Exactly enough','A $5 buffer for tax or mistakes','Plenty to spare'],c:1},
+ {q:'Showing up on time every day shows:',
+  a:['Nothing important','Reliability that earns trust and raises','You have no life'],c:1},
+];
+let _wrIdx=0, _wrCorrect=0, _wrPay=0, _wrHrs=0, _wrCost=0, _wrLate='';
+function startWorkReview(){
+  // Pick 3 random questions
+  const pool=[...WORK_REVIEWS].sort(()=>Math.random()-0.5).slice(0,3);
+  _wrIdx=0; _wrCorrect=0; _wrPool=pool;
+  askWorkQ();
+}
+let _wrPool=[];
+function askWorkQ(){
+  if(_wrIdx>=_wrPool.length){ finishWorkReview(); return; }
+  const q=_wrPool[_wrIdx];
+  const btns=q.a.map((ans,i)=>[ans,()=>{ 
+    if(i===q.c){ _wrCorrect++; toast('\u2705 Correct!'); }
+    else toast('\u274C The right answer was: '+q.a[q.c]);
+    _wrIdx++; setTimeout(askWorkQ, 800);
+  },'act']);
+  dlg('\u{1F4CB} Work Review ('+(_wrIdx+1)+'/'+_wrPool.length+')',q.q,btns);
+}
+function finishWorkReview(){
+  const pct=_wrCorrect/_wrPool.length;
+  let finalPay=_wrPay, note='';
+  if(pct===1){ note=' Perfect review! Full pay.'; }
+  else if(pct>=0.66){ finalPay*=.9; note=' Good work. 90% pay.'; }
+  else if(pct>=0.33){ finalPay*=.75; note=' Needs improvement. 75% pay.'; }
+  else { finalPay*=.5; note=' Poor review. 50% pay. Study the modules!'; }
+  advance(_wrHrs*60); S.energy-=_wrCost; S.accrued+=finalPay; S.hrsWorked+=_wrHrs; S.lastWorkDay=S.day;
+  floatText('shift +$'+finalPay.toFixed(0),S.px+16,S.py,'#9fe6a8'); hud();
+  toast('\u2705 Clocked out \u2014'+note+_wrLate);
+  dlg('\u{1F4CB} Shift Complete','You got '+_wrCorrect+'/'+_wrPool.length+' correct.'+note+'\nPay: $'+finalPay.toFixed(2)+' (Friday).'+_wrLate,
+    [['Nice',()=>{},'act']]);
+}
 function workPrompt(){
   const HRS=SHIFT_HRS[S.age], left=MAXHRS[S.age]-S.hrsWorked, cost=Math.round(HRS*7.5);
   if(left<HRS){ toast('Hour limit for your age ('+MAXHRS[S.age]+'/wk). Real law!'); return; }
@@ -1024,8 +1084,7 @@ function workPrompt(){
     if(S.lates===3) pushMsg('boss','Third late. One more and we need to talk. \u2014 Management');
     else if(S.lates>3) pushMsg('boss','Late again. This is going in your file. \u2014 Management'); }
   dlg('\u{1F550} Time card','Clock in for an '+HRS+'-hour shift as '+S.job.t+'? Pays $'+pay.toFixed(2)+' Friday (take-home). Costs '+HRS+'h and '+cost+' energy.'+lateNote,
-    [['Clock in',()=>{ advance(HRS*60); S.energy-=cost; S.accrued+=pay; S.hrsWorked+=HRS; S.lastWorkDay=S.day;
-       floatText('shift +$'+pay.toFixed(0),S.px+16,S.py,'#9fe6a8'); hud(); toast('\u2705 Clocked out \u2014 shift complete.'); },'act'],
+    [['Clock in',()=>{ _wrPay=pay; _wrHrs=HRS; _wrCost=cost; _wrLate=lateNote; startWorkReview(); },'act'],
      ['Not now',()=>{},'ghost']]);
 }
 function sleepDlg(){
