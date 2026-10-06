@@ -509,74 +509,24 @@ function drawGroundSmooth(m){
   ctx.strokeStyle='rgba(255,255,255,.10)'; ctx.lineWidth=72;
   ctx.beginPath(); ctx.moveTo(-10,9.2*TILE); ctx.lineTo(cv.width+10,9.2*TILE); ctx.stroke();
 }
+// Mall uses Truman's pixel-art image as background (walkable overlay)
+const _mallImg=new Image(); _mallImg.src='assets/mall.jpg';
+const _townImg=new Image(); _townImg.src='assets/town.jpg';
 function drawMall(mm){
-  // Rich mall interior matching Truman's art: warm tiles, colored storefronts, food court
-  // Floor: warm cream tiles
-  ctx.fillStyle='#e8dcc8'; ctx.fillRect(0,0,cv.width,cv.height);
-  ctx.strokeStyle='rgba(160,140,110,.25)'; ctx.lineWidth=1;
-  for(let y=0;y<=ROWS;y++){ ctx.beginPath(); ctx.moveTo(0,y*TILE); ctx.lineTo(cv.width,y*TILE); ctx.stroke(); }
-  for(let x=0;x<=COLS;x++){ ctx.beginPath(); ctx.moveTo(x*TILE,0); ctx.lineTo(x*TILE,cv.height); ctx.stroke(); }
-  // Warm ambient glow from ceiling lights
-  const sg=ctx.createLinearGradient(0,0,0,240);
-  sg.addColorStop(0,'rgba(255,240,200,.35)'); sg.addColorStop(1,'rgba(255,240,200,0)');
-  ctx.fillStyle=sg; ctx.fillRect(0,0,cv.width,240);
-  // Food court zone (bottom): wood floor
-  ctx.fillStyle='#c9a06a'; ctx.fillRect(0,14*TILE,cv.width,4*TILE);
-  ctx.strokeStyle='rgba(120,90,50,.25)'; ctx.lineWidth=1;
-  for(let y=14;y<=18;y++){ ctx.beginPath(); ctx.moveTo(0,y*TILE); ctx.lineTo(cv.width,y*TILE); ctx.stroke(); }
-  ctx.fillStyle='#8a6a4a'; ctx.fillRect(0,14*TILE-4,cv.width,4);
-  // Storefront color scheme (matches Truman's screenshot)
-  const COLORS={
-    'Threads':['#7a3a8a','#9a5aaa'],  // purple STYLE
-    'Tech Hub':['#2a5aaa','#4a7aca'],  // blue
-    'Gadgets':['#2a5aaa','#4a7aca'],   // blue
-    'Food Court':['#aa3a2a','#ca5a4a'] // red Meals
-  };
-  ctx.textAlign='center';
-  for(const sf of (mm.storefronts||[])){
-    const sx=sf.x*TILE, sy=sf.y*TILE, sw=sf.w*TILE, sh=(sf.h||1)*TILE;
-    const [c1,c2]=COLORS[sf.name]||['#4a5a6a','#6a7a8a'];
-    // Facade with depth
-    ctx.fillStyle='#f5efe0'; ctx.fillRect(sx,sy-28,sw,28+sh);
-    ctx.fillStyle='rgba(0,0,0,.15)'; ctx.fillRect(sx,sy-28,sw,4);
-    // Colored header sign
-    const hg=ctx.createLinearGradient(0,sy-28,0,sy-8);
-    hg.addColorStop(0,c2); hg.addColorStop(1,c1);
-    ctx.fillStyle=hg; ctx.fillRect(sx+2,sy-26,sw-4,18);
-    ctx.fillStyle='#fff'; ctx.font='bold '+(sw<48?7:10)+'px sans-serif';
-    ctx.fillText(sf.name,sx+sw/2,sy-13);
-    // Window display with warm interior glow
-    ctx.fillStyle='#ffe8c0'; ctx.fillRect(sx+6,sy+4,sw-12,sh-8);
-    ctx.fillStyle='rgba(255,200,120,.3)'; ctx.fillRect(sx+6,sy+4,sw-12,8);
-    // Window frame
-    ctx.strokeStyle='#8a6a4a'; ctx.lineWidth=2;
-    ctx.strokeRect(sx+6,sy+4,sw-12,sh-8);
-    // Door (center bottom of storefront)
-    ctx.fillStyle='#6a4a2a'; ctx.fillRect(sx+sw/2-10,sy+sh-24,20,24);
-    ctx.fillStyle='#8a6a4a'; ctx.fillRect(sx+sw/2-8,sy+sh-22,16,22);
+  // Draw Truman's mall art as background
+  if(_mallImg.complete&&_mallImg.naturalWidth){
+    blitCoverImg(_mallImg,0,0,cv.width,cv.height);
+  } else {
+    // Fallback: warm floor while loading
+    ctx.fillStyle='#e8dcc8'; ctx.fillRect(0,0,cv.width,cv.height);
   }
-  // Wall sconce lights between stores
-  ctx.fillStyle='#ffdf9a';
-  for(const lx of [0.5,5.5,10.5]){ 
-    ctx.beginPath(); ctx.arc(lx*TILE,2.5*TILE,4,0,7); ctx.fill();
-    ctx.fillStyle='rgba(255,220,150,.2)'; ctx.beginPath(); ctx.arc(lx*TILE,2.5*TILE,12,0,7); ctx.fill();
-    ctx.fillStyle='#ffdf9a';
-  }
-// products in windows (small)
+  // Products in windows (small) - positioned over the image storefronts
   for(const [spr,x,y] of (mm.goods||[])) blit(spr,x*TILE+4,y*TILE+2,24,24);
-  // plants in atrium
+  // Plants
   blit('plant',5*TILE,9*TILE,28,36); blit('plant',5*TILE,11*TILE,28,36);
   for(const [px,py] of [[2,5],[8,5],[2,10],[8,10]]) blit('plant',px*TILE,py*TILE-4,32,40);
-  // food court tables + plant (tile 7/3 in collision map; drawn here so they're visible)
-  for(const [tx,ty] of [[4,15],[6,15],[4,16],[6,16]]) blit('f_table',tx*TILE,ty*TILE-6,TILE,TILE+6);
-  blit('plant',5*TILE+4,15*TILE+2,24,30);
-  // exit door at bottom (5,19) — prominent so players know how to leave
-  ctx.fillStyle='#2a3a2e'; ctx.fillRect(5*TILE-4,18*TILE+8,TILE+8,2*TILE-8);
-  ctx.fillStyle='#4a7a52'; ctx.fillRect(5*TILE,18*TILE+12,TILE,2*TILE-12);
-  ctx.fillStyle='#ffe27a'; ctx.fillRect(5*TILE+4,18*TILE+16,TILE-8,10);
-  ctx.fillStyle='#1c2b21'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center';
-  ctx.fillText('EXIT',5*TILE+16,18*TILE+24);
 }
+
 function drawBuilding34(b,id){
   if(id==='park'){
     ctx.fillStyle='#2c4a2e'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
@@ -794,9 +744,16 @@ function drawBody(){
   CUR_BASE=BASE_SPR[m.base||'grass']||'grass';
   ctx.fillStyle=m.floorC||'#5d8a5f'; ctx.fillRect(0,0,cv.width,cv.height);
   if(m.over){
-    drawGroundSmooth(m);
-    if(m.bld) for(const k in m.bld){ const b=m.bld[k]; if(b.x!==undefined) drawBuilding34(b,k); }
-    drawTownDecor(m,g);
+    if(S.map==='town'&&_townImg.complete&&_townImg.naturalWidth){
+      blitCoverImg(_townImg,0,0,cv.width,cv.height);
+      // Skip my canvas buildings - Truman's art has them
+      // Keep decor for extra polish
+      drawTownDecor(m,g);
+    } else {
+      drawGroundSmooth(m);
+      if(m.bld) for(const k in m.bld){ const b=m.bld[k]; if(b.x!==undefined) drawBuilding34(b,k); }
+      drawTownDecor(m,g);
+    }
   } else if(m.interior){
     const gr2=ctx.createLinearGradient(0,0,0,cv.height);
     gr2.addColorStop(0,'#cdbdd8'); gr2.addColorStop(1,'#a791b8');
