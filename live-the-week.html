@@ -12,8 +12,8 @@
   #hud { width:100%; max-width:430px; display:flex; justify-content:space-between; align-items:center;
     padding:8px 10px; background:#24402e; font-size:13px; z-index:5; gap:6px; }
   #hud b { color:#bfe3c6; }
-  #stage { position:relative; width:100%; max-width:430px; flex:1; min-height:0; display:flex; justify-content:center; }
-  canvas { height:100%; aspect-ratio:11/20; image-rendering:pixelated; touch-action:manipulation;
+  #stage { position:relative; width:100%; max-width:430px; flex:1; min-height:0; display:flex; justify-content:center; align-items:center; background:#141b16; }
+  canvas { width:100%; height:auto; max-height:100%; aspect-ratio:11/20; image-rendering:pixelated; touch-action:manipulation;
     background:#5d8a5f; max-width:100%; }
   #locname { position:absolute; top:8px; left:50%; transform:translateX(-50%); background:rgba(16,21,16,.75);
     padding:4px 14px; border-radius:14px; font-size:13px; color:#dff0e2; pointer-events:none; }
@@ -147,7 +147,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791335935';
+const BUILD_VERSION='1791339477';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -450,13 +450,6 @@ function blitCoverImg(im,dx,dy,dw,dh){
 function blitStretch(im,dx,dy,dw,dh){
   if(!(im&&im.complete&&im.naturalWidth)) return false;
   ctx.drawImage(im,dx,dy,dw,dh); return true; }
-function blitCoverImg(im,dx,dy,dw,dh){
-  if(!(im&&im.complete&&im.naturalWidth)) return false;
-  const ir=im.naturalWidth/im.naturalHeight, r=dw/dh;
-  let sw,sh,sx,sy;
-  if(ir>r){ sh=im.naturalHeight; sw=sh*r; sx=(im.naturalWidth-sw)/2; sy=0; }
-  else { sw=im.naturalWidth; sh=sw/r; sx=0; sy=(im.naturalHeight-sh)/2; }
-  ctx.drawImage(im,sx,sy,sw,sh,dx,dy,dw,dh); return true; }
 function blitCover(n,dx,dy,dw,dh){ const im=SPR[n];  // fill rect, preserve aspect (crop)
   if(!(im&&im.complete&&im.naturalWidth)) return false;
   const ir=im.naturalWidth/im.naturalHeight, r=dw/dh;
@@ -544,9 +537,7 @@ function drawMall(mm){
     // Fallback: warm floor while loading
     ctx.fillStyle='#e8dcc8'; ctx.fillRect(0,0,cv.width,cv.height);
   }
-  // Products in windows (small) - positioned over the image storefronts
-  for(const [spr,x,y] of (mm.goods||[])) blit(spr,x*TILE+4,y*TILE+2,24,24);
-  // (Truman's mall art already has plants - skip ours)
+  // (Truman's mall art already has products and plants - skip ours)
 }
 
 function drawBuilding34(b,id){
@@ -804,7 +795,7 @@ function drawBody(){
   // wanderers in town
   wanderers.forEach(w=>{ if(w.map===S.map) drawPerson(w.x,w.y+16,(w.path&&w.path.length)?w.spr+'_w':w.spr,0); });
   // player
-  drawPerson(S.px+16,S.py+16,playerSpr(),S.moving?Math.sin(Date.now()/150+S.px)*1.5:0);
+  drawPerson(S.px+16,S.py+16,playerSpr(),0);
   // floats
   for(let i=floats.length-1;i>=0;i--){ const f=floats[i];
     ctx.fillStyle=f.c; ctx.font='bold 13px sans-serif'; ctx.textAlign='center';
