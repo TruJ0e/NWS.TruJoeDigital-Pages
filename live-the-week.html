@@ -147,7 +147,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791340448';
+const BUILD_VERSION='1791344167';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -232,6 +232,11 @@ function buildTown(){
   putB('coffee',1,3,2,2,'COFFEE',1,5,'coffee',null);
   putB('store', 7,12,2,2,'STORE',8,14,'store',null);
   putB('home',  1,13,2,2,'HOME',  1,15,'house',null);
+  // Fence/yard collision: block areas around home and park to match art
+  // Home yard fence (visual: fence around the property)
+  for(let fx=0;fx<5;fx++){ g[12][fx]=1; g[16][fx]=1; }
+  for(let fy=12;fy<=16;fy++){ g[fy][0]=1; g[fy][4]=1; }
+  g[15][2]=0; // gate opening at door
   MAPS.town.bld.park={x:0,y:16,w:5,h:4,label:'PARK',door:null,fp:null,inside:null};
   [[0,16],[3,18],[4,17],[9,2],[10,15],[0,7],[4,11]].forEach(([x,y])=>{ if(g[y][x]===0) g[y][x]=3; });
   [[1,17],[2,18],[8,17],[9,18]].forEach(([x,y])=>{ if(g[y][x]===0) g[y][x]=3; });
@@ -661,6 +666,48 @@ function drawMess(){
     else { ctx.fillStyle=cols[i%4]; ctx.globalAlpha=.85; ctx.fillRect(x-12,y-6,24,12); ctx.globalAlpha=1; }
   }
 }
+// Chunked furniture system: modular, swappable, easy to add
+// Each furniture is a "chunk" with sprite, size, and allowed slots
+const FURNITURE_CHUNKS={
+  poster:{spr:'poster',w:36,h:36,slots:['wall']},
+  plant:{spr:'plant',w:44,h:44,slots:['floor_corner','floor']},
+  rug:{spr:'rug',w:95,h:40,slots:['floor_center']},
+  lamp:{spr:'lamp',w:40,h:50,slots:['floor_corner','table']},
+  bookshelf:{spr:'bookshelf',w:52,h:70,slots:['wall_floor']},
+  chair:{spr:'chair',w:46,h:46,slots:['floor']},
+  f_table:{spr:'f_table',w:48,h:30,slots:['floor_center']},
+  sofa:{spr:'sofa',w:64,h:40,slots:['floor']},
+  nightstand:{spr:'nightstand',w:36,h:40,slots:['floor_corner']},
+  dresser:{spr:'dresser',w:48,h:50,slots:['wall_floor']},
+  closet:{spr:'closet',w:52,h:70,slots:['wall_floor']},
+  headphones:{spr:'headphones',w:30,h:20,slots:['table','shelf']},
+  console:{spr:'console',w:30,h:20,slots:['table','floor']},
+};
+// Room slots: named positions where furniture chunks can go
+const ROOM_SLOTS={
+  house:{
+    wall1:{x:200,y:170,type:'wall'}, wall2:{x:100,y:170,type:'wall'},
+    corner1:{x:40,y:480,type:'floor_corner'}, corner2:{x:305,y:480,type:'floor_corner'},
+    center:{x:176,y:548,type:'floor_center'}, floor1:{x:250,y:450,type:'floor'},
+    floor2:{x:120,y:508,type:'floor_center'}, floor3:{x:118,y:415,type:'floor'},
+    shelf1:{x:308,y:280,type:'wall_floor'},
+  },
+  bedroom:{
+    wall1:{x:318,y:138,type:'wall'}, wall2:{x:100,y:138,type:'wall'},
+    corner1:{x:322,y:455,type:'floor_corner'}, corner2:{x:70,y:400,type:'floor_corner'},
+    center:{x:220,y:520,type:'floor_center'}, floor1:{x:295,y:505,type:'floor'},
+    table1:{x:120,y:335,type:'table'}, floor2:{x:180,y:560,type:'floor'},
+    corner3:{x:208,y:378,type:'floor_corner'}, shelf1:{x:292,y:282,type:'wall_floor'},
+    shelf2:{x:42,y:318,type:'wall_floor'},
+  }
+};
+// Track which chunk is in which slot: S.furnSlots = {bedroom:{wall1:'poster',...}}
+function getFurnInSlot(room,slot){ return (S.furnSlots&&S.furnSlots[room]&&S.furnSlots[room][slot])||null; }
+function setFurnInSlot(room,slot,chunkId){
+  S.furnSlots=S.furnSlots||{}; S.furnSlots[room]=S.furnSlots[room]||{};
+  if(chunkId) S.furnSlots[room][slot]=chunkId; else delete S.furnSlots[room][slot];
+}
+// Legacy FP_FURN for compatibility (positions only)
 const FP_FURN={
  house:{poster:[200,170,'poster',36],plant:[40,480,'plant',44],rug:[176,548,'rug',95],lamp:[305,480,'lamp',40],
    bookshelf:[308,280,'bookshelf',52],chair:[250,450,'chair',46],f_table:[120,508,'f_table',48],sofa:[118,415,'sofa',64]},
@@ -669,9 +716,14 @@ const FP_FURN={
    nightstand:[208,378,'nightstand',36],dresser:[292,282,'dresser',48],closet:[42,318,'closet',52]}
 };
 function drawRoomStuff(){
-  const furn=FP_FURN[S.fp]; if(!furn) return;
-  for(const k in furn){ const [x,y,spr,w]=furn[k];
-    if(S.room.some(i=>i.id===k)) blit(spr,x-w/2,y-w/2,w,w); }
+  const slots=ROOM_SLOTS[S.fp]; if(!slots) return;
+  const placed=(S.furnSlots&&S.furnSlots[S.fp])||{};
+  for(const [slotId,chunkId] of Object.entries(placed)){
+    const slot=slots[slotId]; const chunk=FURNITURE_CHUNKS[chunkId];
+    if(!slot||!chunk) continue;
+    // Draw chunk centered at slot position, at proper scale
+    blit(chunk.spr, slot.x-chunk.w/2, slot.y-chunk.h/2, chunk.w, chunk.h);
+  }
 }
 const FP_NPC={
  store:{x:50,y:45,baked:true,talk:()=>talkClerk()},
@@ -1335,9 +1387,38 @@ function renderPhone(){
 }
 function buyBike(){ if(spend(80,'bike')){ S.hasBike=true; toast('🚲 BIKE! The map just got smaller.'); renderPhone(); } }
 function buyRoom(id){ const it=ROOM_ITEMS.find(i=>i.id===id);
-  if(spend(it.c,'room: '+it.t)){ S.room.push(it); toast(it.t+' — check your room.'); renderPhone(); } }
+  if(!it) return;
+  const chunk=FURNITURE_CHUNKS[id];
+  if(!chunk){ toast('Furniture data missing.'); return; }
+  // Find an available slot of compatible type
+  const slots=ROOM_SLOTS[it.room]||{};
+  let placed=null;
+  for(const [slotId,slot] of Object.entries(slots)){
+    if(chunk.slots.includes(slot.type)&&!getFurnInSlot(it.room,slotId)){
+      placed=slotId; break;
+    }
+  }
+  // If no empty slot, replace first compatible (substitution)
+  if(!placed){
+    for(const [slotId,slot] of Object.entries(slots)){
+      if(chunk.slots.includes(slot.type)){ placed=slotId; break; }
+    }
+  }
+  if(!placed){ toast('No room for that here.'); return; }
+  smartSpend(it.c,'room',it.t,()=>{
+    if(spend(it.c,'room: '+it.t)){
+      S.room.push(it);
+      setFurnInSlot(it.room,placed,id);
+      toast(it.t+' placed. Check your room.'); renderPhone();
+    }
+  }); }
 function sellRoom(id){ const ix=S.room.findIndex(i=>i.id===id); if(ix<0) return;
   const it=S.room[ix]; S.room.splice(ix,1); S.money+=Math.floor(it.c/2);
+  // Clear from slot
+  const slots=ROOM_SLOTS[it.room]||{};
+  for(const slotId of Object.keys(slots)){
+    if(getFurnInSlot(it.room,slotId)===id) setFurnInSlot(it.room,slotId,null);
+  }
   toast('Sold for $'+Math.floor(it.c/2)+'. Depreciation stings.'); hud(); renderPhone(); }
 function scroll(){ S.scrolls++; const gain=[10,5,2,1][Math.min(S.scrolls-1,3)];
   advance(45); S.energy=Math.min(100,S.energy+gain);
