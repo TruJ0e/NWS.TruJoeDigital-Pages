@@ -146,6 +146,20 @@
   <p style="font-size:12px;color:#9fc3a4;margin-top:14px">Tap to walk. Walk into doors to go inside. 📱 is your hub — and your trap.</p>
 </div></div>
 <script>
+// Auto-update: check for new version, reload if available
+const BUILD_VERSION='1791335935';
+(function(){
+  try{
+    fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
+      .then(r=>r.text())
+      .then(v=>{
+        if(v.trim()&&v.trim()!==BUILD_VERSION){
+          console.log('New version available, reloading...');
+          location.href='live-the-week.html?v='+Date.now();
+        }
+      }).catch(()=>{});
+  }catch(e){}
+})();
 'use strict';
 /* ================= DATA ================= */
 const TILE=32, COLS=11, ROWS=20;
