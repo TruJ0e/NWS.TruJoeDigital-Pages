@@ -147,7 +147,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791339477';
+const BUILD_VERSION='1791340448';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -608,8 +608,10 @@ const FP={
    {x:30,y:90,w:26,h:8,t:'\u{1F6CB} Living room',fn:()=>enterFP('house')},
    {x:70,y:90,w:22,h:8,t:'\u2190 Outside',fn:()=>exitFP()}]},
  store:{name:'\u{1F3EA} Corner Store',art:'fp_store',spots:[
+   {x:50,y:70,w:28,h:9,t:'\u{1F6D2} Shop',fn:()=>talkClerk()},
    {x:50,y:93,w:26,h:8,t:'\u2190 Outside',fn:()=>exitFP()}]},
  coffee:{name:'\u2615 Coffee Shop',art:'fp_coffee',spots:[
+   {x:50,y:70,w:28,h:9,t:'\u2615 Order',fn:()=>talkBarista()},
    {x:50,y:93,w:26,h:8,t:'\u2190 Outside',fn:()=>exitFP()}]},
  work:{name:'\u{1F3E2} Work',art:'fp_work',spots:[
    {x:12,y:28,w:18,h:9,t:'\u{1F550} Time card',fn:()=>workPrompt()},
