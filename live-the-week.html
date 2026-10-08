@@ -174,7 +174,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791475254';
+const BUILD_VERSION='1791475938';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -289,52 +289,91 @@ function buildInterior(id,name,wallC,floorC){
   MAPS[id]=m; return m;
 }
 function buildMallIn(){
-  // MALL: storefronts on back + side walls, food court as separate area at bottom.
+  // MALL: matches Truman's art - 10 stores + EXIT
   const m=buildInterior('mallIn','MALL','#9a8ab0','#d8cce0'); m.base='mallfloor';
   const g=m.grid;
-  for(let x=1;x<=3;x++) g[3][x]=5;                              // threads storefront (back)
-  for(let x=7;x<=9;x++) g[3][x]=5;                              // tech hub storefront (back)
-  for(let y=6;y<=8;y++) g[y][9]=5;                              // gadget corner (right wall)
-  // food court: separate area at bottom (rows 14-17), counter + tables
-  for(let x=3;x<=7;x++) g[14][x]=5;                             // food counter
-  g[15][4]=7; g[15][6]=7; g[16][4]=7; g[16][6]=7;               // tables (tile 7)
-  for(let x=1;x<=9;x++) g[13][x]=6;                             // separator strip
-  g[15][5]=3;                                                   // plant
-  g[5][2]=3; g[5][8]=3; g[10][2]=3; g[10][8]=3;   // edge planters
+  // Top row: Meals, Sweets, Healthy (y=1-2)
+  for(let x=1;x<=3;x++) g[2][x]=5;                              // Meals
+  for(let x=4;x<=6;x++) g[2][x]=5;                              // Sweets
+  for(let x=7;x<=9;x++) g[2][x]=5;                              // Healthy
+  // Second row: STYLE (left), Bank|Jobs (right) (y=4-5)
+  for(let x=1;x<=3;x++) g[5][x]=5;                              // STYLE
+  for(let x=7;x<=9;x++) g[5][x]=5;                              // Bank|Jobs
+  // Third row: Books & Games (left), Tech Hub (right) (y=7-8)
+  for(let x=1;x<=3;x++) g[8][x]=5;                              // Books & Games
+  for(let x=7;x<=9;x++) g[8][x]=5;                              // Tech Hub
+  // Fourth row: Ride Shop (left), Home Living (right) (y=10-11)
+  for(let x=1;x<=3;x++) g[11][x]=5;                             // Ride Shop
+  for(let x=7;x<=9;x++) g[11][x]=5;                             // Home Living
+  // Animated clerks (overlay on baked-in art positions, with idle sway)
   m.npcs=[
-    {n:'Threads clerk',x:2*TILE,y:4.6*TILE,c:'#8a4a7a',spr:'wander1',say:'Hoodie $55, on sale $45. Tag says it all.'},
-    {n:'Tech clerk',x:8*TILE,y:4.6*TILE,c:'#4a7a8a',spr:'wander2',say:'Headphones $75, sale $60. Best in the mall. Probably.'},
-    {n:'Gadget guy',x:8*TILE,y:7*TILE,c:'#6a8a3a',spr:'barista',say:'Same headphones, $70. Sale $55. Just saying.'},
-    {n:'Cashier',x:7.5*TILE,y:15.5*TILE,c:'#b86a3a',spr:'clerk',say:'Burger $12. Bubble tea $7. The smell is free.'}];
+    {n:'Meals cook',x:2*TILE,y:2.5*TILE,c:'#c44a3a',spr:'cook',say:'Burger $12. Pizza slice $8. Hot dog $6.',sway:true},
+    {n:'Sweets clerk',x:5*TILE,y:2.5*TILE,c:'#c44a8a',spr:'clerk',say:'Ice cream $5. Donut $3. Cake slice $6.',sway:true},
+    {n:'Healthy clerk',x:8*TILE,y:2.5*TILE,c:'#4ac44a',spr:'clerk',say:'Salad bowl $9. Smoothie $7. Fresh and light.',sway:true},
+    {n:'Style clerk',x:2*TILE,y:5.5*TILE,c:'#8a4ac4',spr:'wander1',say:'Shirts $25. Dresses $45. Shoes $60.',sway:true},
+    {n:'Bank teller',x:7.5*TILE,y:5.5*TILE,c:'#4a6ac4',spr:'clerk',say:'Welcome to Bank. ATM is to my right.',sway:true},
+    {n:'Jobs recruiter',x:8.5*TILE,y:5.5*TILE,c:'#c48a4a',spr:'wander2',say:'Now hiring! Ask about part-time shifts.',sway:true},
+    {n:'Books clerk',x:2*TILE,y:8.5*TILE,c:'#4a8ac4',spr:'wander1',say:'New games $40. Books $15. Dice $5.',sway:true},
+    {n:'Tech clerk',x:8*TILE,y:8.5*TILE,c:'#4ac4c4',spr:'wander2',say:'Headphones $75. Consoles $299. Phones $199.',sway:true},
+    {n:'Ride clerk',x:2*TILE,y:11.5*TILE,c:'#c44a4a',spr:'barista',say:'Bikes $150. Skateboards $80. Scooters $120.',sway:true},
+    {n:'Home clerk',x:8*TILE,y:11.5*TILE,c:'#c48ac4',spr:'clerk',say:'Sofas $299. Lamps $45. Make it cozy.',sway:true}];
   m.storefronts=[
-    {x:1,y:3,w:3,h:1,shop:'threads',name:'Threads'},
-    {x:7,y:3,w:3,h:1,shop:'tech',name:'Tech Hub'},
-    {x:9,y:6,w:1,h:3,shop:'gadget',name:'Gadgets'},
-    {x:3,y:14,w:5,h:1,shop:'food',name:'Food Court'}];
+    {x:1,y:2,w:3,h:1,shop:'meals',name:'Meals'},
+    {x:4,y:2,w:3,h:1,shop:'sweets',name:'Sweets'},
+    {x:7,y:2,w:3,h:1,shop:'healthy',name:'Healthy'},
+    {x:1,y:5,w:3,h:1,shop:'style',name:'STYLE'},
+    {x:7,y:5,w:3,h:1,shop:'bankjobs',name:'Bank & Jobs'},
+    {x:1,y:8,w:3,h:1,shop:'booksgames',name:'Books & Games'},
+    {x:7,y:8,w:3,h:1,shop:'tech',name:'Tech Hub'},
+    {x:1,y:11,w:3,h:1,shop:'rides',name:'Ride Shop'},
+    {x:7,y:11,w:3,h:1,shop:'home',name:'Home Living'}];
   // products displayed in storefront windows: [sprite, tx, ty]
-  m.goods=[['c_hoodie',1,3],['c_sneakers',2,3],['c_cap',3,3],
-    ['headphones',7,3],['console',8,3],
-    ['headphones',9,6],['console',9,7],
-    ['c_burger',4,14],['c_boba',5,14],['c_pizza',6,14]];
-  // (no text price tags: products show as pictures on the booths)
-  m.spawn={x:5*TILE,y:16*TILE};
+  m.goods=[['c_burger',1,2],['c_pizza',2,2],['c_hotdog',3,2],
+    ['c_icecream',4,2],['c_donut',5,2],['c_cake',6,2],
+    ['c_salad',7,2],['c_smoothie',8,2],['c_salad',9,2],
+    ['c_shirt',1,5],['c_dress',2,5],['c_shoes',3,5],
+    ['c_book',1,8],['c_game',2,8],['c_dice',3,8],
+    ['headphones',7,8],['console',8,8],['phone',9,8],
+    ['c_bike',1,11],['c_skate',2,11],['c_scooter',3,11],
+    ['c_sofa',7,11],['c_lamp',8,11],['c_bed',9,11]];
+  m.spawn={x:5*TILE,y:14*TILE};
   MAPS.mallIn=m;
 }
 const SHOPS={
- threads:{name:'\u{1F455} Threads',items:[
-   {t:'Hoodie',full:55,sale:45,spr:'c_hoodie'},
-   {t:'Sneakers',full:95,sale:80,spr:'c_sneakers'},
-   {t:'Cap',full:30,sale:25,spr:'c_cap'}]},
- tech:{name:'\u{1F50C} Tech Hub',items:[
-   {t:'Headphones',full:75,sale:60,spr:'headphones',also:'Gadget Corner: $55'},
-   {t:'Game',full:60,sale:50,spr:'console',also:'Gadget Corner: $52'}]},
- gadget:{name:'\u{1F4FB} Gadget Corner',items:[
-   {t:'Headphones',full:70,sale:55,spr:'headphones',also:'Tech Hub: $60'},
-   {t:'Game',full:58,sale:52,spr:'console',also:'Tech Hub: $50'}]},
- food:{name:'\u{1F354} Food Court',items:[
+ meals:{name:'\u{1F354} Meals',items:[
    {t:'Burger',full:12,sale:12,spr:'c_burger',e:10},
-   {t:'Bubble tea',full:7,sale:7,spr:'c_boba',e:6},
-   {t:'Pizza slice',full:5,sale:5,spr:'c_pizza',e:5}]}
+   {t:'Pizza slice',full:8,sale:8,spr:'c_pizza',e:8},
+   {t:'Hot dog',full:6,sale:6,spr:'c_hotdog',e:6}]},
+ sweets:{name:'\u{1F366} Sweets',items:[
+   {t:'Ice cream',full:5,sale:5,spr:'c_icecream',e:4},
+   {t:'Donut',full:3,sale:3,spr:'c_donut',e:3},
+   {t:'Cake slice',full:6,sale:6,spr:'c_cake',e:5}]},
+ healthy:{name:'\u{1F957} Healthy',items:[
+   {t:'Salad bowl',full:9,sale:9,spr:'c_salad',e:8},
+   {t:'Smoothie',full:7,sale:7,spr:'c_smoothie',e:6}]},
+ style:{name:'\u{1F455} STYLE',items:[
+   {t:'Shirt',full:25,sale:20,spr:'c_shirt'},
+   {t:'Dress',full:45,sale:38,spr:'c_dress'},
+   {t:'Shoes',full:60,sale:50,spr:'c_shoes'}]},
+ bankjobs:{name:'\u{1F3E6} Bank & Jobs',items:[
+   {t:'ATM Info',full:0,sale:0,spr:'c_atm'},
+   {t:'Job Board',full:0,sale:0,spr:'c_hiring'}]},
+ booksgames:{name:'\u{1F4DA} Books & Games',items:[
+   {t:'Game',full:40,sale:35,spr:'c_game'},
+   {t:'Book',full:15,sale:12,spr:'c_book'},
+   {t:'Dice set',full:5,sale:5,spr:'c_dice'}]},
+ tech:{name:'\u{1F50C} Tech Hub',items:[
+   {t:'Headphones',full:75,sale:60,spr:'headphones'},
+   {t:'Console',full:299,sale:249,spr:'console'},
+   {t:'Phone',full:199,sale:179,spr:'phone'}]},
+ rides:{name:'\u{1F6B2} Ride Shop',items:[
+   {t:'Bike',full:150,sale:130,spr:'c_bike'},
+   {t:'Skateboard',full:80,sale:70,spr:'c_skate'},
+   {t:'Scooter',full:120,sale:100,spr:'c_scooter'}]},
+ home:{name:'\u{1F3E0} Home Living',items:[
+   {t:'Sofa',full:299,sale:249,spr:'c_sofa'},
+   {t:'Lamp',full:45,sale:38,spr:'c_lamp'},
+   {t:'Bed',full:399,sale:349,spr:'c_bed'}]}
 };
 function shopDlg(key){
   const sh=SHOPS[key];
@@ -894,7 +933,7 @@ function drawBody(){
         ctx.strokeText('▼ ENTER',dx,dy-8); ctx.fillText('▼ ENTER',dx,dy-8); ctx.lineWidth=1; } } }
   if(S.map==='mallIn'){ drawMall(curMap()); }
   // npcs
-  (m.npcs||[]).forEach(n=>{ drawPerson(n.x,n.y+16,n.spr||'clerk',0);
+  (m.npcs||[]).forEach(n=>{ const sway=n.sway?Math.sin(Date.now()/800+n.x)*2:0; drawPerson(n.x,n.y+16,n.spr||'clerk',sway);
     if(S.map!=='mallIn'){ ctx.fillStyle='#fff'; ctx.font='9px sans-serif'; ctx.textAlign='center';
       ctx.fillText(n.n,n.x,n.y-26); } });
   // wanderers in town
@@ -950,7 +989,7 @@ cv.addEventListener('pointerdown',e=>{
           }
         }
         if(!best){ toast('Cannot reach '+sf.name+'.'); return; }
-        const openShop=()=>{ if(sf.shop==='threads'&&!S.sneakerSeen){ S.sneakerSeen=true; sneakerPrompt(); } else shopDlg(sf.shop); };
+        const openShop=()=>{ if(sf.shop==='style'&&!S.sneakerSeen){ S.sneakerSeen=true; sneakerPrompt(); } else shopDlg(sf.shop); };
         if(bd===0){ openShop(); return; } // already there
         const path=bfs(best[0],best[1]);
         if(path&&path.length){ S.pendingAction=openShop; S.path=path.map(([x,y])=>({x:x*TILE,y:y*TILE})); S.moving=true; }
@@ -1073,6 +1112,8 @@ const wanderers=[
   {map:'mallIn',x:5*TILE,y:10*TILE,c:'#7a5a8a',spr:'shopper1',t:0,tx:0,ty:0,shopping:true,shopIdx:0,browseT:0},
   {map:'mallIn',x:6*TILE,y:12*TILE,c:'#5a8a7a',spr:'shopper2',t:0,tx:0,ty:0,shopping:true,shopIdx:3,browseT:0},
   {map:'mallIn',x:4*TILE,y:8*TILE,c:'#8a7a5a',spr:'shopper3',t:0,tx:0,ty:0,shopping:true,shopIdx:5,browseT:0},
+  {map:'mallIn',x:3*TILE,y:13*TILE,c:'#6a7a9a',spr:'shopper1',t:0,tx:0,ty:0,shopping:true,shopIdx:2,browseT:0},
+  {map:'mallIn',x:7*TILE,y:9*TILE,c:'#9a6a7a',spr:'shopper2',t:0,tx:0,ty:0,shopping:true,shopIdx:7,browseT:0},
 ];
 function wanderTick(dt){
   wanderers.forEach(w=>{
