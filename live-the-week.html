@@ -174,7 +174,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791480024';
+const BUILD_VERSION='1791489286';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -292,32 +292,29 @@ function buildMallIn(){
   // MALL: matches Truman's art - 10 stores + EXIT
   const m=buildInterior('mallIn','MALL','#9a8ab0','#d8cce0'); m.base='mallfloor';
   const g=m.grid;
-  // Top row: Meals, Sweets, Healthy - block y=1-2 (visual depth)
-  for(let x=1;x<=3;x++){ g[1][x]=5; g[2][x]=5; }                 // Meals
-  for(let x=4;x<=6;x++){ g[1][x]=5; g[2][x]=5; }                 // Sweets
-  for(let x=7;x<=9;x++){ g[1][x]=5; g[2][x]=5; }                 // Healthy
-  // Second row: STYLE (left), Bank|Jobs (right) - block y=4-5
-  for(let x=1;x<=3;x++){ g[4][x]=5; g[5][x]=5; }                 // STYLE
-  for(let x=7;x<=9;x++){ g[4][x]=5; g[5][x]=5; }                 // Bank|Jobs
-  // Third row: Books & Games (left), Tech Hub (right) - block y=7-8
-  for(let x=1;x<=3;x++){ g[7][x]=5; g[8][x]=5; }                 // Books
-  for(let x=7;x<=9;x++){ g[7][x]=5; g[8][x]=5; }                 // Tech
-  // Fourth row: Ride Shop (left), Home Living (right) - block y=10-11
-  for(let x=1;x<=3;x++){ g[10][x]=5; g[11][x]=5; }               // Ride
-  for(let x=7;x<=9;x++){ g[10][x]=5; g[11][x]=5; }               // Home
+  // Stores are 3x4 tiles (pixel-perfect with sprites)
+  for(let x=1;x<=3;x++){ for(let y=1;y<=4;y++) g[y][x]=5; }      // Meals
+  for(let x=4;x<=6;x++){ for(let y=1;y<=4;y++) g[y][x]=5; }      // Sweets
+  for(let x=7;x<=9;x++){ for(let y=1;y<=4;y++) g[y][x]=5; }      // Healthy
+  for(let x=1;x<=3;x++){ for(let y=6;y<=9;y++) g[y][x]=5; }      // STYLE
+  for(let x=7;x<=9;x++){ for(let y=6;y<=9;y++) g[y][x]=5; }      // Bank|Jobs
+  for(let x=1;x<=3;x++){ for(let y=11;y<=14;y++) g[y][x]=5; }    // Books
+  for(let x=7;x<=9;x++){ for(let y=11;y<=14;y++) g[y][x]=5; }    // Tech
+  for(let x=1;x<=3;x++){ for(let y=16;y<=19;y++) g[y][x]=5; }    // Ride
+  for(let x=7;x<=9;x++){ for(let y=16;y<=19;y++) g[y][x]=5; }    // Home
   // Clerks are baked into the art - no overlay sprites (they caused visual overlap)
   // NPC dialog still works via storefront interaction
   m.npcs=[];
   m.storefronts=[
-    {x:1,y:1,w:3,h:2,shop:'meals',name:'Meals'},
-    {x:4,y:1,w:3,h:2,shop:'sweets',name:'Sweets'},
-    {x:7,y:1,w:3,h:2,shop:'healthy',name:'Healthy'},
-    {x:1,y:4,w:3,h:2,shop:'style',name:'STYLE'},
-    {x:7,y:4,w:3,h:2,shop:'bankjobs',name:'Bank & Jobs'},
-    {x:1,y:7,w:3,h:2,shop:'booksgames',name:'Books & Games'},
-    {x:7,y:7,w:3,h:2,shop:'tech',name:'Tech Hub'},
-    {x:1,y:10,w:3,h:2,shop:'rides',name:'Ride Shop'},
-    {x:7,y:10,w:3,h:2,shop:'home',name:'Home Living'}];
+    {x:1,y:1,w:3,h:4,shop:'meals',name:'Meals'},
+    {x:4,y:1,w:3,h:4,shop:'sweets',name:'Sweets'},
+    {x:7,y:1,w:3,h:4,shop:'healthy',name:'Healthy'},
+    {x:1,y:6,w:3,h:4,shop:'style',name:'STYLE'},
+    {x:7,y:6,w:3,h:4,shop:'bankjobs',name:'Bank & Jobs'},
+    {x:1,y:11,w:3,h:4,shop:'booksgames',name:'Books & Games'},
+    {x:7,y:11,w:3,h:4,shop:'tech',name:'Tech Hub'},
+    {x:1,y:16,w:3,h:4,shop:'rides',name:'Ride Shop'},
+    {x:7,y:16,w:3,h:4,shop:'home',name:'Home Living'}];
   // products displayed in storefront windows: [sprite, tx, ty]
   m.goods=[['c_burger',1,2],['c_pizza',2,2],['c_hotdog',3,2],
     ['c_icecream',4,2],['c_donut',5,2],['c_cake',6,2],
@@ -610,14 +607,35 @@ function drawGroundSmooth(m){
 }
 // Mall uses Truman's pixel-art image as background (walkable overlay)
 const _mallImg=new Image(); _mallImg.src='assets/mall.jpg';
+// Store sprites for pixel-perfect integration (loaded from sliced art)
+const _storeImgs={};
+['meals','sweets','healthy','style','bankjobs','booksgames','tech','rides','home'].forEach(n=>{
+  const im=new Image(); im.src='assets/stores/store-'+n+'.png'; _storeImgs[n]=im;
+});
 const _townImg=new Image(); _townImg.src='assets/town.jpg';
 function drawMall(mm){
-  // Draw Truman's mall art as background
-  if(_mallImg.complete&&_mallImg.naturalWidth){
-    blitStretch(_mallImg,0,0,cv.width,cv.height);
-  } else {
-    // Fallback: warm floor while loading
-    ctx.fillStyle='#e8dcc8'; ctx.fillRect(0,0,cv.width,cv.height);
+  // Draw floor
+  ctx.fillStyle='#e8dcc8'; ctx.fillRect(0,0,cv.width,cv.height);
+  // Draw stores as placed sprites (pixel-perfect integration)
+  // Each store: 3 tiles wide, positioned at grid coords
+  const stores=[
+    {n:'meals',x:1,y:1},{n:'sweets',x:4,y:1},{n:'healthy',x:7,y:1},
+    {n:'style',x:1,y:6},{n:'bankjobs',x:7,y:6},
+    {n:'booksgames',x:1,y:11},{n:'tech',x:7,y:11},
+    {n:'rides',x:1,y:16},{n:'home',x:7,y:16},
+  ];
+  for(const s of stores){
+    const im=_storeImgs[s.n];
+    if(im&&im.complete&&im.naturalWidth){
+      // Draw at 3 tiles wide, 4 tiles tall (matches original art proportions)
+      ctx.drawImage(im, s.x*TILE, s.y*TILE, 3*TILE, 4*TILE);
+    }
+  }
+  // Fallback: if sprites not loaded, draw old background
+  if(!_storeImgs.meals||!_storeImgs.meals.complete){
+    if(_mallImg.complete&&_mallImg.naturalWidth){
+      blitStretch(_mallImg,0,0,cv.width,cv.height);
+    }
   }
   // (Truman's mall art already has products and plants - skip ours)
 }
