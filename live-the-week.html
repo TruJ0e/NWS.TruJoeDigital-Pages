@@ -12,9 +12,9 @@
   #hud { width:100%; max-width:430px; display:flex; justify-content:space-between; align-items:center;
     padding:8px 10px; background:#24402e; font-size:13px; z-index:5; gap:6px; }
   #hud b { color:#bfe3c6; }
-  #stage { position:relative; width:100%; max-width:430px; flex:1; min-height:0; display:flex; justify-content:center; align-items:stretch; background:#141b16; }
-  canvas { width:100%; height:100%; image-rendering:pixelated; touch-action:manipulation;
-    box-shadow:0 0 40px rgba(0,0,0,.5); border-radius:8px; }
+  #stage { position:relative; width:100%; flex:1; min-height:0; display:flex; justify-content:center; align-items:stretch; background:#141b16; }
+  @media (min-width:430px){ #stage { max-width:430px; } }
+  canvas { width:100%; height:100%; display:block; image-rendering:pixelated; touch-action:manipulation; }
   /* Desktop: game + side panel */
   #sidepanel { display:none; }
   @media (min-width:1000px){
@@ -174,7 +174,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791499410';
+const BUILD_VERSION='1791500038';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -1076,7 +1076,9 @@ function step(now){
 }
 function checkTile(){
   const [tx,ty]=tileOf(S.px+16,S.py+16), m=curMap();
-  if(m.grid[ty]&&m.grid[ty][tx]===4){ // door!
+  // Only auto-enter if door is the destination (path is empty or ends here)
+  // Prevents "sucked in" when walking past a door
+  if(m.grid[ty]&&m.grid[ty][tx]===4&&(!S.path||S.path.length===0)){
     S.path=[]; S.moving=false; enterDoor(tx,ty); return;
   }
 }
