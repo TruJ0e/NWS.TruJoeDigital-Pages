@@ -174,7 +174,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791465972';
+const BUILD_VERSION='1791466238';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -264,6 +264,17 @@ function buildTown(){
   for(let fx=0;fx<5;fx++){ g[12][fx]=1; g[16][fx]=1; }
   for(let fy=12;fy<=16;fy++){ g[fy][0]=1; g[fy][4]=1; }
   g[15][2]=0; // gate opening at door
+  // Tree clusters (visual: dense trees that should block)
+  // Top-left trees
+  g[0][0]=1; g[0][1]=1; g[1][0]=1;
+  // Top-center trees
+  g[0][4]=1; g[0][5]=1;
+  // Left side trees (middle)
+  g[6][0]=1; g[7][0]=1; g[8][0]=1;
+  // Right side trees
+  g[2][10]=1; g[3][10]=1; g[10][10]=1; g[11][10]=1;
+  // Bottom trees near park
+  g[18][0]=1; g[18][1]=1; g[19][0]=1;
   MAPS.town.bld.park={x:0,y:16,w:5,h:4,label:'PARK',door:null,fp:null,inside:null};
   [[0,16],[3,18],[4,17],[9,2],[10,15],[0,7],[4,11]].forEach(([x,y])=>{ if(g[y][x]===0) g[y][x]=3; });
   [[1,17],[2,18],[8,17],[9,18]].forEach(([x,y])=>{ if(g[y][x]===0) g[y][x]=3; });
