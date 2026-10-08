@@ -14,6 +14,19 @@
   #hud b { color:#bfe3c6; }
   #stage { position:relative; width:100%; max-width:430px; flex:1; min-height:0; display:flex; justify-content:center; align-items:center; background:#141b16; }
   canvas { width:100%; height:auto; max-height:100%; aspect-ratio:11/20; image-rendering:pixelated; touch-action:manipulation;
+    box-shadow:0 0 40px rgba(0,0,0,.5); border-radius:8px; }
+  /* Desktop: game + side panel */
+  #sidepanel { display:none; }
+  @media (min-width:1000px){
+    body { flex-direction:row; justify-content:center; align-items:flex-start; padding:20px; gap:24px; }
+    #maincol { display:flex; flex-direction:column; align-items:center; max-width:430px; width:100%; }
+    #hud, #objective, #stage { max-width:100%; }
+    #stage { height:calc(100vh - 140px); max-height:800px; }
+    #sidepanel { display:block; width:300px; background:#1c2b21; border:1px solid #3a5a40; border-radius:12px; padding:20px; margin-top:60px; }
+    #sidepanel h3 { color:#bfe3c6; margin:0 0 12px 0; font-size:16px; }
+    #sidepanel p { color:#9fc3a4; font-size:13px; line-height:1.5; margin:8px 0; }
+    #sidepanel .tip { background:#24402e; border-radius:8px; padding:10px; margin:10px 0; font-size:12px; }
+  }
     background:#5d8a5f; max-width:100%; }
   #locname { position:absolute; top:8px; left:50%; transform:translateX(-50%); background:rgba(16,21,16,.75);
     padding:4px 14px; border-radius:14px; font-size:13px; color:#dff0e2; pointer-events:none; }
@@ -52,6 +65,11 @@
   .post .who { color:#bfe3c6; font-weight:700; }
   #review { position:fixed; inset:0; background:#1c2b21; z-index:60; display:none; overflow-y:auto; padding:20px; }
   #review.open { display:block; }
+  @media (min-width:768px){
+    #review > div { max-width:560px !important; }
+    #review .card { background:#24402e; border:1px solid #3a5a40; border-radius:12px; padding:16px; margin:12px 0; }
+    #review .big { font-size:28px; }
+  }
   .big { font-size:22px; font-weight:800; color:#bfe3c6; }
   .neg { color:#ff9d8a; } .pos { color:#9fe6a8; }
   #start { position:fixed; inset:0; background:#1c2b21; z-index:70; display:flex; align-items:center; justify-content:center; padding:24px; }
@@ -100,6 +118,7 @@
 </style>
 </head>
 <body>
+<div id="maincol">
 <div id="hud">
   <span>📅 <b id="h_day">Mon</b> <span id="h_time">8:00a</span></span>
   <span>💵 <b id="h_money">$70</b></span>
@@ -115,6 +134,14 @@
   <div id="fade"></div>
   <div id="spots"></div>
 </div>
+</div><!-- /maincol -->
+<aside id="sidepanel">
+  <h3>🎮 Live the Week</h3>
+  <p>A financial literacy adventure. Work shifts, make smart purchases, pay your bills, and survive the week.</p>
+  <div class="tip"><b>🖱️ Desktop controls:</b><br>Click to walk • Click doors to enter • Click shops to browse</div>
+  <div class="tip"><b>📱 Mobile:</b><br>Tap to walk • Touch-hold & drag for joystick (enable in ⚙️)</div>
+  <div class="tip"><b>💡 Tip:</b><br>Work reviews earn your pay. Smart spending dialogs teach budgeting. Every choice matters.</div>
+</aside>
 <button id="phonebtn">📱</button>
 <div id="phone">
   <div id="notch"><span></span></div>
@@ -147,7 +174,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791344167';
+const BUILD_VERSION='1791463782';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -926,6 +953,7 @@ cv.addEventListener('pointerdown',e=>{
 // Joystick: drag to move directly
 cv.addEventListener('pointermove',e=>{
   if(!S.joy||S.joy.id!==e.pointerId||S.fp||!S.settings.joystick) return;
+  if(e.pointerType!=='touch') return; // joystick is touch-only; mouse uses tap-to-move
   const dx=e.clientX-S.joy.sx, dy=e.clientY-S.joy.sy;
   if(Math.hypot(dx,dy)>12&&!S.joy.active){
     S.joy.active=true; S.path=[]; S.moving=false; // joystick takes over
@@ -933,11 +961,16 @@ cv.addEventListener('pointermove',e=>{
   if(S.joy.active){
     const max=48, d=Math.hypot(dx,dy)||1, cl=Math.min(d,max);
     S.joy.dx=dx/d*cl/max; S.joy.dy=dy/d*cl/max;
+    _joyLastMove=Date.now();
   }
 });
 const endJoy=e=>{
-  if(S.joy&&S.joy.id===e.pointerId){ S.joy.active=false; S.joy.dx=0; S.joy.dy=0; S.joy.id=null; if(!S.path.length) S.moving=false; }
+  if(S.joy&&(!e.pointerId||S.joy.id===e.pointerId)){ S.joy.active=false; S.joy.dx=0; S.joy.dy=0; S.joy.id=null; if(!S.path.length) S.moving=false; }
 };
+cv.addEventListener('pointerleave',()=>{ S.joy.active=false; S.joy.dx=0; S.joy.dy=0; S.joy.id=null; });
+// Safety: if joystick stuck active with no input, kill it
+setInterval(()=>{ if(S.joy&&S.joy.active&&Date.now()-_joyLastMove>3000){ S.joy.active=false; S.joy.dx=0; S.joy.dy=0; } },1000);
+let _joyLastMove=0;
 cv.addEventListener('pointerup',endJoy);
 cv.addEventListener('pointercancel',endJoy);
 function buildingAt(tx,ty){
@@ -1011,11 +1044,33 @@ function fade(fn){ const f=$('fade'); const g=++fadeGen; f.style.opacity=1;
 /* ================= WANDERERS ================= */
 const wanderers=[
   {map:'town',x:3*TILE,y:8*TILE,c:'#8a4a7a',spr:'wander1',t:0,tx:0,ty:0},
-  {map:'town',x:8*TILE,y:4*TILE,c:'#4a7a8a',spr:'wander2',t:0,tx:0,ty:0}
+  {map:'town',x:8*TILE,y:4*TILE,c:'#4a7a8a',spr:'wander2',t:0,tx:0,ty:0},
+  // Mall shoppers: purposeful, go to shops, browse, move on
+  {map:'mallIn',x:5*TILE,y:10*TILE,c:'#7a5a8a',spr:'shopper1',t:0,tx:0,ty:0,shopping:true,shopIdx:0,browseT:0},
+  {map:'mallIn',x:6*TILE,y:12*TILE,c:'#5a8a7a',spr:'shopper2',t:0,tx:0,ty:0,shopping:true,shopIdx:3,browseT:0},
+  {map:'mallIn',x:4*TILE,y:8*TILE,c:'#8a7a5a',spr:'shopper3',t:0,tx:0,ty:0,shopping:true,shopIdx:5,browseT:0},
 ];
 function wanderTick(dt){
   wanderers.forEach(w=>{
     if(w.map!==S.map) return;
+    // Shoppers: browse at shop, then move to next
+    if(w.shopping){
+      if(w.browseT>0){ w.browseT-=dt; return; } // browsing, stand still
+      if(w.path&&w.path.length) return; // still walking
+      // Pick next shop storefront as destination
+      const m=curMap(); const sfs=m.storefronts||[];
+      if(sfs.length){
+        w.shopIdx=(w.shopIdx+1)%sfs.length;
+        const sf=sfs[w.shopIdx];
+        // Target tile in front of shop
+        const tx=sf.x+Math.floor(sf.w/2), ty=sf.y+sf.h;
+        const saved={px:S.px,py:S.py}; S.px=w.x; S.py=w.y;
+        const p=bfs(tx,ty); S.px=saved.px; S.py=saved.py;
+        if(p&&p.length>1){ w.path=p.map(([x,y])=>({x:x*TILE,y:y*TILE})); w.browseT=4+Math.random()*4; }
+        else w.browseT=2;
+      }
+      return;
+    }
     w.t-=dt;
     if(w.t<=0){ // pick new target
       const gx=1+Math.floor(Math.random()*(COLS-2)), gy=1+Math.floor(Math.random()*(ROWS-2));
