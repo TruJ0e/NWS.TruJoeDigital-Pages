@@ -174,7 +174,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791489734';
+const BUILD_VERSION='1791493966';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -606,36 +606,14 @@ function drawGroundSmooth(m){
   ctx.beginPath(); ctx.moveTo(-10,9.2*TILE); ctx.lineTo(cv.width+10,9.2*TILE); ctx.stroke();
 }
 // Mall uses Truman's pixel-art image as background (walkable overlay)
-const _mallImg=new Image(); _mallImg.src='assets/mall.jpg';
-// Store sprites for pixel-perfect integration (loaded from sliced art)
-const _storeImgs={};
-['meals','sweets','healthy','style','bankjobs','booksgames','tech','rides','home'].forEach(n=>{
-  const im=new Image(); im.src='assets/stores/store-'+n+'.png?v='+BUILD_VERSION; _storeImgs[n]=im;
-});
+const _mallImg=new Image(); _mallImg.src='assets/mall.jpg?v='+BUILD_VERSION;
 const _townImg=new Image(); _townImg.src='assets/town.jpg';
 function drawMall(mm){
-  // Draw floor
-  ctx.fillStyle='#e8dcc8'; ctx.fillRect(0,0,cv.width,cv.height);
-  // Draw stores as placed sprites (pixel-perfect integration)
-  // Each store: 3 tiles wide, positioned at grid coords
-  const stores=[
-    {n:'meals',x:1,y:1},{n:'sweets',x:4,y:1},{n:'healthy',x:7,y:1},
-    {n:'style',x:1,y:4},{n:'bankjobs',x:7,y:4},
-    {n:'booksgames',x:1,y:7},{n:'tech',x:7,y:7},
-    {n:'rides',x:1,y:10},{n:'home',x:7,y:10},
-  ];
-  for(const s of stores){
-    const im=_storeImgs[s.n];
-    if(im&&im.complete&&im.naturalWidth){
-      // Preserve aspect ratio: 393x260 source, 3 tiles wide = 2 tiles tall
-      ctx.drawImage(im, s.x*TILE, s.y*TILE, 3*TILE, 2*TILE);
-    }
-  }
-  // Fallback: if sprites not loaded, draw old background
-  if(!_storeImgs.meals||!_storeImgs.meals.complete){
-    if(_mallImg.complete&&_mallImg.naturalWidth){
-      blitStretch(_mallImg,0,0,cv.width,cv.height);
-    }
+  // Draw Truman's mall art as background (full cohesive mall interior)
+  if(_mallImg.complete&&_mallImg.naturalWidth){
+    blitStretch(_mallImg,0,0,cv.width,cv.height);
+  } else {
+    ctx.fillStyle='#e8dcc8'; ctx.fillRect(0,0,cv.width,cv.height);
   }
   // (Truman's mall art already has products and plants - skip ours)
 }
