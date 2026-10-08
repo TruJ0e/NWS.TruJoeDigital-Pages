@@ -174,7 +174,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791489286';
+const BUILD_VERSION='1791489483';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -610,7 +610,7 @@ const _mallImg=new Image(); _mallImg.src='assets/mall.jpg';
 // Store sprites for pixel-perfect integration (loaded from sliced art)
 const _storeImgs={};
 ['meals','sweets','healthy','style','bankjobs','booksgames','tech','rides','home'].forEach(n=>{
-  const im=new Image(); im.src='assets/stores/store-'+n+'.png'; _storeImgs[n]=im;
+  const im=new Image(); im.src='assets/stores/store-'+n+'.png?v='+BUILD_VERSION; _storeImgs[n]=im;
 });
 const _townImg=new Image(); _townImg.src='assets/town.jpg';
 function drawMall(mm){
