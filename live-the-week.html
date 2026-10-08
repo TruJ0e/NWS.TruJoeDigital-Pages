@@ -174,7 +174,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791466238';
+const BUILD_VERSION='1791475254';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -639,7 +639,12 @@ function drawPerson(x,y,sprName,bob){
 function playerSpr(){
   const d=S.dir||0;
   if(S.hasBike) return ['b_down','b_up','b_left','b_right'][d];
-  if(S.moving) return ['p_down_w','p_up_w','p_left_w','p_right_w'][d];
+  if(S.moving){
+    // 2-frame walk cycle: alternate every 200ms for visible leg movement
+    const frame=Math.floor(Date.now()/200)%2;
+    if(frame===0) return ['p_down','p_up','p_left','p_right'][d];
+    return ['p_down_w','p_up_w','p_left_w','p_right_w'][d];
+  }
   return ['p_down','p_up','p_left','p_right'][d];
 }
 function sky(h){ // [r,g,b,alpha] or null
@@ -883,11 +888,10 @@ function drawBody(){
   // entrance arrows when near a door
   if(S.map==='town') for(const k in m.bld){ const b=m.bld[k];
     if(b.door){ const dx=(b.door[0]+0.5)*TILE, dy=b.door[1]*TILE;
-      if(Math.hypot(S.px+16-dx,S.py+16-dy)<3*TILE){
-        const bob=Math.sin(Date.now()/300)*4;
-        ctx.fillStyle='#ffe27a'; ctx.font='bold 15px sans-serif'; ctx.textAlign='center';
-        ctx.strokeStyle='rgba(0,0,0,.6)'; ctx.lineWidth=3;
-        ctx.strokeText('▼ ENTER',dx,dy-10+bob); ctx.fillText('▼ ENTER',dx,dy-10+bob); ctx.lineWidth=1; } } }
+      if(Math.hypot(S.px+16-dx,S.py+16-dy)<2.5*TILE){
+        ctx.fillStyle='#ffe27a'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+        ctx.strokeStyle='rgba(0,0,0,.6)'; ctx.lineWidth=2;
+        ctx.strokeText('▼ ENTER',dx,dy-8); ctx.fillText('▼ ENTER',dx,dy-8); ctx.lineWidth=1; } } }
   if(S.map==='mallIn'){ drawMall(curMap()); }
   // npcs
   (m.npcs||[]).forEach(n=>{ drawPerson(n.x,n.y+16,n.spr||'clerk',0);
