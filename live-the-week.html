@@ -173,7 +173,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791514688';
+const BUILD_VERSION='1791514919';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -627,13 +627,16 @@ function drawGroundSmooth(m){
 const _mallImg=new Image(); _mallImg.src='assets/mall.jpg?v='+BUILD_VERSION;
 const _townImg=new Image(); _townImg.src='assets/town.jpg';
 function drawMall(mm){
-  // Draw Truman's mall art filling canvas (cover, 2% crop, taps align)
+  // Draw Truman's mall art: pixel-perfect, extended floor (no bars, no crop)
   if(_mallImg.complete&&_mallImg.naturalWidth){
     const iw=_mallImg.naturalWidth, ih=_mallImg.naturalHeight;
     const cw=cv.width, ch=cv.height;
-    const s=Math.max(cw/iw, ch/ih);
-    const dw=iw*s, dh=ih*s;
-    ctx.drawImage(_mallImg, (cw-dw)/2, (ch-dh)/2, dw, dh);
+    // Scale to fit height, center horizontally
+    const s=ch/ih;
+    const dw=iw*s, dh=ch;
+    // Fill sides with floor color (sampled from art, not black)
+    ctx.fillStyle='#e8dcc8'; ctx.fillRect(0,0,cw,ch);
+    ctx.drawImage(_mallImg, (cw-dw)/2, 0, dw, dh);
   } else {
     ctx.fillStyle='#e8dcc8'; ctx.fillRect(0,0,cv.width,cv.height);
   }
@@ -912,8 +915,8 @@ function drawBody(){
   ctx.fillStyle=m.floorC||'#5d8a5f'; ctx.fillRect(0,0,cv.width,cv.height);
   if(m.over){
     if(S.map==='town'&&_townImg.complete&&_townImg.naturalWidth){
-      { const tw=cv.width*0.96, th=cv.height*0.96;
-        blitStretch(_townImg,(cv.width-tw)/2,(cv.height-th)/2-10,tw,th); }
+      { const tw=cv.width, th=cv.height;
+        blitStretch(_townImg,0,0,tw,th); }
       // Skip my canvas buildings - Truman's art has them
       // Keep decor for extra polish
       drawTownDecor(m,g);
