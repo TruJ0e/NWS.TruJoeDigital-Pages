@@ -849,10 +849,18 @@ const ROOM_ART={
   house:{nh:4,preh:'assets/rooms/living-h-',nv:4,prev:'assets/rooms/living-v-'}
 };
 const _roomImgs={};
+// Preload all room images at startup to avoid black-bar race condition
+(function(){
+  for(const fp of ['bedroom','house']){
+    const r=ROOM_ART[fp]; if(!r) continue;
+    for(let i=0;i<r.nh;i++){ const k=fp+'-h-'+i; if(!_roomImgs[k]){ const im=new Image(); im.src=r.preh+i+'.jpg'; _roomImgs[k]=im; } }
+    for(let i=0;i<r.nv;i++){ const k=fp+'-v-'+i; if(!_roomImgs[k]){ const im=new Image(); im.src=r.prev+i+'.jpg'; _roomImgs[k]=im; } }
+  }
+})();
 function roomArt(fp){
   const r=ROOM_ART[fp]; if(!r) return null;
   // Pick horizontal (desktop) or vertical (iPhone) based on screen orientation
-  const isLandscape = cv.width > cv.height;
+  const isLandscape = (window.innerWidth||cv.width) > (window.innerHeight||cv.height);
   const n = isLandscape ? r.nh : r.nv;
   const pre = isLandscape ? r.preh : r.prev;
   const lvl=Math.min(n-1,Math.floor(S.mess/100*n));
