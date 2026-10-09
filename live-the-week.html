@@ -174,7 +174,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791513770';
+const BUILD_VERSION='1791514606';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -427,6 +427,8 @@ function checkZones(){
 }
 function walkable(x,y){ const g=curMap().grid;
   if(!(x>=0&&y>=0&&x<COLS&&y<ROWS)) return false;
+  // Town: block outer ring (zoom border) - player can't leave visual map
+  if(S.map==='town'&&(x===0||x===COLS-1||y===0||y===ROWS-1)) return false;
   if(![0,1,4,6].includes(g[y][x])) return false;
   // Pond collision (town): block ellipse area
   const m=curMap();
