@@ -872,8 +872,8 @@ function drawFP(){
   const sc=FP[S.fp];
   if(!sc){ S.fp=null; renderSpots(true); return; } // fail safe: never freeze the screen
   const ra=(S.fp==='house'||S.fp==='bedroom')?roomArt(S.fp):null;
-  if(ra&&ra.complete&&ra.naturalWidth){ blitCoverImg(ra,0,0,cv.width,cv.height); }
-  else blitCover(sc.art,0,0,cv.width,cv.height);
+  if(ra&&ra.complete&&ra.naturalWidth){ ctx.drawImage(ra,0,0,cv.width,cv.height); }
+  else if(sc.art){ const fim=SPR[sc.art]; if(fim&&fim.complete) ctx.drawImage(fim,0,0,cv.width,cv.height); }
   if(S.fp==='house'||S.fp==='bedroom'){ drawRoomStuff(); /* mess is baked into Truman's art */ }
   const npc=FP_NPC[S.fp];
   if(npc&&!npc.baked){ const hop=S.npcHop&&Date.now()-S.npcHop<600?-Math.sin((Date.now()-S.npcHop)/600*Math.PI)*10:0;
