@@ -8,12 +8,15 @@
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body { margin:0; padding:0; background:#141b16; height:100%; overflow:hidden;
     font-family:-apple-system,system-ui,sans-serif; color:#f2f5ef; }
-  body { display:flex; flex-direction:column; align-items:center; }
+  body { display:flex; flex-direction:column; align-items:stretch; }
+  /* #maincol must be explicit on mobile — align-items:center caused iOS Safari to shrink-wrap it to 0-width, doubling the HUD */
+  #maincol { width:100%; display:flex; flex-direction:column; flex:1; min-height:0; }
   #hud { width:100%; max-width:430px; display:flex; justify-content:space-between; align-items:center;
     padding:8px 10px; background:#24402e; font-size:13px; z-index:5; gap:6px; }
   #hud b { color:#bfe3c6; }
-  #stage { position:relative; width:100%; flex:1; min-height:0; display:flex; justify-content:center; align-items:stretch; background:#141b16; }
-  canvas { width:100%; height:100%; display:block; image-rendering:pixelated; touch-action:manipulation; }
+  #stage { position:relative; width:100%; flex:1; min-height:0; display:flex; justify-content:stretch; align-items:stretch; background:#141b16; }
+  /* flex:1 min-width:0 prevents canvas from using its 352px intrinsic min-content as width, which caused black bar on right */
+  canvas { width:100%; height:100%; display:block; flex:1; min-width:0; min-height:0; image-rendering:pixelated; touch-action:manipulation; }
   /* Desktop: game + side panel */
   #sidepanel { display:none; }
   @media (min-width:1000px){
@@ -26,7 +29,6 @@
     #sidepanel p { color:#9fc3a4; font-size:13px; line-height:1.5; margin:8px 0; }
     #sidepanel .tip { background:#24402e; border-radius:8px; padding:10px; margin:10px 0; font-size:12px; }
   }
-    background:#5d8a5f; max-width:100%; }
   #locname { position:absolute; top:8px; left:50%; transform:translateX(-50%); background:rgba(16,21,16,.75);
     padding:4px 14px; border-radius:14px; font-size:13px; color:#dff0e2; pointer-events:none; }
   #phonebtn { position:fixed; right:12px; bottom:12px; width:58px; height:58px; border-radius:50%;
@@ -872,6 +874,7 @@ function drawFP(){
   const sc=FP[S.fp];
   if(!sc){ S.fp=null; renderSpots(true); return; } // fail safe: never freeze the screen
   const ra=(S.fp==='house'||S.fp==='bedroom')?roomArt(S.fp):null;
+  ctx.fillStyle='#1a1a1a'; ctx.fillRect(0,0,cv.width,cv.height);
   if(ra&&ra.complete&&ra.naturalWidth){ ctx.drawImage(ra,0,0,cv.width,cv.height); }
   else if(sc.art){ const fim=SPR[sc.art]; if(fim&&fim.complete) ctx.drawImage(fim,0,0,cv.width,cv.height); }
   if(S.fp==='house'||S.fp==='bedroom'){ drawRoomStuff(); /* mess is baked into Truman's art */ }
