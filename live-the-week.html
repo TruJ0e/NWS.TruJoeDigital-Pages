@@ -173,7 +173,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791514919';
+const BUILD_VERSION='1791515484';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -188,7 +188,7 @@ const BUILD_VERSION='1791514919';
 })();
 'use strict';
 /* ================= DATA ================= */
-let TILE=32, COLS=11, ROWS=20;
+const TILE=32, COLS=11, ROWS=20;
 const BLD_W=64, BLD_H=76; // town building sprite size (squat, not towers)
 const JOBS = {
   '14-15': [ {id:'sitter',t:'Babysitter',w:14}, {id:'yard',t:'Yard work',w:14}, {id:'dog',t:'Dog walker',w:13} ],
@@ -542,23 +542,8 @@ function blitC(n,cx,feetY,bob){ const im=SPR[n];   // centered, anchored at feet
     ctx.drawImage(im,cx-w/2,feetY-h+(bob||0),w,h); return true; } return false; }
 /* ================= RENDER ================= */
 const cv=$('game'), ctx=cv.getContext('2d');
-function fitCanvas(){
-  const stage=$('stage');
-  const r=stage.getBoundingClientRect();
-  const dpr=Math.min(2, window.devicePixelRatio||1);
-  const oldTILE=TILE;
-  cv.width=Math.max(1, Math.floor(r.width*dpr));
-  cv.height=Math.max(1, Math.floor(r.height*dpr));
-  TILE=Math.max(16, Math.floor(cv.width/COLS));
-  // Scale player position to new TILE
-  if(oldTILE!==TILE && oldTILE>0){
-    const s=TILE/oldTILE;
-    S.px*=s; S.py*=s;
-    if(S.path) S.path=S.path.map(p=>({x:p.x*s, y:p.y*s}));
-  }
-}
-window.addEventListener('resize', fitCanvas);
-fitCanvas();
+// fitCanvas DISABLED for debugging - using fixed 352x640
+// function fitCanvas(){ ... }
 ctx.imageSmoothingEnabled=false; // crisp pixels
 const floats=[]; // {x,y,t,txt,c,life}
 function floatText(txt,x,y,c){ floats.push({x,y,txt,c:c||'#fff',life:1}); }
