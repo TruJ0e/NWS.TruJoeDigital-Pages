@@ -173,7 +173,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791518689';
+const BUILD_VERSION='1791519258';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -542,8 +542,9 @@ function blitC(n,cx,feetY,bob){ const im=SPR[n];   // centered, anchored at feet
     ctx.drawImage(im,cx-w/2,feetY-h+(bob||0),w,h); return true; } return false; }
 /* ================= RENDER ================= */
 const cv=$('game'), ctx=cv.getContext('2d');
-// fitCanvas DISABLED for debugging - using fixed 352x640
-// function fitCanvas(){ ... }
+// fitCanvas removed: fixed 352x640 canvas with CSS width:100%;height:100% works.
+// The browser scales the canvas to the device. Grid coordinates stay in 352x640 space.
+// This is the "fitted per device" - the canvas IS the device, scaled by CSS.
 ctx.imageSmoothingEnabled=false; // crisp pixels
 const floats=[]; // {x,y,t,txt,c,life}
 function floatText(txt,x,y,c){ floats.push({x,y,txt,c:c||'#fff',life:1}); }
