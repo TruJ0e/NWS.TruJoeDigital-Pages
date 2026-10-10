@@ -1122,12 +1122,7 @@ function fade(fn){ const f=$('fade'); const g=++fadeGen; f.style.opacity=1;
 const wanderers=[
   {map:'town',x:3*TILE,y:8*TILE,c:'#8a4a7a',spr:'wander1',t:0,tx:0,ty:0},
   {map:'town',x:8*TILE,y:4*TILE,c:'#4a7a8a',spr:'wander2',t:0,tx:0,ty:0},
-  // Mall shoppers: purposeful, go to shops, browse, move on
-  {map:'mallIn',x:5*TILE,y:12*TILE,c:'#7a5a8a',spr:'shopper1',t:0,tx:0,ty:0,shopping:true,shopIdx:0,browseT:0},
-  {map:'mallIn',x:6*TILE,y:12*TILE,c:'#5a8a7a',spr:'shopper2',t:0,tx:0,ty:0,shopping:true,shopIdx:3,browseT:0},
-  {map:'mallIn',x:4*TILE,y:8*TILE,c:'#8a7a5a',spr:'shopper3',t:0,tx:0,ty:0,shopping:true,shopIdx:5,browseT:0},
-  {map:'mallIn',x:3*TILE,y:13*TILE,c:'#6a7a9a',spr:'shopper1',t:0,tx:0,ty:0,shopping:true,shopIdx:2,browseT:0},
-  {map:'mallIn',x:7*TILE,y:9*TILE,c:'#9a6a7a',spr:'shopper2',t:0,tx:0,ty:0,shopping:true,shopIdx:7,browseT:0},
+  // Mall shoppers removed per Truman 2026-10-10
 ];
 function wanderTick(dt){
   wanderers.forEach(w=>{
