@@ -6,22 +6,23 @@
 <title>Live the Week v1.9 — overhead 3/4</title>
 <style>
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html,body { margin:0; padding:0; background:#141b16; height:100%; overflow:hidden;
-    font-family:-apple-system,system-ui,sans-serif; color:#f2f5ef; }
-  body { display:block; }
-  #maincol { width:100%; display:block; }
+  html { margin:0; padding:0; height:100%; overflow:hidden; }
+  body { margin:0; padding:0; position:fixed; top:0; left:0; width:100%; height:100%;
+    overflow:hidden; display:flex; flex-direction:column;
+    background:#141b16; font-family:-apple-system,system-ui,sans-serif; color:#f2f5ef; }
+  #maincol { width:100%; flex:1; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
   #hud { width:100%; max-width:430px; display:flex; justify-content:space-between; align-items:center;
-    padding:8px 10px; background:#24402e; font-size:13px; z-index:5; gap:6px; }
+    padding:8px 10px; background:#24402e; font-size:13px; z-index:5; gap:6px; flex-shrink:0; }
   #hud b { color:#bfe3c6; }
-  #stage { position:relative; width:100%; height:calc(100vh - 120px); display:block; background:#141b16; overflow:hidden; }
+  #stage { position:relative; width:100%; flex:1; min-height:0; display:block; background:#141b16; overflow:hidden; }
   canvas { width:100%; height:100%; display:block; image-rendering:pixelated; touch-action:manipulation; }
   /* Desktop: game + side panel */
   #sidepanel { display:none; }
   @media (min-width:1000px){
     body { flex-direction:row; justify-content:center; align-items:flex-start; padding:20px; gap:24px; }
-    #maincol { display:flex; flex-direction:column; align-items:center; max-width:430px; width:100%; }
+    #maincol { flex:none; flex-direction:column; align-items:center; max-width:430px; width:100%; height:100%; }
     #hud, #objective, #stage { max-width:100%; }
-    #stage { height:calc(100vh - 140px); max-height:800px; }
+    #stage { max-height:800px; }
     #sidepanel { display:block; width:300px; background:#1c2b21; border:1px solid #3a5a40; border-radius:12px; padding:20px; margin-top:60px; }
     #sidepanel h3 { color:#bfe3c6; margin:0 0 12px 0; font-size:16px; }
     #sidepanel p { color:#9fc3a4; font-size:13px; line-height:1.5; margin:8px 0; }
@@ -173,7 +174,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791519258';
+const BUILD_VERSION='1791599310';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -1618,3 +1619,7 @@ renderJobPick(); hud(); draw(); requestAnimationFrame(step);
 </script>
 </body>
 </html>
+
+
+
+
