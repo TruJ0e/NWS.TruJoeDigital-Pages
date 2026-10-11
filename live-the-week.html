@@ -254,13 +254,15 @@ function buildTown(){
   MAPS.town={ name:'Maple Street', grid:g, bld:{}, over:true,
     paths:[ [[5.5,3],[7,3]], [[7,8],[7,9.5]], [[1,5],[5.5,5]], [[8,11],[8,9.5]], [[1,15],[5.5,15]] ],
     pond:{x:1.6,y:17.0,rx:1.4,ry:1.2} };
-  // REBUILT 2026-10-10 from Truman's new art (pixel-for-pixel)
-  // Grid: 11x20, buildings measured from 1179x1769 art
-  putB('coffee',0,3,3,3,'COFFEE',1,6,'coffee',null);
-  putB('mall',  6,1,4,3,'MALL',  7,4,null,'mallIn');
-  putB('work',  6,7,4,3,'WORK',  7,10,'work',null);
-  putB('home',  0,11,3,4,'HOME', 1,15,'house',null);
-  putB('store', 6,11,4,4,'STORE',7,15,'store',null);
+  // REBUILT 2026-10-10 from Truman's new art - measured pixel-for-pixel
+  // COFFEE: box(70,380,330,580) door(200,550) | MALL: box(680,120,1080,420) door(880,400)
+  // WORK: box(680,680,1080,980) door(880,950) | HOME: box(70,1080,330,1380) door(200,1350)
+  // STORE: box(680,1080,1080,1380) door(880,1350)
+  putB('coffee',0,4,4,3,'COFFEE',1,6,'coffee',null);
+  putB('mall',  6,1,5,4,'MALL',  8,4,null,'mallIn');
+  putB('work',  6,7,5,5,'WORK',  8,10,'work',null);
+  putB('home',  0,12,4,4,'HOME', 1,15,'house',null);
+  putB('store', 6,12,5,4,'STORE',8,15,'store',null);
   // WIPED 2026-10-10 per Truman - rebuilding from new art
   S.px=5*TILE; S.py=12*TILE;
 }
@@ -617,14 +619,7 @@ function drawBuilding34(b,id){
   ctx.fillStyle='rgba(0,0,0,.22)';
   ctx.beginPath(); ctx.ellipse(bx+W/2+5,by+H-3,W*0.55,8,0,0,7); ctx.fill();
   if(spr) blit(spr,bx,by,W,H);
-  // hanging sign near the door (always on-screen)
-  const cx=(b.x+b.w/2)*TILE, py=by+H-14;
-  ctx.fillStyle='rgba(24,32,26,.85)';
-  ctx.font='bold 9px sans-serif';
-  const w=ctx.measureText(b.label).width+14;
-  ctx.fillRect(cx-w/2,py-9,w,15);
-  ctx.fillStyle='#f2e8c9'; ctx.textAlign='center';
-  ctx.fillText(b.label,cx,py+2);
+  // Labels are baked into Truman's art - no code-drawn sign
 }
 function drawTownDecor(m,g){
   for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
