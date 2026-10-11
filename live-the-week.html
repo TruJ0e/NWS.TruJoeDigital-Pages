@@ -262,9 +262,9 @@ function buildTown(){
   // STORE: box(680,1080,1080,1380) door(880,1350)
   putB('coffee',0,5,4,4,'COFFEE',2,9,'coffee',null);
   putB('mall',  6,4,5,4,'MALL',  8,8,null,'mallIn');
-  putB('work',  6,7,5,4,'WORK',  8,11,'work',null);
+  putB('work',  6,9,5,4,'WORK',  8,13,'work',null);
   putB('home',  0,11,4,4,'HOME', 2,15,'house',null);
-  putB('store', 6,11,5,4,'STORE',8,15,'store',null);
+  putB('store', 6,14,5,4,'STORE',8,18,'store',null);
   // WIPED 2026-10-10 per Truman - rebuilding from new art
   S.px=5*TILE; S.py=12*TILE;
 }
@@ -848,9 +848,10 @@ function drawFP(){
   ctx.fillStyle='#1a1a1a'; ctx.fillRect(0,0,cv.width,cv.height);
   const drawCover=(im)=>{
     // Aspect-preserving cover: fill canvas, crop overflow, no scrunch/stretch
+    // 0.85 zoom-out so interiors aren't too tight (Truman 2026-10-11)
     const iw=im.naturalWidth||im.width, ih=im.naturalHeight||im.height;
     if(!iw||!ih) return;
-    const s=Math.max(cv.width/iw, cv.height/ih);
+    const s=Math.max(cv.width/iw, cv.height/ih)*0.85;
     const dw=iw*s, dh=ih*s;
     ctx.drawImage(im,(cv.width-dw)/2,(cv.height-dh)/2,dw,dh);
   };
