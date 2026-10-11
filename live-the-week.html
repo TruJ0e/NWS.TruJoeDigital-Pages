@@ -118,6 +118,9 @@
   }
  .spot{position:absolute;pointer-events:auto;background:rgba(20,28,22,.82);color:#f2e8c9;border:1.5px solid #7fd6a4;border-radius:12px;font-size:12px;font-weight:700;padding:8px 10px;transform:translate(-50%,-50%);box-shadow:0 2px 8px rgba(0,0,0,.4)}
 </style>
+
+<!-- NOTE 2026-10-11 (Truman): Drag mechanic speeds up in-game time dramatically (full week in <3 min).
+     This is a BUG but Truman wants it LEFT AS-IS for now (useful for testing). Do not fix. -->
 </head>
 <body>
 <div id="maincol">
@@ -1041,8 +1044,36 @@ function buildingAt(tx,ty){
   return null;
 }
 let lastT=0;
+// Arrow keys / WASD for desktop (Truman 2026-10-11)
+const KEYS={};
+addEventListener('keydown',e=>{
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','W','A','S','D'].includes(e.key)){
+    KEYS[e.key.toLowerCase()]=true; e.preventDefault();
+  }
+  // Enter/Space to enter door when near
+  if((e.key==='Enter'||e.key===' ')&&S.map==='town'){
+    const tx=Math.floor((S.px+16)/TILE), ty=Math.floor((S.py+16)/TILE);
+    for(const k in curMap().bld){ const b=curMap().bld[k];
+      if(b.door&&Math.abs(b.door[0]-tx)<=1&&Math.abs(b.door[1]-ty)<=1){ enterDoor(b.door[0],b.door[1]); break; } }
+  }
+});
+addEventListener('keyup',e=>{ KEYS[e.key.toLowerCase()]=false; });
 function step(now){
   const dt=Math.min(0.05,(now-lastT)/1000||0); lastT=now;
+  // Arrow keys / WASD movement (desktop)
+  const kx=(KEYS['arrowright']||KEYS['d']?1:0)-(KEYS['arrowleft']||KEYS['a']?1:0);
+  const ky=(KEYS['arrowdown']||KEYS['s']?1:0)-(KEYS['arrowup']||KEYS['w']?1:0);
+  if((kx||ky)&&!S.fp&&S.map!=='mallIn'){
+    const sp=120*dt; // pixels per second
+    const nx=S.px+kx*sp, ny=S.py+ky*sp;
+    const tx=Math.floor((nx+16)/TILE), ty=Math.floor((S.py+16)/TILE);
+    if(walkable(tx,ty)) S.px=nx;
+    const tx2=Math.floor((S.px+16)/TILE), ty2=Math.floor((ny+16)/TILE);
+    if(walkable(tx2,ty2)) S.py=ny;
+    S.dir=kx? (kx>0?3:2) : (ky>0?0:1);
+    S.moving=true; S.path=[];
+    advance(1); checkTile(); checkZones();
+  }
   // Virtual joystick direct control (if enabled in settings)
   if(S.joy&&S.joy.active&&S.settings.joystick){
     const jx=S.joy.dx, jy=S.joy.dy, mag=Math.hypot(jx,jy);
