@@ -20,12 +20,12 @@
   /* Desktop: game + side panel */
   #sidepanel { display:none; }
   @media (min-width:1000px){
-    body { flex-direction:row; justify-content:center; align-items:stretch; padding:0; gap:0; }
-    #maincol { flex:1; display:flex; flex-direction:column; width:100%; height:100vh; max-width:none; }
-    #hud { max-width:none; }
-    #objective { max-width:none; }
-    #stage { max-width:none; max-height:none; flex:1; }
-    #sidepanel { display:block; width:300px; background:#1c2b21; border:1px solid #3a5a40; border-radius:12px; padding:20px; margin-top:60px; }
+    body { flex-direction:column; justify-content:flex-start; align-items:stretch; padding:0; gap:0; }
+    #maincol { flex:1; display:flex; flex-direction:column; width:100vw; height:100vh; max-width:none; }
+    #hud { max-width:none; width:100%; }
+    #objective { max-width:none; width:100%; }
+    #stage { max-width:none; max-height:none; flex:1; width:100%; }
+    #sidepanel { display:none; }
     #sidepanel h3 { color:#bfe3c6; margin:0 0 12px 0; font-size:16px; }
     #sidepanel p { color:#9fc3a4; font-size:13px; line-height:1.5; margin:8px 0; }
     #sidepanel .tip { background:#24402e; border-radius:8px; padding:10px; margin:10px 0; font-size:12px; }
