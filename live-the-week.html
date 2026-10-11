@@ -253,16 +253,16 @@ function buildTown(){
     g[doorY][doorX]=4; };
   MAPS.town={ name:'Maple Street', grid:g, bld:{}, over:true,
     paths:[ [[5.5,3],[7,3]], [[7,8],[7,9.5]], [[1,5],[5.5,5]], [[8,11],[8,9.5]], [[1,15],[5.5,15]] ],
-    pond:{x:1.6,y:17.0,rx:1.4,ry:1.2} };
+    pond:{x:1.5,y:17.5,rx:1.0,ry:0.8} };
   // REBUILT 2026-10-10 from Truman's new art - measured pixel-for-pixel
   // COFFEE: box(70,380,330,580) door(200,550) | MALL: box(680,120,1080,420) door(880,400)
   // WORK: box(680,680,1080,980) door(880,950) | HOME: box(70,1080,330,1380) door(200,1350)
   // STORE: box(680,1080,1080,1380) door(880,1350)
-  putB('coffee',0,4,4,3,'COFFEE',1,6,'coffee',null);
-  putB('mall',  6,1,5,4,'MALL',  8,4,null,'mallIn');
-  putB('work',  6,7,5,5,'WORK',  8,10,'work',null);
-  putB('home',  0,12,4,4,'HOME', 1,15,'house',null);
-  putB('store', 6,12,5,4,'STORE',8,15,'store',null);
+  putB('coffee',0,4,4,3,'COFFEE',1,7,'coffee',null);
+  putB('mall',  6,1,5,4,'MALL',  8,5,null,'mallIn');
+  putB('work',  6,7,5,5,'WORK',  5,9,'work',null);
+  putB('home',  0,12,4,4,'HOME', 4,14,'house',null);
+  putB('store', 6,12,5,4,'STORE',8,16,'store',null);
   // WIPED 2026-10-10 per Truman - rebuilding from new art
   S.px=5*TILE; S.py=12*TILE;
 }
