@@ -846,8 +846,16 @@ function drawFP(){
   if(!sc){ S.fp=null; renderSpots(true); return; } // fail safe: never freeze the screen
   const ra=(S.fp==='house'||S.fp==='bedroom')?roomArt(S.fp):null;
   ctx.fillStyle='#1a1a1a'; ctx.fillRect(0,0,cv.width,cv.height);
-  if(ra&&ra.complete&&ra.naturalWidth){ ctx.drawImage(ra,0,0,cv.width,cv.height); }
-  else if(sc.art){ const fim=SPR[sc.art]; if(fim&&fim.complete) ctx.drawImage(fim,0,0,cv.width,cv.height); }
+  const drawCover=(im)=>{
+    // Aspect-preserving cover: fill canvas, crop overflow, no scrunch/stretch
+    const iw=im.naturalWidth||im.width, ih=im.naturalHeight||im.height;
+    if(!iw||!ih) return;
+    const s=Math.max(cv.width/iw, cv.height/ih);
+    const dw=iw*s, dh=ih*s;
+    ctx.drawImage(im,(cv.width-dw)/2,(cv.height-dh)/2,dw,dh);
+  };
+  if(ra&&ra.complete&&ra.naturalWidth){ drawCover(ra); }
+  else if(sc.art){ const fim=SPR[sc.art]; if(fim&&fim.complete) drawCover(fim); }
   if(S.fp==='house'||S.fp==='bedroom'){ drawRoomStuff(); /* mess is baked into Truman's art */ }
   const npc=FP_NPC[S.fp];
   if(npc&&!npc.baked){ const hop=S.npcHop&&Date.now()-S.npcHop<600?-Math.sin((Date.now()-S.npcHop)/600*Math.PI)*10:0;
