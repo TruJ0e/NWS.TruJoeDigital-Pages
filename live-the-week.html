@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Live the Week v1.9 — overhead 3/4</title>
+<title>Live the Week v1.10 — overhead 3/4</title>
 <style>
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html { margin:0; padding:0; height:100%; overflow:hidden; }
@@ -57,7 +57,7 @@
   #dlg.open { display:flex; }
   #dlgbox { background:#f2f5ef; color:#1c2b21; border-radius:14px; padding:18px; max-width:340px; width:100%; }
   #dlgbox h3 { margin:0 0 8px; font-size:17px; }
-  #dlgbox p { font-size:14px; margin:0 0 12px; }
+  #dlgbox p { font-size:14px; margin:0 0 12px; white-space:pre-line; }
   #dlgbtns { display:flex; gap:8px; flex-wrap:wrap; }
   #dlgbtns button { flex:1; min-width:100px; padding:10px; border-radius:10px; font-size:15px; border:none; }
   #toast { position:fixed; left:50%; transform:translateX(-50%); bottom:84px; background:#101510; color:#dff0e2;
@@ -128,7 +128,7 @@
   <span>📅 <b id="h_day">Mon</b> <span id="h_time">8:00a</span></span>
   <span>💵 <b id="h_money">$70</b></span>
   <span>⚡ <b id="h_energy">100</b></span>
-  <span style="font-size:10px;color:#6a8a72">v1.9</span>
+  <span style="font-size:10px;color:#6a8a72">v1.10</span>
   <button id="waitbtn" class="ghost" style="padding:4px 10px;font-size:12px">⏳ +30m</button>
   <button id="setbtn" class="ghost" style="padding:4px 10px;font-size:14px">⚙️</button>
 </div>
@@ -179,7 +179,7 @@
 </div></div>
 <script>
 // Auto-update: check for new version, reload if available
-const BUILD_VERSION='1791599310';
+const BUILD_VERSION='1791774171';
 (function(){
   try{
     fetch('live-the-week.version?t='+Date.now(),{cache:'no-store'})
@@ -257,18 +257,18 @@ function buildTown(){
     MAPS.town.bld[id]={x,y,w,h:h2,label,door:[doorX,doorY],fp,inside};
     g[doorY][doorX]=4; };
   MAPS.town={ name:'Maple Street', grid:g, bld:{}, over:true,
-    paths:[ [[5.5,3],[7,3]], [[7,8],[7,9.5]], [[1,5],[5.5,5]], [[8,11],[8,9.5]], [[1,15],[5.5,15]] ],
-    pond:{x:2.5,y:17.5,rx:1.2,ry:1.0} };
-  // REBUILT 2026-10-10 from Truman's new art - measured pixel-for-pixel
-  // COFFEE: box(70,380,330,580) door(200,550) | MALL: box(680,120,1080,420) door(880,400)
-  // WORK: box(680,680,1080,980) door(880,950) | HOME: box(70,1080,330,1380) door(200,1350)
-  // STORE: box(680,1080,1080,1380) door(880,1350)
-  putB('coffee',1,3,4,4,'COFFEE',2,8,'coffee',null);
-  putB('mall',  6,1,5,4,'MALL',  8,6,null,'mallIn');
-  putB('work',  6,7,5,3,'WORK',  8,10,'work',null);
-  putB('home',  1,11,4,4,'HOME', 2,15,'house',null);
-  putB('store', 6,13,5,4,'STORE',8,17,'store',null);
-  // WIPED 2026-10-10 per Truman - rebuilding from new art
+    paths:[ [[2.5,6],[2.5,9.5]], [[8.5,5],[8.5,9.5]], [[2.5,15],[2.5,15.5]], [[8.5,15],[8.5,16]] ],
+    pond:{x:2.4,y:16.8,rx:1.4,ry:1.0} };
+  // v1.10 AUDIT: re-measured against assets/town.jpg (1179x1769) with an 11x20 grid overlay.
+  // Each solid box now matches the painted building; each door is the building's bottom-edge
+  // tile under the painted entrance, so the tile below it (sidewalk/path) is the approach.
+  putB('coffee',1,3,3,3,'COFFEE',2,5,'coffee',null);
+  putB('mall',  7,1,4,4,'MALL',  8,4,null,'mallIn');
+  putB('work',  7,6,4,3,'WORK',  8,8,'work',null);
+  putB('home',  1,12,3,3,'HOME', 2,14,'house',null);
+  putB('store', 7,12,3,3,'STORE',8,14,'store',null);
+  // Park: open lawn around the pond (no door, no solid tiles; the pond blocks by ellipse)
+  MAPS.town.bld.park={x:1,y:15,w:4,h:4,label:'PARK',park:true};
   S.px=5*TILE; S.py=12*TILE;
 }
 function buildInterior(id,name,wallC,floorC){
@@ -283,30 +283,27 @@ function buildMallIn(){
   // MALL: matches Truman's art - 10 stores + EXIT
   const m=buildInterior('mallIn','MALL','#9a8ab0','#d8cce0'); m.base='mallfloor';
   const g=m.grid;
-  // REBUILT 2026-10-10 from Truman's new mall art (pixel-for-pixel)
-  // Stores measured from 1179x1769 art, grid 11x20
-  for(let x=0;x<=3;x++){ g[3][x]=5; g[4][x]=5; g[5][x]=5; }   // Meals
-  for(let x=4;x<=6;x++){ g[3][x]=5; g[4][x]=5; g[5][x]=5; }   // Sweets
-  for(let x=7;x<=9;x++){ g[3][x]=5; g[4][x]=5; g[5][x]=5; }   // Healthy
-  for(let x=0;x<=3;x++){ g[7][x]=5; g[8][x]=5; g[9][x]=5; }   // STYLE
-  for(let x=7;x<=9;x++){ g[7][x]=5; g[8][x]=5; g[9][x]=5; }   // Bank|Jobs
-  for(let x=0;x<=3;x++){ g[10][x]=5; g[11][x]=5; g[12][x]=5; }// Books
-  for(let x=7;x<=9;x++){ g[10][x]=5; g[11][x]=5; g[12][x]=5; }// Tech
-  for(let x=0;x<=3;x++){ g[14][x]=5; g[15][x]=5; g[16][x]=5; }// Ride
-  for(let x=7;x<=9;x++){ g[14][x]=5; g[15][x]=5; g[16][x]=5; }// Home
-  m.npcs=[];
-  m.storefronts=[
-    {x:0,y:3,w:4,h:3,shop:'meals',name:'Meals'},
-    {x:4,y:3,w:3,h:3,shop:'sweets',name:'Sweets'},
-    {x:7,y:3,w:3,h:3,shop:'healthy',name:'Healthy'},
-    {x:0,y:7,w:4,h:3,shop:'style',name:'STYLE'},
+  // v1.10 AUDIT: re-measured against assets/mall.jpg (1179x1769) drawn stretched to the
+  // full 352x640 canvas (same mapping as the town), so tile (x,y) == the painted store.
+  for(let y=0;y<=3;y++) for(let x=0;x<COLS;x++) g[y][x]=2;          // back wall / upper level
+  const SF=[
+    {x:1,y:4,w:3,h:2,shop:'meals',name:'Meals'},
+    {x:4,y:4,w:3,h:2,shop:'sweets',name:'Sweets'},
+    {x:7,y:4,w:3,h:2,shop:'healthy',name:'Healthy'},
+    {x:1,y:7,w:3,h:3,shop:'style',name:'STYLE'},
     {x:7,y:7,w:3,h:3,shop:'bankjobs',name:'Bank & Jobs'},
-    {x:0,y:10,w:4,h:3,shop:'booksgames',name:'Books & Games'},
+    {x:1,y:10,w:3,h:3,shop:'booksgames',name:'Books & Games'},
     {x:7,y:10,w:3,h:3,shop:'tech',name:'Tech Hub'},
-    {x:0,y:14,w:4,h:3,shop:'rides',name:'Ride Shop'},
-    {x:7,y:14,w:3,h:3,shop:'home',name:'Home Living'}];
+    {x:1,y:13,w:3,h:3,shop:'rides',name:'Ride Shop'},
+    {x:7,y:13,w:3,h:3,shop:'home',name:'Home Living'}];
+  SF.forEach(f=>{ for(let y=f.y;y<f.y+f.h;y++) for(let x=f.x;x<f.x+f.w;x++) g[y][x]=5; });
+  g[6][2]=5; g[6][8]=5;                                              // food-court tables
+  for(let x=0;x<COLS;x++){ g[18][x]=2; g[19][x]=2; }                 // glass railing + front wall
+  g[ROWS-1][5]=2; g[18][5]=4; m.exit={x:5,y:18};                     // painted EXIT doors
+  m.npcs=[];
+  m.storefronts=SF;
   m.goods=[];
-  m.spawn={x:5*TILE,y:14*TILE};
+  m.spawn={x:5*TILE,y:17*TILE};
   MAPS.mallIn=m;
 }
 const SHOPS={
@@ -326,8 +323,8 @@ const SHOPS={
    {t:'Dress',full:45,sale:38,spr:'c_dress'},
    {t:'Shoes',full:60,sale:50,spr:'c_shoes'}]},
  bankjobs:{name:'\u{1F3E6} Bank & Jobs',items:[
-   {t:'ATM Info',full:0,sale:0,spr:'c_atm'},
-   {t:'Job Board',full:0,sale:0,spr:'c_hiring'}]},
+   {t:'ATM Info',full:0,sale:0,spr:'c_atm',info:'ATMs outside your bank can charge $3\u2013$5 a withdrawal. Plan cash ahead and use your own bank\u2019s ATM.'},
+   {t:'Job Board',full:0,sale:0,spr:'c_hiring',info:'Hiring now: weekend shifts. More hours = more pay, but your age sets a weekly hour limit. Your current job pays on Friday.'}]},
  booksgames:{name:'\u{1F4DA} Books & Games',items:[
    {t:'Game',full:40,sale:35,spr:'c_game'},
    {t:'Book',full:15,sale:12,spr:'c_book'},
@@ -373,32 +370,36 @@ function shopDlg(key){
       off.style.background='#d33'; off.style.color='#fff'; off.style.fontSize='11px';
       off.style.padding='2px 6px'; off.style.borderRadius='8px'; off.textContent=' -'+pct+'%';
       pr.appendChild(old); pr.appendChild(now); pr.appendChild(off);
-    } else { const now=document.createElement('b'); now.style.color='#1a7a3a'; now.textContent='$'+it.sale; pr.appendChild(now); }
+    } else if(it.info){ const now=document.createElement('b'); now.style.color='#3a5a8a'; now.textContent='Info'; pr.appendChild(now); }
+    else { const now=document.createElement('b'); now.style.color='#1a7a3a'; now.textContent='$'+it.sale; pr.appendChild(now); }
     b.appendChild(pr);
     if(it.e){ const e=document.createElement('div'); e.style.fontSize='12px'; e.style.color='#8a6a1a';
       e.textContent='+'+it.e+'\u26A1'; b.appendChild(e); }
     if(it.also){ const a=document.createElement('div'); a.style.fontSize='11px'; a.style.color='#6a7a8a';
       a.textContent=it.also; b.appendChild(a); }
-    b.onclick=()=>{ $('dlg').classList.remove('open'); buyItem(it); };
+    b.onclick=()=>{ $('dlg').classList.remove('open'); dlgSkeleton(); buyItem(it); };
     grid.appendChild(b);
   });
   box.appendChild(grid);
   const look=document.createElement('button'); look.className='ghost'; look.style.width='100%';
-  look.textContent='Just looking'; look.onclick=()=>$('dlg').classList.remove('open');
+  look.textContent='Just looking'; look.onclick=()=>{ $('dlg').classList.remove('open'); dlgSkeleton(); S.resisted++; };
   box.appendChild(look);
   $('dlg').classList.add('open');
 }
 function buyItem(it){
   const c=it.sale;
+  if(it.info){ dlg(it.t,it.info,[['Got it',()=>{},'ghost']]); return; }   // ATM / job board: info only
   if(S.money<c){ toast('Not enough cash.'); return; }
-  smartSpend(c,'mall',it.t+' ('+it.t+')',()=>{
+  // v1.10: food is a need-ish purchase category; everything else goes through Smart Spending.
+  smartSpend(c,it.e?'food':'mall',it.t,()=>{
+    if(S.money<c){ toast('Not enough cash.'); return; }
     S.money-=c; S.spent['mall: '+it.t]=(S.spent['mall: '+it.t]||0)+c;
     if(it.e){ S.energy=Math.min(100,S.energy+it.e); S.lunchToday=true; }
     else S.energy=Math.max(0,S.energy-3); // shopping is tiring
+    if(it.t==='Bike'||it.t==='Scooter'||it.t==='Skateboard') S.hasBike=true;
     toast(it.t+' \u2014 yours.'+(it.full>it.sale?' (saved $'+(it.full-it.sale)+')':''));
-    hud();
+    floatText('-$'+c,S.px+16,S.py,'#ff9a9a'); hud();   // only after a real purchase
   });
-  floatText('-$'+c,S.px+16,S.py,'#ff9a9a'); hud();
 }
 function checkZones(){
   const m=curMap(); if(!m.zones) return;
@@ -572,17 +573,19 @@ function drawGroundSmooth(m){
   ctx.fillStyle=gr; ctx.fillRect(0,0,cv.width,cv.height);
   ctx.drawImage(getNoise(),0,0);
   // park lawn
-  const pk=m.bld.park;
-  ctx.fillStyle='#86c977';
-  ctx.beginPath(); ctx.ellipse((pk.x+pk.w/2)*TILE,(pk.y+pk.h/2)*TILE,pk.w*TILE/2,pk.h*TILE/2,0,0,7); ctx.fill();
+  const pk=m.bld&&m.bld.park;
+  if(pk){ ctx.fillStyle='#86c977';
+  ctx.beginPath(); ctx.ellipse((pk.x+pk.w/2)*TILE,(pk.y+pk.h/2)*TILE,pk.w*TILE/2,pk.h*TILE/2,0,0,7); ctx.fill(); }
   // pond
   const p=m.pond;
+  if(p){
   ctx.fillStyle='#4f9fd0';
   ctx.beginPath(); ctx.ellipse(p.x*TILE,p.y*TILE,p.rx*TILE,p.ry*TILE,0,0,7); ctx.fill();
   ctx.fillStyle='#8fd0ee';
   ctx.beginPath(); ctx.ellipse(p.x*TILE-8,p.y*TILE-6,p.rx*TILE*0.55,p.ry*TILE*0.5,0,0,7); ctx.fill();
   ctx.fillStyle='rgba(255,255,255,.7)';
   [[-14,-4],[6,8],[18,-8]].forEach(([dx,dy])=>{ ctx.beginPath(); ctx.arc(p.x*TILE+dx,p.y*TILE+dy,2.5,0,7); ctx.fill(); });
+  }
   // dirt paths to doors (smooth)
   (m.paths||[]).forEach(pts=>strokePath(pts,26,'#d9c08e'));
   // roads (smooth, no seams)
@@ -596,20 +599,12 @@ function drawGroundSmooth(m){
 const _mallImg=new Image(); _mallImg.src='assets/mall.jpg?v='+BUILD_VERSION;
 const _townImg=new Image(); _townImg.src='assets/town.jpg';
 function drawMall(mm){
-  // Draw Truman's mall art: pixel-perfect, extended floor (no bars, no crop)
-  if(_mallImg.complete&&_mallImg.naturalWidth){
-    const iw=_mallImg.naturalWidth, ih=_mallImg.naturalHeight;
-    const cw=cv.width, ch=cv.height;
-    // Scale to fit height, center horizontally
-    const s=ch/ih;
-    const dw=iw*s, dh=ch;
-    // Fill sides with floor color (sampled from art, not black)
-    ctx.fillStyle='#e8dcc8'; ctx.fillRect(0,0,cw,ch);
-    ctx.drawImage(_mallImg, (cw-dw)/2, 0, dw, dh);
-  } else {
+  // v1.10: stretch to the full canvas — the same mapping the town uses and the one the
+  // storefront grid was measured in. Height-fit + centering cropped the sides and shifted
+  // every store ~1 tile away from its tap target.
+  if(!blitStretch(_mallImg,0,0,cv.width,cv.height)){
     ctx.fillStyle='#e8dcc8'; ctx.fillRect(0,0,cv.width,cv.height);
   }
-  // (Truman's mall art already has products and plants - skip ours)
 }
 
 function drawBuilding34(b,id){
@@ -697,12 +692,7 @@ function exitFP(){
   S.fp=null; renderSpots(true);
   // step off the door tile — otherwise the next tap on the building
   // instantly re-enters and you can never actually leave
-  if(S.lastDoor){
-    const [dx,dy]=S.lastDoor;
-    for(const [ox,oy] of [[0,1],[1,0],[-1,0],[0,-1],[1,1],[-1,1]]){
-      if(walkable(dx+ox,dy+oy)){ S.px=(dx+ox)*TILE; S.py=(dy+oy)*TILE; break; } }
-    S.lastDoor=null;
-  }
+  if(S.lastDoor){ placeNearDoor(S.lastDoor); S.lastDoor=null; }
   S.path=[]; S.moving=false;
   fade(()=>{ $('locname').textContent=MAPS[S.map].name; });
 }
@@ -922,7 +912,7 @@ function drawBody(){
   }
   // entrance arrows when near a door
   if(S.map==='town') for(const k in m.bld){ const b=m.bld[k];
-    if(b.door){ const dx=(b.door[0]+0.5)*TILE, dy=b.door[1]*TILE;
+    if(b.door){ const dx=(b.door[0]+0.5)*TILE, dy=(b.door[1]+0.75)*TILE;
       if(Math.hypot(S.px+16-dx,S.py+16-dy)<2.5*TILE){
         ctx.fillStyle='#ffe27a'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
         ctx.strokeStyle='rgba(0,0,0,.6)'; ctx.lineWidth=2;
@@ -962,7 +952,8 @@ function bfs(tx,ty){
 // Virtual joystick: touch-hold and drag for direct control
 S.joy={active:false,sx:0,sy:0,dx:0,dy:0,id:null};
 cv.addEventListener('pointerdown',e=>{
-  if(S.weekOver||S.fp) return;
+  if(S.weekOver||S.fp||$('dlg').classList.contains('open')) return;
+  if(!S.job) return; // start screen still up
   const r=cv.getBoundingClientRect();
   // Start potential joystick
   S.joy.sx=e.clientX; S.joy.sy=e.clientY; S.joy.id=e.pointerId;
@@ -998,6 +989,16 @@ cv.addEventListener('pointerdown',e=>{
   for(const n of (m.npcs||[])){
     if(Math.hypot(wx-n.x,wy-(n.y+16))<36){ npcTalk(n); return; }
   }
+  // tap the park (lawn or pond) -> walk to the nearest open park tile, then open the park
+  if(inParkTile(tx,ty)){
+    const best=walkable(tx,ty)?[tx,ty]:nearestParkTile();
+    if(!best) return;
+    const [px,py]=tileOf(S.px+16,S.py+16);
+    if(px===best[0]&&py===best[1]){ parkDlg(); return; }
+    const pp=bfs(best[0],best[1]);
+    if(pp&&pp.length){ S.pendingAction=parkDlg; S.path=pp.map(([x,y])=>({x:x*TILE,y:y*TILE})); S.moving=true; }
+    return;
+  }
   // tap a building -> walk to its entrance
   const hit=buildingAt(tx,ty);
   if(hit&&hit.door){
@@ -1007,6 +1008,7 @@ cv.addEventListener('pointerdown',e=>{
     else toast('No path to '+hit.label.toLowerCase()+'.');
     return;
   }
+  S.pendingAction=null;
   const p=bfs(tx,ty); if(p&&p.length){ S.path=p.map(([x,y])=>({x:x*TILE,y:y*TILE})); S.moving=true; }
 });
 // Joystick: drag to move directly
@@ -1033,14 +1035,13 @@ let _joyLastMove=0;
 cv.addEventListener('pointerup',endJoy);
 cv.addEventListener('pointercancel',endJoy);
 function buildingAt(tx,ty){
+  // v1.10: hit box == the solid footprint measured from the art (+ the door tile).
+  // The old 64x76 sprite box was offset from the painted buildings, so taps on the
+  // lower half of a building fell through and walking-to-door never started.
   const m=curMap(); if(!m.bld) return null;
   for(const k in m.bld){ const b=m.bld[k];
     if(b.x===undefined||!b.door) continue;
-    // tall 3/4 sprite: centered on footprint, extends BLD_H above its base
-    const cx=(b.x+b.w/2)*TILE, bot=(b.y+b.h)*TILE;
-    const vx0=Math.floor((cx-BLD_W/2)/TILE), vx1=Math.floor((cx+BLD_W/2)/TILE);
-    const vy0=Math.floor((bot-BLD_H)/TILE), vy1=b.y+b.h-1;
-    if(tx>=vx0&&tx<=vx1&&ty>=vy0&&ty<=vy1) return b; }
+    if(tx>=b.x&&tx<b.x+b.w&&ty>=b.y&&ty<b.y+b.h) return b; }
   return null;
 }
 let lastT=0;
@@ -1051,9 +1052,10 @@ addEventListener('keydown',e=>{
     KEYS[e.key.toLowerCase()]=true; e.preventDefault();
   }
   // Enter/Space to enter door when near
-  if((e.key==='Enter'||e.key===' ')&&S.map==='town'){
-    const tx=Math.floor((S.px+16)/TILE), ty=Math.floor((S.py+16)/TILE);
-    for(const k in curMap().bld){ const b=curMap().bld[k];
+  if((e.key==='Enter'||e.key===' ')&&!S.fp&&!S.weekOver&&!$('dlg').classList.contains('open')){
+    const tx=Math.floor((S.px+16)/TILE), ty=Math.floor((S.py+16)/TILE), m=curMap();
+    if(m.exit&&Math.abs(m.exit.x-tx)<=1&&Math.abs(m.exit.y-ty)<=1){ enterDoor(m.exit.x,m.exit.y); return; }
+    for(const k in (m.bld||{})){ const b=m.bld[k];
       if(b.door&&Math.abs(b.door[0]-tx)<=1&&Math.abs(b.door[1]-ty)<=1){ enterDoor(b.door[0],b.door[1]); break; } }
   }
 });
@@ -1111,15 +1113,23 @@ function checkTile(){
     S.path=[]; S.moving=false; enterDoor(tx,ty); return;
   }
 }
+// v1.10: step out onto the first walkable tile next to a door (below first), never into a wall.
+// Doors are on a building's bottom edge, so (x,y+1) is the sidewalk/path in front of it.
+function placeNearDoor(d){
+  const [dx,dy]=d;
+  for(const [ox,oy] of [[0,1],[1,1],[-1,1],[0,2],[1,0],[-1,0]]){
+    if(walkable(dx+ox,dy+oy)&&curMap().grid[dy+oy][dx+ox]!==4){ S.px=(dx+ox)*TILE; S.py=(dy+oy)*TILE; return; } }
+  S.px=5*TILE; S.py=12*TILE; // crossroads fallback
+}
 function enterDoor(tx,ty){
   const m=curMap();
   if(m.exit&&tx===m.exit.x&&ty===m.exit.y){ // leaving mall -> town
     fade(()=>{ S.map='town';
-      const back=m.backDoor; S.px=back[0]*TILE; S.py=(back[1]+1)*TILE;
+      placeNearDoor(m.backDoor||MAPS.town.bld.mall.door);
       S.path=[]; S.moving=false; $('locname').textContent=MAPS.town.name; });
     return;
   }
-  for(const k in m.bld){ const b=m.bld[k];
+  for(const k in (m.bld||{})){ const b=m.bld[k];
     if(b.door&&b.door[0]===tx&&b.door[1]===ty){
       if(b.fp){ S.lastDoor=[tx,ty]; enterFP(b.fp); return; }
       if(b.inside){ fade(()=>{ S.map=b.inside; const im=MAPS[b.inside]; im.backDoor=[tx,ty];
@@ -1179,7 +1189,9 @@ function wanderTick(dt){
 function fmt(min){ let h=Math.floor(min/60), m=Math.floor(min%60); const ap=h>=12?'p':'a'; h=h%12||12; return h+':'+String(m).padStart(2,'0')+ap; }
 function dailyObjective(){
   if(S.weekOver) return '';
-  if(S.day<5) return S.lastWorkDay===S.day ? '\u2705 Shift done \u2014 free time!' : '\u{1F4BC} Today: Work your shift at WORK';
+  if(S.day<5){ if(S.lastWorkDay===S.day) return '\u2705 Shift done \u2014 free time!';
+    if(S.min+SHIFT_HRS[S.age]*60>22*60) return '\u{1F319} Too late for a shift today';
+    return '\u{1F4BC} Today: Work your shift at WORK'+(S.day===4?' \u2014 payday 5pm!':''); }
   if(S.day===5) return '\u{1F389} Saturday: Mall, park workout, party tonight!';
   return '\u{1F4B8} Sunday: Pay bills, rest up.';
 }
@@ -1192,6 +1204,7 @@ function advance(min){
   const before=S.min;
   S.min+=min;
   if(before<12*60&&S.min>=12*60) lunchCheck();
+  checkPayday();
   if(S.min>=22*60) endDay();
   hud();
 }
@@ -1205,7 +1218,8 @@ function endDay(){
   const crashed=S.energy<25;   // too tired to clean last night
   S.mess=Math.min(100,S.mess+6+(crashed?10:0));
   S.min=8*60; S.energy=100; S.path=[]; S.moving=false;
-  S.lunchToday=false; S.rain=Math.random()<0.25;
+  checkPayday(); // after the clock resets: slept through Friday evening -> paid Saturday 8am
+  S.lunchToday=false; S.umbrellaUsed=false; S.parkRest=0; S.rain=Math.random()<0.25;
   if(S.mess>=60){ S.energy=Math.max(0,S.energy-8); }
   if(S.rain) pushMsg('weather','\u{1F327} Rain today \u2014 walking is slower. An umbrella ($12, corner store) fixes it.');
   if(S.mess>=80&&!S.messWarned){ S.messWarned=true; pushMsg('mom','Your room is a disaster zone. Clean it TODAY. \u2014 Mom'); }
@@ -1222,7 +1236,12 @@ function sleep(){ S.min=22*60-1; advance(1); toast('😴 Slept. Energy restored.
 let toastT=null;
 function toast(t){ const el=$('toast'); el.textContent=t; el.style.display='block';
   clearTimeout(toastT); toastT=setTimeout(()=>el.style.display='none',2600); }
-function dlg(h,p,btns){ $('d_h').textContent=h; $('d_p').textContent=p;
+function dlgSkeleton(){
+  // v1.10: shopDlg() rebuilds #dlgbox; restore the standard nodes before any normal dialog
+  if(!$('d_h')||!$('d_p')||!$('dlgbtns'))
+    $('dlgbox').innerHTML='<h3 id="d_h"></h3><p id="d_p"></p><div id="dlgbtns"></div>';
+}
+function dlg(h,p,btns){ dlgSkeleton(); $('d_h').textContent=h; $('d_p').textContent=p;
   const bb=$('dlgbtns'); bb.innerHTML='';
   btns.forEach(([t,fn,cls])=>{ const b=document.createElement('button');
     b.textContent=t; b.className=cls||'act'; b.onclick=()=>{ $('dlg').classList.remove('open'); fn&&fn(); };
@@ -1234,13 +1253,13 @@ function pushMsg(from,text){ MSGS.unshift({from,text,day:DAYS[S.day],time:fmt(S.
 // Financial literacy: track concepts practiced
 function trackSmart(concept){ S.smarts=S.smarts||{}; S.smarts[concept]=(S.smarts[concept]||0)+1; }
 // Categorize purchases for needs vs wants teaching
-const NEED_CATS=['groceries','rent','bills','bus','medicine'];
+const NEED_CATS=['groceries','rent','bills','bus','medicine','food'];
 function isNeed(cat){ return NEED_CATS.includes(cat); }
 function weeklyPay(){ return S.job.w*SHIFT_HRS[S.age]*TAKE_HOME; }
 function smartSpend(amt,cat,label,fn){
   // For needs or tiny purchases, just do it
   if(isNeed(cat)||amt<5){ return fn(); }
-  const pct=Math.round(amt/weeklyPay()*100);
+  const wp=S.job?weeklyPay():0, pct=wp>0?Math.round(amt/wp*100):0;
   const type=isNeed(cat)?'NEED':'WANT';
   const after=S.money-amt;
   trackSmart('needsWants');
@@ -1258,18 +1277,34 @@ function spend(amt,cat){ if(S.money<amt){ toast('Not enough cash.'); return fals
 function earn(amt,cat){ S.money+=amt; S.spent[cat]=(S.spent[cat]||0)-amt;
   floatText('+$'+amt.toFixed(0),S.px+16,S.py,'#9fe6a8'); hud(); }
 /* ================= ARRIVALS & NPCS ================= */
-function inPark(){ const b=curMap().bld&&curMap().bld.park; if(!b) return false;
-  const [tx,ty]=[Math.floor((S.px+16)/TILE),Math.floor((S.py+16)/TILE)];
+function inParkTile(tx,ty){ if(S.map!=='town') return false; const b=MAPS.town.bld.park; if(!b) return false;
   return tx>=b.x&&tx<b.x+b.w&&ty>=b.y&&ty<b.y+b.h; }
+function inPark(){ return inParkTile(Math.floor((S.px+16)/TILE),Math.floor((S.py+16)/TILE)); }
+function parkDlg(){
+  // v1.10 park: free rest (diminishing, 2x/day), Saturday coach workout once, 22:00 cutoff.
+  if(S.min+60>22*60){ toast('The park closes at 10pm. Head home.'); return; }
+  const restGain=[20,10][S.parkRest||0];
+  const pb=[];
+  if(S.day===5&&!S.workoutDone) pb.push(['\u{1F4AA} Coach workout',()=>{ advance(60);
+    S.workoutDone=true; S.energy=Math.min(100,S.energy+30); S.resisted++; trackSmart('freeFun');
+    toast('Free workout with Coach! +30 energy, $0 spent.'); },'act']);
+  if(restGain) pb.push(['Rest 1h (+'+restGain+'\u26A1)',()=>{ advance(60); S.parkRest=(S.parkRest||0)+1;
+    S.energy=Math.min(100,S.energy+restGain); trackSmart('freeFun'); toast('Rested on the bench. Free beats the phone.'); },'act']);
+  pb.push(['Keep going',()=>{},'ghost']);
+  const txt=(S.day===5&&!S.workoutDone?'Coach is running a free workout today. ':'')+
+    (restGain?'Rest on the bench for an hour \u2014 costs time, not money.':'You\u2019ve rested enough today. The bench will be here tomorrow.');
+  dlg('\u{1F333} Park',txt,pb);
+}
+function nearestParkTile(){
+  const b=MAPS.town.bld.park, [px,py]=tileOf(S.px+16,S.py+16); let best=null,bd=1e9;
+  for(let y=b.y;y<b.y+b.h;y++) for(let x=b.x;x<b.x+b.w;x++)
+    if(walkable(x,y)){ const d=Math.abs(px-x)+Math.abs(py-y); if(d<bd){ bd=d; best=[x,y]; } }
+  return best;
+}
 function onArrive(){
   if(S.pendingAction){ const fn=S.pendingAction; S.pendingAction=null; fn(); return; }
   if(S.map==='town'){
-    if(inPark()){
-      const pb=[['Rest 1h',()=>{ advance(60); S.energy=Math.min(100,S.energy+20); toast('Rested. Free beats the phone.'); },'act']];
-      if(S.day===5) pb.unshift(['💪 Workout',()=>{ advance(60); S.energy=Math.min(100,S.energy+30); toast('Free workout! +30 energy.'); },'act']);
-      pb.push(['Keep going',()=>{},'ghost']);
-      dlg('🌳 Park bench','Free. Rest here an hour? (+20 energy, costs 60 min)',pb);
-    }
+    if(inPark()) parkDlg();
   }
 }
 function sneakerPrompt(){
@@ -1334,12 +1369,13 @@ const WORK_REVIEWS=[
  {q:'It is 95 degrees and you are mowing. You should:',
   a:['Power through without water','Take water breaks in shade - heat stroke is real','Go home early'],c:1,job:'Park maintenance'},
 ];
-let _wrIdx=0, _wrCorrect=0, _wrPay=0, _wrHrs=0, _wrCost=0, _wrLate='';
+let _wrIdx=0, _wrCorrect=0, _wrPay=0, _wrHrs=0, _wrCost=0, _wrLate='', _wrDay=-1;
 function startWorkReview(){
   // Prefer job-specific questions, fill with general ones
   const jobQs=WORK_REVIEWS.filter(q=>q.job===S.job.t);
   const genQs=WORK_REVIEWS.filter(q=>!q.job);
-  const pool=[...jobQs,...genQs].sort(()=>Math.random()-0.5).slice(0,3);
+  const shuf=a=>{ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+  const pool=[...shuf(jobQs).slice(0,1),...shuf(genQs)].slice(0,3); // 1 job-specific + general, unbiased shuffle
   _wrIdx=0; _wrCorrect=0; _wrPool=pool;
   askWorkQ();
 }
@@ -1361,7 +1397,9 @@ function finishWorkReview(){
   else if(pct>=0.66){ finalPay*=.9; note=' Good work. 90% pay.'; }
   else if(pct>=0.33){ finalPay*=.75; note=' Needs improvement. 75% pay.'; }
   else { finalPay*=.5; note=' Poor review. 50% pay. Study the modules!'; }
-  advance(_wrHrs*60); S.energy-=_wrCost; S.accrued+=finalPay; S.hrsWorked+=_wrHrs; S.lastWorkDay=S.day;
+  // credit the shift to the day it started, before time advances (and before any payday check)
+  S.accrued+=finalPay; S.hrsWorked+=_wrHrs; S.lastWorkDay=_wrDay;
+  S.energy=Math.max(0,S.energy-_wrCost); advance(_wrHrs*60);
   floatText('shift +$'+finalPay.toFixed(0),S.px+16,S.py,'#9fe6a8'); hud();
   toast('\u2705 Clocked out \u2014'+note+_wrLate);
   dlg('\u{1F4CB} Shift Complete','You got '+_wrCorrect+'/'+_wrPool.length+' correct.'+note+'\nPay: $'+finalPay.toFixed(2)+' (Friday).'+_wrLate,
@@ -1422,15 +1460,23 @@ function toggleMusic(){
   if(S.settings.music) startMusic(); else stopMusic();
 }
 function workPrompt(){
+  // v1.10 shift rules: one shift per day, weekdays only (Mon\u2013Fri), must finish by 10pm,
+  // age hour cap, energy check. Lateness is only counted when you actually clock in.
   const HRS=SHIFT_HRS[S.age], left=MAXHRS[S.age]-S.hrsWorked, cost=Math.round(HRS*7.5);
+  if(S.day>4){ toast('No shifts on the weekend. Enjoy it \u2014 payday was Friday.'); return; }
+  if(S.lastWorkDay===S.day){ toast('You already worked today. One shift per day.'); return; }
   if(left<HRS){ toast('Hour limit for your age ('+MAXHRS[S.age]+'/wk). Real law!'); return; }
+  if(S.min+HRS*60>22*60){ toast('Too late to start a '+HRS+'h shift \u2014 it would run past 10pm.'); return; }
   if(S.energy<cost){ toast('Too exhausted for '+HRS+'h. Rest first.'); return; }
+  const late=S.min>9*60+30;
   let pay=S.job.w*HRS*TAKE_HOME, lateNote='';
-  if(S.min>9*60+30){ pay*=0.9; S.lates++; lateNote=' Late clock-in (after 9:30a): \u221210% pay.';
-    if(S.lates===3) pushMsg('boss','Third late. One more and we need to talk. \u2014 Management');
-    else if(S.lates>3) pushMsg('boss','Late again. This is going in your file. \u2014 Management'); }
-  dlg('\u{1F550} Time card','Clock in for an '+HRS+'-hour shift as '+S.job.t+'? Pays $'+pay.toFixed(2)+' Friday (take-home). Costs '+HRS+'h and '+cost+' energy.'+lateNote,
-    [['Clock in',()=>{ _wrPay=pay; _wrHrs=HRS; _wrCost=cost; _wrLate=lateNote; startWorkReview(); },'act'],
+  if(late){ pay*=0.9; lateNote=' Late clock-in (after 9:30a): \u221210% pay.'; }
+  dlg('\u{1F550} Time card','Clock in for an '+HRS+'-hour shift as '+S.job.t+'? Pays $'+pay.toFixed(2)+' Friday at 5pm (take-home). Costs '+HRS+'h and '+cost+' energy.'+lateNote,
+    [['Clock in',()=>{
+        if(late){ S.lates++;
+          if(S.lates===3) pushMsg('boss','Third late. One more and we need to talk. \u2014 Management');
+          else if(S.lates>3) pushMsg('boss','Late again. This is going in your file. \u2014 Management'); }
+        _wrPay=pay; _wrHrs=HRS; _wrCost=cost; _wrLate=lateNote; _wrDay=S.day; startWorkReview(); },'act'],
      ['Not now',()=>{},'ghost']]);
 }
 function sleepDlg(){
@@ -1572,19 +1618,31 @@ function partyNo(){ const m=MSGS.find(m=>m.from==='friend'&&!m.answered); if(m) 
 function claimHold(){ if(S.hold24&&spend(45,'sneakers')){ S.hold24=null; toast('Sneakers claimed.'); } renderPhone(); }
 function dropHold(){ S.hold24=null; S.resisted++; toast('Let them go. The urge expired.'); renderPhone(); }
 /* ================= PAYDAY / REVIEW ================= */
-setInterval(()=>{ if(!S.weekOver&&S.day===4&&S.min>=17*60&&S.accrued>0){
-  S.money+=S.accrued;
-  pushMsg('boss','PAYDAY: $'+S.accrued.toFixed(2)+' deposited. FICA took its cut first.');
-  toast('💰 PAYDAY +$'+S.accrued.toFixed(2)); S.accrued=0; hud(); } },1000);
+function checkPayday(){
+  // v1.10: deterministic. Called from advance()/endDay(): pays out the first time the clock
+  // is at or past Friday 5:00pm, whatever jumped it there (sleep, a shift, the wait button).
+  if(S.paid||S.weekOver) return;
+  if(S.day>4||(S.day===4&&S.min>=17*60)){
+    S.paid=true;
+    const amt=Math.round(S.accrued*100)/100;
+    if(amt>0){ S.money+=amt; S.paidTotal=amt;
+      pushMsg('boss','PAYDAY: $'+amt.toFixed(2)+' deposited. FICA took its cut first.');
+      toast('\u{1F4B0} PAYDAY +$'+amt.toFixed(2)); floatText('+$'+amt.toFixed(0),S.px+16,S.py,'#9fe6a8'); }
+    else pushMsg('boss','Payday came \u2014 but you worked 0 hours this week, so $0.');
+    S.accrued=0; hud();
+    if($('phone').classList.contains('open')) renderPhone();
+  }
+}
 function sundayReview(){
-  S.weekOver=true; S.moving=false;
+  checkPayday(); S.weekOver=true; S.moving=false;
   const bills=BILLS_SUNDAY-(S.groceriesBought?65:0), ok=S.money>=bills;
   if(ok) S.money-=bills;
   const cats=Object.entries(S.spent).filter(([,v])=>v>0).map(([k,v])=>'<div class="row"><span>'+k+'</span><b class="neg">-$'+v.toFixed(0)+'</b></div>').join('');
   $('review').innerHTML='<div style="max-width:440px;margin:0 auto">'
     +'<div class="big">Sunday night.</div><p>The week is over. Here\'s the truth:</p>'
     +'<div class="card"><h4>Money</h4>'
-    +'<div class="row"><span>Hours worked</span><b>'+S.hrsWorked+'h</b></div>'+cats
+    +'<div class="row"><span>Hours worked</span><b>'+S.hrsWorked+'h</b></div>'
+    +'<div class="row"><span>Friday paycheck</span><b class="pos">+$'+(S.paidTotal||0).toFixed(2)+'</b></div>'+cats
     +'<div class="row"><span>Sunday bills '+(ok?'(paid)':'(COULDN\'T PAY)')+'</span><b class="'+(ok?'':'neg')+'">-$'+bills+'</b></div>'
     +'<div class="row"><span><b>Left</b></span><b class="'+(S.money>=0?'pos':'neg')+'">$'+Math.round(S.money)+'</b></div></div>'
     +'<div class="card"><h4>Behavior</h4>'
