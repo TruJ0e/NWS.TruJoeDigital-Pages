@@ -854,7 +854,7 @@ function drawFP(){
     // 0.85 zoom-out so interiors aren't too tight (Truman 2026-10-11)
     const iw=im.naturalWidth||im.width, ih=im.naturalHeight||im.height;
     if(!iw||!ih) return;
-    const s=Math.max(cv.width/iw, cv.height/ih)*0.85;
+    const s=Math.max(cv.width/iw, cv.height/ih);
     const dw=iw*s, dh=ih*s;
     ctx.drawImage(im,(cv.width-dw)/2,(cv.height-dh)/2,dw,dh);
   };
