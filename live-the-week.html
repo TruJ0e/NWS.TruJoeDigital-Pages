@@ -840,13 +840,22 @@ function drawFP(){
   const ra=(S.fp==='house'||S.fp==='bedroom')?roomArt(S.fp):null;
   ctx.fillStyle='#1a1a1a'; ctx.fillRect(0,0,cv.width,cv.height);
   const drawCover=(im)=>{
-    // Aspect-preserving cover: fill canvas, crop overflow, no scrunch/stretch
-    // 0.85 zoom-out so interiors aren't too tight (Truman 2026-10-11)
+    // Fit-to-screen: show FULL image, no cropping. Background is a blurred
+    // enlarged copy so there's no black bars on any aspect ratio.
+    // Works on phone portrait, tablet, desktop landscape - same content, fitted.
     const iw=im.naturalWidth||im.width, ih=im.naturalHeight||im.height;
     if(!iw||!ih) return;
-    const s=Math.max(cv.width/iw, cv.height/ih);
-    const dw=iw*s, dh=ih*s;
-    ctx.drawImage(im,(cv.width-dw)/2,(cv.height-dh)/2,dw,dh);
+    // Background: blurred cover fill (no bars, no empty space)
+    const bgS=Math.max(cv.width/iw, cv.height/ih)*1.1;
+    const bgW=iw*bgS, bgH=ih*bgS;
+    ctx.save();
+    ctx.filter='blur(24px) brightness(0.7)';
+    ctx.drawImage(im,(cv.width-bgW)/2,(cv.height-bgH)/2,bgW,bgH);
+    ctx.restore();
+    // Foreground: contain fit - full image, nothing cropped
+    const fgS=Math.min(cv.width/iw, cv.height/ih);
+    const fgW=iw*fgS, fgH=ih*fgS;
+    ctx.drawImage(im,(cv.width-fgW)/2,(cv.height-fgH)/2,fgW,fgH);
   };
   if(ra&&ra.complete&&ra.naturalWidth){ drawCover(ra); }
   else if(sc.art){ const fim=SPR[sc.art]; if(fim&&fim.complete) drawCover(fim); }
