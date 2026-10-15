@@ -864,17 +864,12 @@ function drawFP(){
       const fgW=iw*fgS, fgH=ih*fgS;
       ctx.drawImage(im,(cv.width-fgW)/2,(cv.height-fgH)/2,fgW,fgH);
     } else {
-      // Landscape: cover fill anchored to focal point (keeps heads visible)
-      // Focal Y ~38% from top of image (where faces/key content sits)
-      const s=Math.max(cv.width/iw, cv.height/ih);
-      const dw=iw*s, dh=ih*s;
-      const dx=(cv.width-dw)/2;
-      // Anchor crop so image focal point maps to screen focal point
-      const imgFocalY=ih*0.38;
-      const scrFocalY=cv.height*0.42;
-      let dy=scrFocalY-imgFocalY*s;
-      // Clamp so we don't show empty space
-      dy=Math.min(0, Math.max(cv.height-dh, dy));
+      // Landscape display: fit image WIDTH to canvas, center vertically.
+      // Shows full panorama scene without potato-face over-zoom.
+      // (COVER on the portrait canvas buffer was scaling 3x too much.)
+      const s=cv.width/iw;
+      const dw=cv.width, dh=ih*s;
+      const dx=0, dy=(cv.height-dh)/2;
       ctx.drawImage(im,dx,dy,dw,dh);
     }
   };
