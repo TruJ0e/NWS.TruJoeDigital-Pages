@@ -841,12 +841,13 @@ function drawFP(){
   ctx.fillStyle='#1a1a1a'; ctx.fillRect(0,0,cv.width,cv.height);
   const drawCover=(im)=>{
     // Image adapter: fits any screen, any orientation.
-    // Portrait (tall): CONTAIN - full image visible, minimal filler.
-    // Landscape (wide): Smart COVER - fills screen, anchors crop to keep
+    // Uses WINDOW dimensions (not canvas - canvas is fixed 352x640 portrait).
+    // Portrait (tall window): CONTAIN - full image visible, minimal filler.
+    // Landscape (wide window): Smart COVER - fills screen, anchors crop to keep
     //   faces/key content visible (focal point ~38% from top, not center).
     const iw=im.naturalWidth||im.width, ih=im.naturalHeight||im.height;
     if(!iw||!ih) return;
-    const isPortrait=cv.height>cv.width;
+    const isPortrait=(window.innerHeight||cv.height)>(window.innerWidth||cv.width);
     if(isPortrait){
       // Portrait: contain fit with subtle blurred background
       const bgS=Math.max(cv.width/iw, cv.height/ih);
