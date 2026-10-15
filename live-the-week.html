@@ -864,12 +864,18 @@ function drawFP(){
       const fgW=iw*fgS, fgH=ih*fgS;
       ctx.drawImage(im,(cv.width-fgW)/2,(cv.height-fgH)/2,fgW,fgH);
     } else {
-      // Landscape display: fit image WIDTH to canvas, center vertically.
-      // Shows full panorama scene without potato-face over-zoom.
-      // (COVER on the portrait canvas buffer was scaling 3x too much.)
-      const s=cv.width/iw;
-      const dw=cv.width, dh=ih*s;
-      const dx=0, dy=(cv.height-dh)/2;
+      // Landscape display: contain image in DISPLAYED space, then map back to buffer coords.
+      // The buffer is 352×640 (portrait); CSS scales it to a landscape screen — without
+      // compensating, wide panoramas draw as a thin strip and portrait art over-zooms.
+      const sX=dispW/iw, sY=dispH/ih, s=Math.min(sX,sY);
+      const bufScaleX=cv.width/dispW, bufScaleY=cv.height/dispH;
+      const dw=iw*s*bufScaleX, dh=ih*s*bufScaleY;
+      const dx=(cv.width-dw)/2, dy=(cv.height-dh)/2;
+      const bgS=Math.max(cv.width/iw,cv.height/ih);
+      const bgW=iw*bgS, bgH=ih*bgS;
+      ctx.save(); ctx.filter='blur(20px) brightness(0.6)';
+      ctx.drawImage(im,(cv.width-bgW)/2,(cv.height-bgH)/2,bgW,bgH);
+      ctx.restore();
       ctx.drawImage(im,dx,dy,dw,dh);
     }
   };
