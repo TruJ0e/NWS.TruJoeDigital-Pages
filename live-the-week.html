@@ -840,22 +840,38 @@ function drawFP(){
   const ra=(S.fp==='house'||S.fp==='bedroom')?roomArt(S.fp):null;
   ctx.fillStyle='#1a1a1a'; ctx.fillRect(0,0,cv.width,cv.height);
   const drawCover=(im)=>{
-    // Fit-to-screen: show FULL image, no cropping. Background is a blurred
-    // enlarged copy so there's no black bars on any aspect ratio.
-    // Works on phone portrait, tablet, desktop landscape - same content, fitted.
+    // Image adapter: fits any screen, any orientation.
+    // Portrait (tall): CONTAIN - full image visible, minimal filler.
+    // Landscape (wide): Smart COVER - fills screen, anchors crop to keep
+    //   faces/key content visible (focal point ~38% from top, not center).
     const iw=im.naturalWidth||im.width, ih=im.naturalHeight||im.height;
     if(!iw||!ih) return;
-    // Background: blurred cover fill (no bars, no empty space)
-    const bgS=Math.max(cv.width/iw, cv.height/ih)*1.1;
-    const bgW=iw*bgS, bgH=ih*bgS;
-    ctx.save();
-    ctx.filter='blur(24px) brightness(0.7)';
-    ctx.drawImage(im,(cv.width-bgW)/2,(cv.height-bgH)/2,bgW,bgH);
-    ctx.restore();
-    // Foreground: contain fit - full image, nothing cropped
-    const fgS=Math.min(cv.width/iw, cv.height/ih);
-    const fgW=iw*fgS, fgH=ih*fgS;
-    ctx.drawImage(im,(cv.width-fgW)/2,(cv.height-fgH)/2,fgW,fgH);
+    const isPortrait=cv.height>cv.width;
+    if(isPortrait){
+      // Portrait: contain fit with subtle blurred background
+      const bgS=Math.max(cv.width/iw, cv.height/ih);
+      const bgW=iw*bgS, bgH=ih*bgS;
+      ctx.save();
+      ctx.filter='blur(20px) brightness(0.6)';
+      ctx.drawImage(im,(cv.width-bgW)/2,(cv.height-bgH)/2,bgW,bgH);
+      ctx.restore();
+      const fgS=Math.min(cv.width/iw, cv.height/ih);
+      const fgW=iw*fgS, fgH=ih*fgS;
+      ctx.drawImage(im,(cv.width-fgW)/2,(cv.height-fgH)/2,fgW,fgH);
+    } else {
+      // Landscape: cover fill anchored to focal point (keeps heads visible)
+      // Focal Y ~38% from top of image (where faces/key content sits)
+      const s=Math.max(cv.width/iw, cv.height/ih);
+      const dw=iw*s, dh=ih*s;
+      const dx=(cv.width-dw)/2;
+      // Anchor crop so image focal point maps to screen focal point
+      const imgFocalY=ih*0.38;
+      const scrFocalY=cv.height*0.42;
+      let dy=scrFocalY-imgFocalY*s;
+      // Clamp so we don't show empty space
+      dy=Math.min(0, Math.max(cv.height-dh, dy));
+      ctx.drawImage(im,dx,dy,dw,dh);
+    }
   };
   if(ra&&ra.complete&&ra.naturalWidth){ drawCover(ra); }
   else if(sc.art){ const fim=SPR[sc.art]; if(fim&&fim.complete) drawCover(fim); }
